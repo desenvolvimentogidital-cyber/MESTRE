@@ -1,0 +1,182 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "companyName": { "type": "string" },
+        "phone": { "type": "string" },
+        "address": { "type": "string" },
+        "emailContact": { "type": "string" },
+        "instagram": { "type": "string" },
+        "quoteTerms": { "type": "string" },
+        "osTerms": { "type": "string" },
+        "role": { "type": "string" }
+      }
+    },
+    "Client": {
+      "title": "Client",
+      "description": "Customer information",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "whatsapp": { "type": "string" },
+        "document": { "type": "string" },
+        "email": { "type": "string" },
+        "address": { "type": "string" },
+        "neighborhood": { "type": "string" },
+        "city": { "type": "string" },
+        "zipCode": { "type": "string" },
+        "observations": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "InventoryItem": {
+      "title": "InventoryItem",
+      "description": "Stock items",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "quantity": { "type": "number" },
+        "minQuantity": { "type": "number" },
+        "costPrice": { "type": "number" },
+        "salePrice": { "type": "number" },
+        "code": { "type": "string" },
+        "supplier": { "type": "string" }
+      }
+    },
+    "Quote": {
+      "title": "Quote",
+      "description": "Service quotes",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "clientId": { "type": "string" },
+        "clientName": { "type": "string" },
+        "items": { "type": "array" },
+        "totalValue": { "type": "number" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "validUntil": { "type": "string", "format": "date" }
+      }
+    },
+    "OS": {
+      "title": "OS",
+      "description": "Service Orders",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "clientId": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "totalValue": { "type": "number" },
+        "items": { "type": "array" },
+        "signature": { "type": "string" }
+      }
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Financial records",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "type": { "type": "string", "enum": ["INCOME", "EXPENSE"] },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "amount": { "type": "number" },
+        "date": { "type": "string", "format": "date-time" },
+        "paymentMethod": { "type": "string" },
+        "isPaid": { "type": "boolean" }
+      }
+    },
+    "TeamMember": {
+      "title": "TeamMember",
+      "description": "Employees and staff",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string" },
+        "phone": { "type": "string" },
+        "status": { "type": "string", "enum": ["active", "inactive"] }
+      }
+    },
+    "Service": {
+      "title": "Service",
+      "description": "Catalog of services offered",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "category": { "type": "string" },
+        "price": { "type": "number" },
+        "time": { "type": "string" },
+        "status": { "type": "string" }
+      }
+    },
+    "Material": {
+      "title": "Material",
+      "description": "Catalog of materials",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "unit": { "type": "string" },
+        "price": { "type": "number" },
+        "category": { "type": "string" },
+        "status": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "users": {
+      "schema": "User",
+      "description": "System users"
+    },
+    "clients": {
+      "schema": "Client",
+      "description": "Clients collection"
+    },
+    "inventory": {
+      "schema": "InventoryItem",
+      "description": "Inventory collection"
+    },
+    "quotes": {
+      "schema": "Quote",
+      "description": "Quotes collection"
+    },
+    "osList": {
+      "schema": "OS",
+      "description": "Service orders collection"
+    },
+    "transactions": {
+      "schema": "Transaction",
+      "description": "Financial transactions"
+    },
+    "team": {
+      "schema": "TeamMember",
+      "description": "Team members"
+    },
+    "services": {
+      "schema": "Service",
+      "description": "Services catalog"
+    },
+    "materials": {
+      "schema": "Material",
+      "description": "Materials catalog"
+    },
+    "notifications": {
+      "schema": "object",
+      "description": "System notifications"
+    }
+  }
+}

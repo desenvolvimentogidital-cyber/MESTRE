@@ -1,0 +1,182 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- GLOBAL SAFETY NET ---
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- SHARED HELPERS ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- VALIDATION BLUEPRINTS ---
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['id', 'name', 'email']) &&
+             data.keys().size() >= 3 &&
+             data.id is string && data.id.size() <= 128 &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
+             data.email is string && data.email.size() > 0 && data.email.size() <= 200;
+    }
+
+    function isValidClient(data) {
+      return data.keys().hasAll(['id', 'userId', 'name', 'phone']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
+             data.phone is string && data.phone.size() <= 30;
+    }
+
+    function isValidInventoryItem(data) {
+      return data.keys().hasAll(['id', 'userId', 'name', 'quantity']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
+             data.quantity is number;
+    }
+
+    function isValidTransaction(data) {
+      return data.keys().hasAll(['id', 'userId', 'type', 'amount', 'date']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.type in ['INCOME', 'EXPENSE'] &&
+             data.amount is number &&
+             data.date is string;
+    }
+
+    function isValidQuote(data) {
+      return data.keys().hasAll(['id', 'userId', 'clientId', 'totalValue', 'status']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.clientId is string &&
+             data.totalValue is number &&
+             data.status is string;
+    }
+
+    function isValidOS(data) {
+      return data.keys().hasAll(['id', 'userId', 'clientId', 'status']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.clientId is string &&
+             data.status is string;
+    }
+
+    function isValidService(data) {
+      return data.keys().hasAll(['id', 'userId', 'name', 'price']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.name is string && data.name.size() > 0 &&
+             data.price is number;
+    }
+
+    function isValidMaterial(data) {
+      return data.keys().hasAll(['id', 'userId', 'name', 'price']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.name is string && data.name.size() > 0 &&
+             data.price is number;
+    }
+
+    function isValidNotification(data) {
+      return data.keys().hasAll(['id', 'userId', 'title', 'read']) &&
+             data.id is string && data.id.size() <= 128 &&
+             data.userId == request.auth.uid &&
+             data.title is string && data.title.size() > 0 &&
+             data.read is bool;
+    }
+
+    function isImmutable(field) {
+      return !(field in incoming().diff(existing()).affectedKeys());
+    }
+
+    // --- MATCH BLOCKS ---
+
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow create: if isOwner(userId) && isValidId(userId) && isValidUser(incoming());
+      allow update: if isOwner(userId) && isValidId(userId) && isValidUser(incoming()) && isImmutable('id');
+    }
+
+    match /clients/{clientId} {
+      allow get, delete: if isSignedIn() && isValidId(clientId) && isOwner(existing().userId);
+      allow list: if isSignedIn() && isOwner(resource.data.userId);
+      allow create: if isSignedIn() && isValidId(clientId) && isValidClient(incoming());
+      allow update: if isSignedIn() && isValidId(clientId) && isOwner(existing().userId) && isValidClient(incoming()) && isImmutable('userId');
+    }
+
+    match /inventory/{itemId} {
+      allow get, delete: if isSignedIn() && isValidId(itemId) && isOwner(existing().userId);
+      allow list: if isSignedIn() && isOwner(resource.data.userId);
+      allow create: if isSignedIn() && isValidId(itemId) && isValidInventoryItem(incoming());
+      allow update: if isSignedIn() && isValidId(itemId) && isOwner(existing().userId) && isValidInventoryItem(incoming()) && isImmutable('userId');
+    }
+
+    match /transactions/{transactionId} {
+      allow get, delete: if isSignedIn() && isValidId(transactionId) && isOwner(existing().userId);
+      allow list: if isSignedIn() && isOwner(resource.data.userId);
+      allow create: if isSignedIn() && isValidId(transactionId) && isValidTransaction(incoming());
+      allow update: if isSignedIn() && isValidId(transactionId) && isOwner(existing().userId) && isValidTransaction(incoming()) && isImmutable('userId');
+    }
+
+    match /quotes/{quoteId} {
+      allow get, delete: if isSignedIn() && isValidId(quoteId) && isOwner(existing().userId);
+      allow list: if isSignedIn() && isOwner(resource.data.userId);
+      allow create: if isSignedIn() && isValidId(quoteId) && isValidQuote(incoming());
+      allow update: if isSignedIn() && isValidId(quoteId) && isOwner(existing().userId) && isValidQuote(incoming()) && isImmutable('userId');
+    }
+
+    match /osList/{osId} {
+      allow get, delete: if isSignedIn() && isValidId(osId) && isOwner(existing().userId);
+      allow list: if isSignedIn() && isOwner(resource.data.userId);
+      allow create: if isSignedIn() && isValidId(osId) && isValidOS(incoming());
+      allow update: if isSignedIn() && isValidId(osId) && isOwner(existing().userId) && isValidOS(incoming()) && isImmutable('userId');
+    }
+
+    match /team/{memberId} {
+      allow get, delete: if isSignedIn() && isValidId(memberId) && isOwner(existing().userId);
+      allow list: if isSignedIn() && isOwner(resource.data.userId);
+      allow create: if isSignedIn() && isValidId(memberId) && isOwner(incoming().userId);
+      allow update: if isSignedIn() && isValidId(memberId) && isOwner(existing().userId) && isOwner(incoming().userId) && isImmutable('userId');
+    }
+
+    match /services/{serviceId} {
+      allow get, delete: if isSignedIn() && isValidId(serviceId) && isOwner(existing().userId);
+      allow list: if isSignedIn() && isOwner(resource.data.userId);
+      allow create: if isSignedIn() && isValidId(serviceId) && isValidService(incoming());
+      allow update: if isSignedIn() && isValidId(serviceId) && isOwner(existing().userId) && isValidService(incoming()) && isImmutable('userId');
+    }
+
+    match /materials/{materialId} {
+      allow get, delete: if isSignedIn() && isValidId(materialId) && isOwner(existing().userId);
+      allow list: if isSignedIn() && isOwner(resource.data.userId);
+      allow create: if isSignedIn() && isValidId(materialId) && isValidMaterial(incoming());
+      allow update: if isSignedIn() && isValidId(materialId) && isOwner(existing().userId) && isValidMaterial(incoming()) && isImmutable('userId');
+    }
+
+    match /notifications/{notificationId} {
+      allow get, delete: if isSignedIn() && isValidId(notificationId) && isOwner(existing().userId);
+      allow list: if isSignedIn() && isOwner(resource.data.userId);
+      allow create: if isSignedIn() && isValidId(notificationId) && isValidNotification(incoming());
+      allow update: if isSignedIn() && isValidId(notificationId) && isOwner(existing().userId) && isValidNotification(incoming()) && isImmutable('userId');
+    }
+  }
+}

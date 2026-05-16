@@ -1,0 +1,16 @@
+{
+  "name": "MESTRE SaaS",
+  "short_name": "MESTRE",
+  "description": "Sistema completo para eletricistas profissionais.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1a1a1a",
+  "theme_color": "#FACC15",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}
