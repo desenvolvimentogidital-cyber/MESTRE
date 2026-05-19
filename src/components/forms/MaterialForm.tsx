@@ -4,6 +4,7 @@ import { useStore } from '../../store/useStore';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import { VoiceInput } from '../VoiceInput';
 import { toast } from 'sonner';
 
 interface MaterialFormProps {
@@ -12,14 +13,29 @@ interface MaterialFormProps {
 }
 
 export function MaterialForm({ onSuccess, material }: MaterialFormProps) {
-  const { addMaterial, updateMaterial } = useStore();
+  const { addMaterial, updateMaterial, settings } = useStore();
   const [formData, setFormData] = useState({
     name: material?.name || '',
     unit: material?.unit || 'Unidade',
+    costPrice: material?.costPrice || 0,
     price: material?.price || 0,
     category: material?.category || '',
     status: material?.status || 'Ativo',
   });
+
+  const calculateSalePrice = (cost: number) => {
+    const tax = (settings?.productTax || 0) / 100;
+    const margin = (settings?.defaultMargin || 0) / 100;
+    // Custo -> Imposto -> Margem
+    const costWithTax = cost * (1 + tax);
+    return costWithTax * (1 + margin);
+  };
+
+  const handleCostChange = (val: string) => {
+    const cost = Number(val);
+    const salePrice = calculateSalePrice(cost);
+    setFormData(prev => ({ ...prev, costPrice: cost, price: Number(salePrice.toFixed(2)) }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +65,10 @@ export function MaterialForm({ onSuccess, material }: MaterialFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4 pt-4">
       <div className="space-y-2">
-        <Label htmlFor="name">Nome do Material</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="name">Nome do Material</Label>
+          <VoiceInput onTranscript={(text) => setFormData({ ...formData, name: (formData.name ? formData.name + ' ' : '') + text })} />
+        </div>
         <Input 
           id="name" 
           value={formData.name} 
@@ -60,7 +79,10 @@ export function MaterialForm({ onSuccess, material }: MaterialFormProps) {
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="category">Categoria</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="category">Categoria</Label>
+            <VoiceInput onTranscript={(text) => setFormData({ ...formData, category: (formData.category ? formData.category + ' ' : '') + text })} />
+          </div>
           <Input 
             id="category" 
             value={formData.category} 
@@ -78,14 +100,27 @@ export function MaterialForm({ onSuccess, material }: MaterialFormProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="price">Preço Unitário (R$)</Label>
+          <Label htmlFor="costPrice">Preço de Custo (R$)</Label>
+          <Input 
+            id="costPrice" 
+            type="number"
+            step="0.01"
+            value={formData.costPrice === 0 ? '' : formData.costPrice} 
+            onChange={(e) => handleCostChange(e.target.value)} 
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="price">Preço de Venda (R$)</Label>
           <Input 
             id="price" 
             type="number"
             step="0.01"
-            value={formData.price} 
+            value={formData.price === 0 ? '' : formData.price} 
             onChange={(e) => setFormData({ ...formData, price: Number(e.target.value) })} 
           />
+          <p className="text-[10px] text-muted-foreground mt-1">
+            Imposto: {settings?.productTax || 0}% + Margem: {settings?.defaultMargin || 0}%
+          </p>
         </div>
         <div className="space-y-2">
           <Label htmlFor="status">Status</Label>

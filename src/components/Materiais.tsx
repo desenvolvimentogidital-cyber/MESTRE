@@ -23,6 +23,7 @@ import {
   DialogTitle,
 } from './ui/dialog';
 import { MaterialForm } from './forms/MaterialForm';
+import { VoiceInput } from './VoiceInput';
 
 export function Materiais() {
   const { materials, deleteMaterial } = useStore();
@@ -85,10 +86,13 @@ export function Materiais() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input 
              placeholder="Buscar material..." 
-             className="pl-10 bg-card border-border" 
+             className="pl-10 pr-10 bg-card border-border" 
              value={searchTerm}
              onChange={(e) => setSearchTerm(e.target.value)}
           />
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 scale-75">
+            <VoiceInput onTranscript={(text) => setSearchTerm(text)} />
+          </div>
         </div>
       </div>
 

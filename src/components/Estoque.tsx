@@ -22,6 +22,7 @@ import {
   DialogTitle,
 } from './ui/dialog';
 import { InventoryForm } from './forms/InventoryForm';
+import { VoiceInput } from './VoiceInput';
 import { InventoryItem } from '../types';
 
 export function Estoque() {
@@ -107,10 +108,13 @@ export function Estoque() {
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input 
           placeholder="Buscar material..." 
-          className="pl-10 bg-card" 
+          className="pl-10 pr-10 bg-card" 
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 scale-75">
+          <VoiceInput onTranscript={(text) => setSearchTerm(text)} />
+        </div>
       </div>
 
       <div className="border border-border rounded-2xl bg-card overflow-hidden">

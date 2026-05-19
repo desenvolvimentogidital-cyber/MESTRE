@@ -37,6 +37,7 @@ import {
   DialogTitle,
 } from './ui/dialog';
 import { ClientForm } from './forms/ClientForm';
+import { VoiceInput } from './VoiceInput';
 import { Client } from '../types';
 
 export function Clientes() {
@@ -100,10 +101,13 @@ export function Clientes() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input 
             placeholder="Buscar por nome ou CPF/CNPJ..." 
-            className="pl-10 bg-card"
+            className="pl-10 pr-10 bg-card"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 scale-75">
+            <VoiceInput onTranscript={(text) => setSearchTerm(text)} />
+          </div>
         </div>
         <Button variant="outline" className="flex items-center gap-2">
           <Filter className="w-4 h-4" />
@@ -171,7 +175,7 @@ export function Clientes() {
                       <DropdownMenuContent align="end" className="bg-card border-primary/20">
                         <DropdownMenuItem 
                           className="flex items-center gap-2 cursor-pointer"
-                          onSelect={() => handleEditClient(client)}
+                          onClick={() => handleEditClient(client)}
                         >
                           <Edit2 className="w-4 h-4" /> Editar
                         </DropdownMenuItem>
@@ -208,6 +212,7 @@ export function Clientes() {
             </DialogTitle>
           </DialogHeader>
           <ClientForm 
+            key={editingClient?.id || 'new'}
             onSuccess={() => setIsFormOpen(false)} 
             client={editingClient}
           />

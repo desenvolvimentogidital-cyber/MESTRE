@@ -5,6 +5,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { VoiceInput } from '../VoiceInput';
 import { toast } from 'sonner';
 
 
@@ -72,7 +73,10 @@ export function AppointmentForm({ onSuccess, initialDate }: AppointmentFormProps
         </Select>
       </div>
       <div className="space-y-2">
-        <Label htmlFor="description">Descrição do Compromisso</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="description">Descrição do Compromisso</Label>
+          <VoiceInput onTranscript={(text) => setFormData({ ...formData, description: (formData.description ? formData.description + ' ' : '') + text })} />
+        </div>
         <Input 
           id="description" 
           value={formData.description} 

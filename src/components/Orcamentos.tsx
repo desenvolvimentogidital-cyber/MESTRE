@@ -26,6 +26,7 @@ import {
   DialogTitle,
 } from './ui/dialog';
 import { QuoteForm } from './forms/QuoteForm';
+import { VoiceInput } from './VoiceInput';
 import { Quote } from '../types';
 import { toast } from 'sonner';
 
@@ -40,7 +41,7 @@ const statusMap = {
 };
 
 export function Orcamentos() {
-  const { quotes, clients, deleteQuote, addQuote, updateQuote, addOS, user } = useStore();
+  const { quotes, clients, deleteQuote, addQuote, updateQuote, addOS, user, settings } = useStore();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingQuote, setEditingQuote] = useState<Quote | undefined>();
   const [searchTerm, setSearchTerm] = useState('');
@@ -82,7 +83,11 @@ export function Orcamentos() {
       
       if (user?.companyLogo) {
         try {
-          doc.addImage(user.companyLogo, 'PNG', 15, 10, 35, 35, undefined, 'FAST');
+          const logoX = settings?.logoX || 15;
+          const logoY = settings?.logoY || 10;
+          const logoW = settings?.logoWidth || 35;
+          const logoH = settings?.logoHeight || 35;
+          doc.addImage(user.companyLogo, 'PNG', logoX, logoY, logoW, logoH, undefined, 'FAST');
         } catch (e) {
           console.error("Erro ao adicionar logo ao PDF", e);
           doc.setFontSize(30);
@@ -226,18 +231,22 @@ export function Orcamentos() {
       doc.setDrawColor(229, 231, 235);
       doc.line(15, pageHeight - 40, 195, pageHeight - 40);
       
-      doc.setFontSize(9);
+      doc.setFontSize(8);
       doc.setTextColor(31, 41, 55);
       doc.setFont("helvetica", "bold");
-      doc.text("Contatos:", 15, pageHeight - 30);
+      doc.text("Dados da Empresa:", 15, pageHeight - 35);
       doc.setFont("helvetica", "normal");
-      doc.text(`WhatsApp: ${user?.phone || '(11) 99999-9999'}`, 15, pageHeight - 25);
-      doc.text(`Email: ${user?.emailContact || ''}`, 15, pageHeight - 20);
-      doc.text(`Instagram: ${user?.instagram || ''}`, 15, pageHeight - 15);
+      doc.text(`WhatsApp: ${user?.phone || ''}`, 15, pageHeight - 30);
+      doc.text(`Email: ${user?.emailContact || ''}`, 15, pageHeight - 26);
+      doc.text(`Instagram: @${user?.instagram || ''}`, 15, pageHeight - 22);
+      
+      const addrLines = doc.splitTextToSize(`Endereço: ${user?.address || ''}`, 100);
+      doc.text(addrLines, 15, pageHeight - 18);
       
       doc.setDrawColor(17, 24, 39);
-      doc.line(130, pageHeight - 25, 195, pageHeight - 25);
-      doc.text("Responsável Técnico", 143, pageHeight - 20);
+      doc.line(130, pageHeight - 30, 195, pageHeight - 30);
+      doc.setFontSize(9);
+      doc.text("Responsável Técnico", 143, pageHeight - 25);
   
       doc.save(`orcamento_${quote.id}.pdf`);
       toast.success('PDF gerado com sucesso!');
@@ -325,10 +334,13 @@ export function Orcamentos() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input 
             placeholder="Buscar por cliente ou ID..." 
-            className="pl-10 bg-card" 
+            className="pl-10 pr-10 bg-card" 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 scale-75">
+            <VoiceInput onTranscript={(text) => setSearchTerm(text)} />
+          </div>
         </div>
       </div>
 

@@ -104,6 +104,15 @@ service cloud.firestore {
              data.read is bool;
     }
 
+    function isValidSettings(data) {
+      return data.keys().hasAll(['id', 'userId', 'hourlyRate', 'defaultMargin', 'fixedTax']) &&
+             data.id is string &&
+             data.userId == request.auth.uid &&
+             data.hourlyRate is number &&
+             data.defaultMargin is number &&
+             data.fixedTax is number;
+    }
+
     function isImmutable(field) {
       return !(field in incoming().diff(existing()).affectedKeys());
     }
@@ -177,6 +186,12 @@ service cloud.firestore {
       allow list: if isSignedIn() && isOwner(resource.data.userId);
       allow create: if isSignedIn() && isValidId(notificationId) && isValidNotification(incoming());
       allow update: if isSignedIn() && isValidId(notificationId) && isOwner(existing().userId) && isValidNotification(incoming()) && isImmutable('userId');
+    }
+
+    match /settings/{settingId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidId(settingId) && isValidSettings(incoming());
+      allow update: if isSignedIn() && isValidId(settingId) && isOwner(existing().userId) && isValidSettings(incoming()) && isImmutable('userId');
     }
   }
 }

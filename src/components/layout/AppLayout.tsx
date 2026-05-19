@@ -15,11 +15,15 @@ import {
   Menu, 
   X, 
   Search,
+  Sparkles,
   Bell,
   Plus,
   User as UserIcon,
   Wrench,
-  Check
+  Check,
+  LifeBuoy,
+  Shield,
+  Calculator
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Button } from '../ui/button';
@@ -53,6 +57,10 @@ const sidebarLinks = [
   { name: 'Financeiro', icon: DollarSign, path: '/financeiro' },
   { name: 'Estoque', icon: Package, path: '/estoque' },
   { name: 'Relatórios', icon: BarChart3, path: '/relatorios' },
+  { name: 'Dimensionamentos', icon: Calculator, path: '/dimensionamentos', comingSoon: true },
+  { name: 'Planos', icon: Sparkles, path: '/planos' },
+  { name: 'Suporte', icon: LifeBuoy, path: '/suporte' },
+  { name: 'Privacidade', icon: Shield, path: '/privacidade' },
   { name: 'Configurações', icon: Settings, path: '/configuracoes' },
 ];
 
@@ -62,6 +70,13 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, notifications, markNotificationRead, clearNotifications } = useStore();
 
   const unreadCount = notifications.filter(n => !n.read).length;
+
+  const filteredLinks = sidebarLinks.filter(link => {
+    if (user?.role === 'membro') {
+      return ['Dashboard', 'Clientes', 'Ordens de Serviço', 'Agenda', 'Dimensionamentos', 'Suporte', 'Privacidade'].includes(link.name);
+    }
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-background text-foreground flex">
@@ -93,8 +108,34 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
           {/* Navigation */}
           <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
-            {sidebarLinks.map((link) => {
+            {filteredLinks.map((link) => {
               const isActive = location.pathname === link.path;
+              const isComingSoon = (link as any).comingSoon;
+              
+              const linkContent = (
+                <>
+                  <link.icon className="w-5 h-5 flex-shrink-0" />
+                  <span className="flex-1 truncate">{link.name}</span>
+                  {isComingSoon && (
+                    <Badge variant="secondary" className="bg-primary/20 text-primary text-[8px] px-1 py-0 h-4 border-none font-black uppercase tracking-tighter shrink-0 ring-0">
+                      BREVE
+                    </Badge>
+                  )}
+                </>
+              );
+
+              if (isComingSoon) {
+                return (
+                  <div
+                    key={link.path}
+                    className="flex items-center gap-3 px-4 py-3 text-zinc-600 cursor-not-allowed opacity-60 rounded-r-md select-none"
+                    title="Funcionalidade em desenvolvimento"
+                  >
+                    {linkContent}
+                  </div>
+                );
+              }
+
               return (
                 <Link
                   key={link.path}
@@ -107,8 +148,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                       : "text-zinc-400 hover:text-white"
                   )}
                 >
-                  <link.icon className="w-5 h-5" />
-                  <span>{link.name}</span>
+                  {linkContent}
                 </Link>
               );
             })}
@@ -172,12 +212,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
 
             <div className="flex items-center gap-2 lg:gap-4">
-              <Link to="/orcamentos">
-                <Button size="sm" className="hidden sm:flex items-center gap-2 bg-primary text-primary-foreground font-bold hover:bg-primary/90 shadow-[0_4px_20px_rgba(250,204,21,0.2)]">
-                  <Plus className="w-4 h-4" />
-                  <span>NOVO ORÇAMENTO</span>
-                </Button>
-              </Link>
+              {user?.role === 'admin' && (
+                <Link to="/orcamentos">
+                  <Button size="sm" className="hidden sm:flex items-center gap-2 bg-primary text-primary-foreground font-bold hover:bg-primary/90 shadow-[0_4px_20px_rgba(250,204,21,0.2)]">
+                    <Plus className="w-4 h-4" />
+                    <span>NOVO ORÇAMENTO</span>
+                  </Button>
+                </Link>
+              )}
               
               <DropdownMenu>
                 <DropdownMenuTrigger className={cn(

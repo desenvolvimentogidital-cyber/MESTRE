@@ -1,6 +1,6 @@
 
 import { create } from 'zustand';
-import { User, Client, InventoryItem, Quote, OS, Transaction, Event } from '../types';
+import { User, Client, InventoryItem, Quote, OS, Transaction, Event, CompanySettings } from '../types';
 import { db, auth, OperationType, handleFirestoreError } from '../lib/firebase';
 import { 
   collection, 
@@ -23,10 +23,11 @@ interface MestreState {
   osList: OS[];
   transactions: Transaction[];
   events: Event[];
-  services: { id: string; userId: string; name: string; category: string; price: number; status: string }[];
-  materials: { id: string; userId: string; name: string; unit: string; price: number; category: string; status: string }[];
+  services: { id: string; userId: string; name: string; category: string; price: number; estimatedHours?: number; status: string }[];
+  materials: { id: string; userId: string; name: string; unit: string; costPrice?: number; price: number; category: string; status: string }[];
   notifications: { id: string; userId: string; title: string; description: string; date: string; read: boolean; type: 'info' | 'warning' | 'error' }[];
-  team: { id: string; userId: string; name: string; email: string; role: string; phone: string; status: 'active' | 'inactive' }[];
+  team: { id: string; userId: string; name: string; email: string; password?: string; role: string; phone: string; status: 'active' | 'inactive' }[];
+  settings: CompanySettings | null;
   
   // Actions
   setUser: (user: User | null) => void;
@@ -67,6 +68,7 @@ interface MestreState {
   addTeamMember: (member: { id: string; name: string; email: string; role: string; phone: string; status: 'active' | 'inactive' }) => Promise<void>;
   updateTeamMember: (member: { id: string; userId: string; name: string; email: string; role: string; phone: string; status: 'active' | 'inactive' }) => Promise<void>;
   deleteTeamMember: (id: string) => Promise<void>;
+  updateSettings: (settings: Partial<CompanySettings>) => Promise<void>;
 }
 
 export const useStore = create<MestreState>((set, get) => ({
@@ -81,6 +83,7 @@ export const useStore = create<MestreState>((set, get) => ({
   materials: [],
   notifications: [],
   team: [],
+  settings: null,
 
   setUser: (user) => set({ user }),
 
@@ -101,6 +104,7 @@ export const useStore = create<MestreState>((set, get) => ({
       { name: 'materials', setter: (data: any[]) => set({ materials: data }) },
       { name: 'notifications', setter: (data: any[]) => set({ notifications: data }) },
       { name: 'team', setter: (data: any[]) => set({ team: data }) },
+      { name: 'settings', setter: (data: any[]) => set({ settings: data[0] || null }) },
     ];
 
     collections.forEach((col) => {
@@ -109,6 +113,11 @@ export const useStore = create<MestreState>((set, get) => ({
         const data = snapshot.docs.map(doc => ({ ...doc.data(), id: doc.id }));
         col.setter(data);
       }, (error) => {
+        // Silently handle permission errors for members on restricted collections
+        if (error.code === 'permission-denied') {
+          console.warn(`Acesso restrito à coleção: ${col.name}`);
+          return;
+        }
         handleFirestoreError(error, OperationType.GET, col.name);
       });
       unsubscibers.push(unsub);
@@ -336,6 +345,47 @@ export const useStore = create<MestreState>((set, get) => ({
       await deleteDoc(doc(db, 'team', id));
     } catch (error) {
       handleFirestoreError(error, OperationType.DELETE, `team/${id}`);
+    }
+  },
+
+  updateSettings: async (newSettings) => {
+    const user = auth.currentUser;
+    if (!user) return;
+    try {
+      const currentSettings = get().settings;
+      if (currentSettings) {
+        // Update local state immediately for better UX
+        set({ settings: { ...currentSettings, ...newSettings } });
+        await updateDoc(doc(db, 'settings', currentSettings.id), newSettings);
+      } else {
+        const id = Math.random().toString(36).substr(2, 9);
+        const fullSettings: CompanySettings = {
+          id,
+          userId: user.uid,
+          hourlyRate: 0,
+          defaultMargin: 0,
+          fixedTax: 5,
+          productTax: 0,
+          serviceTax: 0,
+          monthlyCosts: [],
+          billableHoursPerMonth: 160,
+          serviceMargin: 0,
+          timezone: 'America/Sao_Paulo',
+          currency: 'BRL',
+          logoWidth: 35,
+          logoHeight: 25,
+          logoX: 15,
+          logoY: 15,
+          plan: 'free',
+          ...newSettings as any,
+        };
+        // Update local state immediately
+        set({ settings: fullSettings });
+        await setDoc(doc(db, 'settings', id), fullSettings);
+      }
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'settings');
+      // Revert on error? The listener would revert anyway if it failed.
     }
   },
 }));

@@ -16,16 +16,18 @@ import {
 } from './ui/dialog';
 import { OSForm } from './forms/OSForm';
 import { OS } from '../types';
+import { ChatInterno } from './ChatInterno';
 
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 export function OrdensServico() {
-  const { osList, clients, deleteOS, updateOS, user } = useStore();
+  const { osList, clients, deleteOS, updateOS, user, settings } = useStore();
   const [signatureOpen, setSignatureOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingOS, setEditingOS] = useState<OS | undefined>();
   const [searchTerm, setSearchTerm] = useState('');
+  const [activeChatOS, setActiveChatOS] = useState<OS | null>(null);
 
   const getClientName = (id: string) => clients.find(c => c.id === id)?.name || 'Cliente';
 
@@ -48,7 +50,11 @@ export function OrdensServico() {
 
       if (user?.companyLogo) {
         try {
-          doc.addImage(user.companyLogo, 'PNG', 15, 10, 35, 35, undefined, 'FAST');
+          const logoX = settings?.logoX || 15;
+          const logoY = settings?.logoY || 10;
+          const logoW = settings?.logoWidth || 35;
+          const logoH = settings?.logoHeight || 35;
+          doc.addImage(user.companyLogo, 'PNG', logoX, logoY, logoW, logoH, undefined, 'FAST');
         } catch (e) {
           console.error("Erro ao adicionar logo ao PDF", e);
           doc.setFontSize(30);
@@ -146,16 +152,20 @@ export function OrdensServico() {
       doc.setFont("helvetica", "bold");
       doc.text("Itens/Produtos Utilizados", 22, tableStartY + 7);
   
-      const tableData = os.items.map(item => [
-        item.description,
-        item.quantity,
-        `R$ ${item.unitValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
-        `R$ ${item.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-      ]);
+      const isAdmin = user?.role === 'admin';
+  
+      const tableData = os.items.map(item => {
+        const row = [item.description, item.quantity];
+        if (isAdmin) {
+          row.push(`R$ ${item.unitValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+          row.push(`R$ ${item.total.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`);
+        }
+        return row;
+      });
   
       autoTable(doc, {
         startY: tableStartY + 15,
-        head: [['Item/Serviço', 'Qtd', 'Unitário', 'Total']],
+        head: [isAdmin ? ['Item/Serviço', 'Qtd', 'Unitário', 'Total'] : ['Item/Serviço', 'Qtd']],
         body: tableData,
         headStyles: { fillColor: [17, 24, 39], fontSize: 10, cellPadding: 4 },
         bodyStyles: { fontSize: 9, cellPadding: 4 },
@@ -163,26 +173,35 @@ export function OrdensServico() {
         margin: { left: 15, right: 15 }
       });
   
-      // Total Box
-      const finalY = (doc as any).lastAutoTable?.finalY || 200;
-      doc.setFillColor(17, 24, 39);
-      doc.roundedRect(120, finalY + 10, 75, 20, 3, 3, 'F');
-      
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(11);
-      doc.setFont("helvetica", "bold");
-      doc.text("TOTAL", 125, finalY + 22);
-      
-      doc.setTextColor(250, 204, 21);
-      doc.setFontSize(16);
-      doc.text(`R$ ${os.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 190, finalY + 23, { align: 'right' });
+      // Total Box (only for admin)
+      if (isAdmin) {
+        const finalY = (doc as any).lastAutoTable?.finalY || 200;
+        doc.setFillColor(17, 24, 39);
+        doc.roundedRect(120, finalY + 10, 75, 20, 3, 3, 'F');
+        
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        doc.text("TOTAL", 125, finalY + 22);
+        
+        doc.setTextColor(250, 204, 21);
+        doc.setFontSize(16);
+        doc.text(`R$ ${os.totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`, 190, finalY + 23, { align: 'right' });
+      }
   
       // Footer / Signature
       const pageHeight = doc.internal.pageSize.height;
       doc.setFontSize(8);
       doc.setTextColor(100, 100, 100);
-      doc.text(user?.osTerms || "Este documento é uma Ordem de Serviço eletrônica.", 15, pageHeight - 15);
+      doc.text(user?.osTerms || "Este documento é uma Ordem de Serviço eletrônica.", 15, pageHeight - 45);
       
+      doc.setFontSize(8);
+      doc.setTextColor(31, 41, 55);
+      doc.text(`Contato: ${user?.phone || ''} | Instagram: @${user?.instagram || ''}`, 15, pageHeight - 38);
+      
+      const addrLinesOS = doc.splitTextToSize(`Endereço: ${user?.address || ''}`, 100);
+      doc.text(addrLinesOS, 15, pageHeight - 34);
+
       doc.setDrawColor(17, 24, 39);
       doc.line(125, pageHeight - 30, 195, pageHeight - 30);
       doc.setFontSize(9);
@@ -302,6 +321,7 @@ export function OrdensServico() {
                  
                  <div className="pt-4 border-t border-primary/10 flex justify-between items-center">
                     <div className="flex gap-2">
+                       <Button variant="ghost" size="sm" className="text-xs hover:text-primary transition-colors" onClick={() => setActiveChatOS(os)}>Chat</Button>
                        <Button variant="ghost" size="sm" className="text-xs hover:text-primary transition-colors" onClick={() => handleDownload(os)}>
                          <Download className="w-3 h-3 mr-1" /> PDF
                        </Button>
@@ -322,15 +342,17 @@ export function OrdensServico() {
                            <CheckCircle2 className="w-4 h-4" />
                          </Button>
                        )}
-                       <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-8 w-8 text-destructive hover:bg-destructive/10"
-                          onClick={() => handleDeleteOS(os.id)}
-                          title="Excluir"
-                       >
-                         <Trash2 className="w-4 h-4" />
-                       </Button>
+                       {user?.role === 'admin' && (
+                         <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-8 w-8 text-destructive hover:bg-destructive/10"
+                            onClick={() => handleDeleteOS(os.id)}
+                            title="Excluir"
+                         >
+                           <Trash2 className="w-4 h-4" />
+                         </Button>
+                       )}
                     </div>
                  </div>
               </CardContent>
@@ -344,6 +366,15 @@ export function OrdensServico() {
         onClose={() => setSignatureOpen(false)} 
         onSave={(sig) => console.log('Assinatura salva:', sig)} 
       />
+
+      <Dialog open={!!activeChatOS} onOpenChange={() => setActiveChatOS(null)}>
+        <DialogContent className="max-w-md bg-card border-primary/20">
+          <DialogHeader>
+            <DialogTitle>Chat da Ordem de Serviço</DialogTitle>
+          </DialogHeader>
+          {activeChatOS && <ChatInterno os={activeChatOS} />}
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="max-w-3xl bg-card border-primary/20">

@@ -12,7 +12,15 @@ export type User = {
   instagram?: string;
   quoteTerms?: string;
   osTerms?: string;
-  role: 'admin' | 'user';
+  role: 'admin' | 'membro';
+};
+
+export type Message = {
+  id: string;
+  senderId: string;
+  senderName: string;
+  text: string;
+  timestamp: string;
 };
 
 export type Client = {
@@ -95,6 +103,7 @@ export type OS = {
   location?: string;
   items: QuoteItem[];
   totalValue: number;
+  internalMessages?: Message[];
   createdAt: string;
 };
 
@@ -122,4 +131,30 @@ export type Event = {
   type: 'SERVICE' | 'RETURN' | 'VISIT';
   status: OSStatus;
   clientId?: string;
+};
+
+export type CostItem = {
+  id: string;
+  name: string;
+  value: number;
+};
+
+export type CompanySettings = {
+  id: string;
+  userId: string;
+  hourlyRate: number;
+  defaultMargin: number;
+  fixedTax: number;
+  productTax: number;
+  serviceTax: number;
+  monthlyCosts: CostItem[];
+  billableHoursPerMonth: number;
+  serviceMargin: number;
+  timezone?: string;
+  currency?: string;
+  logoWidth?: number;
+  logoHeight?: number;
+  logoX?: number;
+  logoY?: number;
+  plan?: 'free' | 'pro' | 'premium';
 };

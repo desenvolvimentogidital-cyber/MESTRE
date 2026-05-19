@@ -4,6 +4,7 @@ import { useStore } from '../../store/useStore';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
+import { VoiceInput } from '../VoiceInput';
 import { toast } from 'sonner';
 import { InventoryItem } from '../../types';
 
@@ -56,7 +57,10 @@ export function InventoryForm({ onSuccess, item }: InventoryFormProps) {
     <form onSubmit={handleSubmit} className="space-y-4 pt-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2 col-span-2">
-          <Label htmlFor="name">Nome do Material/Ferramenta</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="name">Nome do Material/Ferramenta</Label>
+            <VoiceInput onTranscript={(text) => setFormData({ ...formData, name: (formData.name ? formData.name + ' ' : '') + text })} />
+          </div>
           <Input 
             id="name" 
             value={formData.name} 
@@ -66,7 +70,10 @@ export function InventoryForm({ onSuccess, item }: InventoryFormProps) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="category">Categoria</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="category">Categoria</Label>
+            <VoiceInput onTranscript={(text) => setFormData({ ...formData, category: (formData.category ? formData.category + ' ' : '') + text })} />
+          </div>
           <Input 
             id="category" 
             value={formData.category} 
@@ -88,7 +95,7 @@ export function InventoryForm({ onSuccess, item }: InventoryFormProps) {
           <Input 
             id="quantity" 
             type="number"
-            value={formData.quantity} 
+            value={formData.quantity === 0 ? '' : formData.quantity} 
             onChange={(e) => setFormData({ ...formData, quantity: Number(e.target.value) })} 
           />
         </div>
@@ -97,7 +104,7 @@ export function InventoryForm({ onSuccess, item }: InventoryFormProps) {
           <Input 
             id="minQuantity" 
             type="number"
-            value={formData.minQuantity} 
+            value={formData.minQuantity === 0 ? '' : formData.minQuantity} 
             onChange={(e) => setFormData({ ...formData, minQuantity: Number(e.target.value) })} 
           />
         </div>
@@ -107,7 +114,7 @@ export function InventoryForm({ onSuccess, item }: InventoryFormProps) {
             id="costPrice" 
             type="number"
             step="0.01"
-            value={formData.costPrice} 
+            value={formData.costPrice === 0 ? '' : formData.costPrice} 
             onChange={(e) => setFormData({ ...formData, costPrice: Number(e.target.value) })} 
           />
         </div>
@@ -117,12 +124,15 @@ export function InventoryForm({ onSuccess, item }: InventoryFormProps) {
             id="salePrice" 
             type="number"
             step="0.01"
-            value={formData.salePrice} 
+            value={formData.salePrice === 0 ? '' : formData.salePrice} 
             onChange={(e) => setFormData({ ...formData, salePrice: Number(e.target.value) })} 
           />
         </div>
         <div className="space-y-2 col-span-2">
-          <Label htmlFor="supplier">Fornecedor</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="supplier">Fornecedor</Label>
+            <VoiceInput onTranscript={(text) => setFormData({ ...formData, supplier: (formData.supplier ? formData.supplier + ' ' : '') + text })} />
+          </div>
           <Input 
             id="supplier" 
             value={formData.supplier} 

@@ -7,6 +7,7 @@ import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Checkbox } from '../ui/checkbox';
+import { VoiceInput } from '../VoiceInput';
 import { toast } from 'sonner';
 import { OS, OSStatus } from '../../types';
 
@@ -109,7 +110,10 @@ export function OSForm({ onSuccess, os }: OSFormProps) {
           </Select>
         </div>
         <div className="space-y-2 col-span-2">
-          <Label htmlFor="description">Descrição do Problema/Serviço</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="description">Descrição do Problema/Serviço</Label>
+            <VoiceInput onTranscript={(text) => setFormData({ ...formData, description: (formData.description ? formData.description + ' ' : '') + text })} />
+          </div>
           <Textarea 
             id="description" 
             value={formData.description} 
@@ -159,7 +163,10 @@ export function OSForm({ onSuccess, os }: OSFormProps) {
       </div>
 
       <div className="space-y-2">
-         <Label htmlFor="notes">Notas Técnicas</Label>
+         <div className="flex items-center justify-between">
+            <Label htmlFor="notes">Notas Técnicas</Label>
+            <VoiceInput onTranscript={(text) => setFormData({ ...formData, technicalNotes: (formData.technicalNotes ? formData.technicalNotes + ' ' : '') + text })} />
+         </div>
          <Textarea 
           id="notes" 
           value={formData.technicalNotes} 

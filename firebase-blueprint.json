@@ -177,6 +177,10 @@
     "notifications": {
       "schema": "object",
       "description": "System notifications"
+    },
+    "settings": {
+      "schema": "object",
+      "description": "Company settings"
     }
   }
 }

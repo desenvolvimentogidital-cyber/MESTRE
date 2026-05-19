@@ -23,6 +23,7 @@ import {
   DialogTitle,
 } from './ui/dialog';
 import { ServiceForm } from './forms/ServiceForm';
+import { VoiceInput } from './VoiceInput';
 
 export function Servicos() {
   const { services, deleteService } = useStore();
@@ -85,10 +86,13 @@ export function Servicos() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input 
              placeholder="Buscar serviço..." 
-             className="pl-10 bg-card border-border" 
+             className="pl-10 pr-10 bg-card border-border" 
              value={searchTerm}
              onChange={(e) => setSearchTerm(e.target.value)}
           />
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 scale-75">
+            <VoiceInput onTranscript={(text) => setSearchTerm(text)} />
+          </div>
         </div>
       </div>
 

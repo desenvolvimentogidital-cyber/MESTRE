@@ -6,6 +6,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Switch } from '../ui/switch';
+import { VoiceInput } from '../VoiceInput';
 import { toast } from 'sonner';
 import { Transaction, TransactionType, TransactionCategory } from '../../types';
 
@@ -71,7 +72,10 @@ export function TransactionForm({ onSuccess, transaction }: TransactionFormProps
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2 col-span-2">
-          <Label htmlFor="desc">Descrição</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="desc">Descrição</Label>
+            <VoiceInput onTranscript={(text) => setFormData({ ...formData, description: (formData.description ? formData.description + ' ' : '') + text })} />
+          </div>
           <Input 
             id="desc" 
             value={formData.description} 
@@ -105,7 +109,7 @@ export function TransactionForm({ onSuccess, transaction }: TransactionFormProps
             id="amount" 
             type="number"
             step="0.01"
-            value={formData.amount} 
+            value={formData.amount === 0 ? '' : formData.amount} 
             onChange={(e) => setFormData({ ...formData, amount: Number(e.target.value) })} 
           />
         </div>

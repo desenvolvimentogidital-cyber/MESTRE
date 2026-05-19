@@ -19,6 +19,10 @@ import { Financeiro } from './components/Financeiro';
 import { Estoque } from './components/Estoque';
 import { Relatorios } from './components/Relatorios';
 import { Configuracoes } from './components/Configuracoes';
+import { Suporte } from './components/Suporte';
+import { Privacidade } from './components/Privacidade';
+import { Planos } from './components/Planos';
+import { Dimensionamentos } from './components/Dimensionamentos';
 import { Servicos } from './components/Servicos';
 import { Materiais } from './components/Materiais';
 import { auth, db } from './lib/firebase';
@@ -117,6 +121,10 @@ export default function App() {
               <Route path="/financeiro" element={<Financeiro />} />
               <Route path="/estoque" element={<Estoque />} />
               <Route path="/relatorios" element={<Relatorios />} />
+              <Route path="/dimensionamentos" element={<Dimensionamentos />} />
+              <Route path="/planos" element={<Planos />} />
+              <Route path="/suporte" element={<Suporte />} />
+              <Route path="/privacidade" element={<Privacidade />} />
               <Route path="/configuracoes" element={<Configuracoes />} />
               <Route path="/servicos" element={<Servicos />} />
               <Route path="/materiais" element={<Materiais />} />

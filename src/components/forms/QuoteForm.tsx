@@ -6,7 +6,8 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Plus, Trash2, Calculator } from 'lucide-react';
+import { Plus, Trash2, Calculator, Mic } from 'lucide-react';
+import { VoiceInput } from '../VoiceInput';
 import { toast } from 'sonner';
 import { Quote, QuoteItem, QuoteStatus } from '../../types';
 
@@ -151,7 +152,10 @@ export function QuoteForm({ onSuccess, quote }: QuoteFormProps) {
           </Select>
         </div>
         <div className="space-y-2 col-span-2">
-          <Label htmlFor="description">Descrição do Serviço</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="description">Descrição do Serviço</Label>
+            <VoiceInput onTranscript={(text) => setFormData({ ...formData, description: (formData.description ? formData.description + ' ' : '') + text })} />
+          </div>
           <Textarea 
             id="description" 
             value={formData.description} 
@@ -193,32 +197,35 @@ export function QuoteForm({ onSuccess, quote }: QuoteFormProps) {
                 </div>
                 <div className="col-span-12 sm:col-span-9">
                   <Label className="text-[10px] mb-1 block">Item do Catálogo / Descrição</Label>
-                  <div className="flex gap-2">
-                    <Select 
-                      onValueChange={(val) => updateItem(item.id, 'description', val)}
-                    >
-                      <SelectTrigger className="h-9 bg-background flex-1">
-                        <SelectValue placeholder={`Escolher ${item.type === 'service' ? 'serviço' : 'material'}...`} />
-                      </SelectTrigger>
-                      <SelectContent className="bg-card">
-                        {item.type === 'service' ? (
-                          services.map(s => (
-                            <SelectItem key={s.id} value={s.id}>{s.name} (R$ {s.price})</SelectItem>
-                          ))
-                        ) : (
-                          materials.map(m => (
-                            <SelectItem key={m.id} value={m.id}>{m.name} (R$ {m.price})</SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
-                    <Input 
-                      value={item.description} 
-                      onChange={(e) => updateItem(item.id, 'description', e.target.value)}
-                      placeholder="Ou digite manualmente..."
-                      className="h-9 flex-1"
-                    />
-                  </div>
+                    <div className="flex flex-col flex-1 gap-2">
+                      <div className="flex items-center gap-2">
+                        <Select 
+                          onValueChange={(val) => updateItem(item.id, 'description', val)}
+                        >
+                          <SelectTrigger className="h-9 bg-background flex-1">
+                            <SelectValue placeholder={`Escolher ${item.type === 'service' ? 'serviço' : 'material'}...`} />
+                          </SelectTrigger>
+                          <SelectContent className="bg-card">
+                            {item.type === 'service' ? (
+                              services.map(s => (
+                                <SelectItem key={s.id} value={s.id}>{s.name} (R$ {s.price})</SelectItem>
+                              ))
+                            ) : (
+                              materials.map(m => (
+                                <SelectItem key={m.id} value={m.id}>{m.name} (R$ {m.price})</SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                        <VoiceInput onTranscript={(text) => updateItem(item.id, 'description', (item.description ? item.description + ' ' : '') + text)} />
+                      </div>
+                      <Input 
+                        value={item.description} 
+                        onChange={(e) => updateItem(item.id, 'description', e.target.value)}
+                        placeholder="Ou digite manualmente..."
+                        className="h-9 flex-1"
+                      />
+                    </div>
                 </div>
               </div>
 
@@ -227,7 +234,7 @@ export function QuoteForm({ onSuccess, quote }: QuoteFormProps) {
                   <Label className="text-[10px] mb-1 block">Qtd</Label>
                   <Input 
                     type="number"
-                    value={item.quantity} 
+                    value={item.quantity === 0 ? '' : item.quantity} 
                     onChange={(e) => updateItem(item.id, 'quantity', Number(e.target.value))}
                     className="h-9"
                   />
@@ -237,7 +244,7 @@ export function QuoteForm({ onSuccess, quote }: QuoteFormProps) {
                   <Input 
                     type="number"
                     step="0.01"
-                    value={item.unitValue} 
+                    value={item.unitValue === 0 ? '' : item.unitValue} 
                     onChange={(e) => updateItem(item.id, 'unitValue', Number(e.target.value))}
                     className="h-9"
                   />
@@ -269,7 +276,7 @@ export function QuoteForm({ onSuccess, quote }: QuoteFormProps) {
           <Label className="text-xs">Mão de Obra (R$)</Label>
           <Input 
             type="number"
-            value={formData.laborValue} 
+            value={formData.laborValue === 0 ? '' : formData.laborValue} 
             onChange={(e) => setFormData({ ...formData, laborValue: Number(e.target.value) })}
           />
         </div>
@@ -277,7 +284,7 @@ export function QuoteForm({ onSuccess, quote }: QuoteFormProps) {
           <Label className="text-xs">Deslocamento (R$)</Label>
           <Input 
             type="number"
-            value={formData.shippingValue} 
+            value={formData.shippingValue === 0 ? '' : formData.shippingValue} 
             onChange={(e) => setFormData({ ...formData, shippingValue: Number(e.target.value) })}
           />
         </div>
@@ -285,7 +292,7 @@ export function QuoteForm({ onSuccess, quote }: QuoteFormProps) {
           <Label className="text-xs">Desconto (R$)</Label>
           <Input 
             type="number"
-            value={formData.discount} 
+            value={formData.discount === 0 ? '' : formData.discount} 
             onChange={(e) => setFormData({ ...formData, discount: Number(e.target.value) })}
           />
         </div>

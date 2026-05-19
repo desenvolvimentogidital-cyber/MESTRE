@@ -5,6 +5,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
+import { VoiceInput } from '../VoiceInput';
 import { toast } from 'sonner';
 import { Client } from '../../types';
 
@@ -60,7 +61,10 @@ export function ClientForm({ onSuccess, client }: ClientFormProps) {
     <form onSubmit={handleSubmit} className="space-y-4 pt-4">
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2 col-span-2">
-          <Label htmlFor="name">Nome Completo</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="name">Nome Completo</Label>
+            <VoiceInput onTranscript={(text) => setFormData({ ...formData, name: (formData.name ? formData.name + ' ' : '') + text })} />
+          </div>
           <Input 
             id="name" 
             value={formData.name} 
@@ -107,7 +111,10 @@ export function ClientForm({ onSuccess, client }: ClientFormProps) {
           />
         </div>
         <div className="space-y-2 col-span-2">
-          <Label htmlFor="address">Endereço</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="address">Endereço</Label>
+            <VoiceInput onTranscript={(text) => setFormData({ ...formData, address: (formData.address ? formData.address + ' ' : '') + text })} />
+          </div>
           <Input 
             id="address" 
             value={formData.address} 
@@ -132,7 +139,10 @@ export function ClientForm({ onSuccess, client }: ClientFormProps) {
           />
         </div>
         <div className="space-y-2 col-span-2">
-          <Label htmlFor="observations">Observações</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="observations">Observações</Label>
+            <VoiceInput onTranscript={(text) => setFormData({ ...formData, observations: (formData.observations ? formData.observations + ' ' : '') + text })} />
+          </div>
           <Textarea 
             id="observations" 
             value={formData.observations} 
