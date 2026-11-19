@@ -9,6 +9,7 @@ function AccessForm() {
   const router = useRouter();
   const params = useSearchParams();
   const initialType = params.get("tipo") === "prestador" ? "provider" : "client";
+  const configError = params.get("erro") === "configuracao";
   const [type, setType] = useState<"client" | "provider">(initialType);
   const [mode, setMode] = useState<"login" | "signup">("signup");
   const [name, setName] = useState("");
@@ -23,6 +24,8 @@ function AccessForm() {
     setMessage("");
     try {
       const supabase = createClient();
+      const requestedPath = params.get("redirectTo");
+      const nextPath = requestedPath?.startsWith("/") && !requestedPath.startsWith("//") ? requestedPath : "/painel";
       if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
           email: email.trim(),
@@ -31,7 +34,7 @@ function AccessForm() {
         });
         if (error) throw error;
         if (data.session) {
-          router.replace("/painel");
+          router.replace(nextPath);
           router.refresh();
         } else {
           setMessage("Cadastro iniciado! Enviamos um link de confirmação para seu e-mail. Confirme para acessar sua conta.");
@@ -59,6 +62,7 @@ function AccessForm() {
         <div className="access-kicker">BEM-VINDO AO MESTRE</div>
         <h1>{mode === "signup" ? "Crie sua conta" : "Que bom ter você de volta"}</h1>
         <p className="access-sub">{mode === "signup" ? "Comece gratuitamente. Escolha como quer participar." : "Entre para continuar usando a plataforma."}</p>
+        {configError && <p className="access-message" role="alert">O Mestre está temporariamente sem conexão com o banco de dados. A equipe precisa configurar as variáveis do Supabase na hospedagem. Seus dados não foram apagados; tente novamente mais tarde.</p>}
         {mode === "signup" && (
           <div className="type-switch">
             <button type="button" className={type === "client" ? "type-active" : ""} onClick={() => setType("client")}>🏡 Sou cliente</button>
