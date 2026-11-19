@@ -25,11 +25,12 @@ export default async function ClientHomePage() {
   const categoryIds = Array.from(new Set(requests.map((item) => item.category_id)));
   let categoryNames: Record<string, string> = {};
   if (categoryIds.length > 0) {
-    const { data: categories } = await supabase
+    const { data: categoryData } = await supabase
       .from("service_categories")
       .select("id, name")
       .in("id", categoryIds);
-    categoryNames = Object.fromEntries((categories ?? []).map((item) => [item.id, item.name])) as Record<string, string>;
+    const categories = (categoryData ?? []) as unknown as Array<{ id: string; name: string }>;
+    categoryNames = Object.fromEntries(categories.map((item) => [item.id, item.name]));
   }
 
   return (
