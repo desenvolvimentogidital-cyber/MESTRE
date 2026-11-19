@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-const statusLabels: Record<string, string> = {
+type ClientRequest = { id: string; category_id: string; title: string; description: string; city: string; state: string; status: string; created_at: string };\n\nconst statusLabels: Record<string, string> = {
   draft: "Rascunho",
   published: "Publicado",
   in_progress: "Em andamento",
@@ -21,7 +21,7 @@ export default async function ClientHomePage() {
     .eq("client_id", user.id)
     .order("created_at", { ascending: false });
 
-  const requests = data ?? [];
+  const requests = (data ?? []) as unknown as ClientRequest[];
   const categoryIds = Array.from(new Set(requests.map((item) => item.category_id)));
   let categoryNames: Record<string, string> = {};
   if (categoryIds.length > 0) {
@@ -29,7 +29,7 @@ export default async function ClientHomePage() {
       .from("service_categories")
       .select("id, name")
       .in("id", categoryIds);
-    categoryNames = Object.fromEntries((categories ?? []).map((item) => [item.id, item.name]));
+    categoryNames = Object.fromEntries((categories ?? []).map((item) => [item.id, item.name])) as Record<string, string>;
   }
 
   return (
