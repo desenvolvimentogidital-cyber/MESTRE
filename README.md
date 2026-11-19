@@ -12,7 +12,7 @@ Marketplace de serviços que conecta clientes e profissionais. Aplicação web r
 2. Copie `.env.example` para `.env.local`.
 3. Preencha as variáveis do Supabase:
    - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` (use a chave publishable do projeto)
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 4. Execute:
 
 ```bash
@@ -24,13 +24,13 @@ Abra http://localhost:3000.
 
 ## Deploy na Vercel
 1. Importe este repositório no painel da Vercel.
-2. Mantenha o framework como Next.js.
+2. Mantenha o framework como Next.js e a raiz como `./`.
 3. Configure as duas variáveis de ambiente acima em Production, Preview e Development.
 4. Faça o deploy.
 
 ## Segurança
 - Nunca adicione `.env.local`, service role key ou secret key ao Git.
-- A chave publishable/anon pode ser usada no navegador; a proteção dos dados é feita pelas políticas RLS do Supabase.
+- A chave publishable pode ser usada no navegador; a proteção dos dados é feita pelas políticas RLS do Supabase.
 - Não use dados de `user_metadata` para decisões de autorização.
 
 ## Estado atual
