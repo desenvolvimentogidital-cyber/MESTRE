@@ -25,14 +25,22 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  const { data: { user } } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    if (error) throw error;
+    user = data.user;
+  } catch {
+    if (protectedPath) {
+      return NextResponse.redirect(new URL("/acesso?erro=configuracao", request.url));
+    }
+    return response;
+  }
+
   if (protectedPath && !user) {
     const destination = new URL("/acesso", request.url);
     destination.searchParams.set("redirectTo", request.nextUrl.pathname);
     return NextResponse.redirect(destination);
-  }
-  if (request.nextUrl.pathname === "/acesso" && user) {
-    return NextResponse.redirect(new URL("/painel", request.url));
   }
   return response;
 }
