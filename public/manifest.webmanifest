@@ -1,0 +1,10 @@
+{
+  "name": "Mestre — Serviços perto de você",
+  "short_name": "Mestre",
+  "description": "Encontre profissionais e ofereça serviços.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f7f4",
+  "theme_color": "#10251f",
+  "lang": "pt-BR"
+}
