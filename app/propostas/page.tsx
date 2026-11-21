@@ -4,6 +4,7 @@ import Link from "next/link";
 import {useRouter} from "next/navigation";
 import {AppFrame,Icon} from "@/components/conectaserv-ui";
 import {createClient} from "@/lib/supabase/client";
+import {ProposalDecision} from "@/components/proposal-decision";
 
 type Proposal={
   id:string;request_id:string;provider_id:string;status:string;
@@ -21,6 +22,7 @@ export default function ProposalsPage(){
   const [view,setView]=useState<"received"|"sent">("received");
   const [received,setReceived]=useState<Proposal[]>([]);
   const [sent,setSent]=useState<Proposal[]>([]);
+  const [chats,setChats]=useState<Record<string,string>>({});
   const [busy,setBusy]=useState(true);
   const [error,setError]=useState("");
 
@@ -61,6 +63,9 @@ export default function ProposalsPage(){
           }
           if(mounted)setSent(final);
         }
+        const {data:conversations,error:convoError}=await db.from("conversations")
+          .select("id,request_id,provider_id").or("client_id.eq."+userId+",provider_id.eq."+userId);
+        if(!convoError&&mounted){setChats(Object.fromEntries((conversations||[]).map(chat=>[chat.request_id+":"+chat.provider_id,chat.id])));}
       }catch(err){if(mounted)setError(err instanceof Error?err.message:"Não foi possível carregar as propostas.");}
       finally{if(mounted)setBusy(false);}
     }
@@ -70,6 +75,14 @@ export default function ProposalsPage(){
   const isSent=role==="provider"||(role==="both"&&view==="sent");
   const data=isSent?sent:received;
   const filtered=useMemo(()=>data.filter(p=>tab==="all"||(tab==="accepted"?p.status==="accepted":p.status==="sent")),[data,tab]);
+  function handleDecision(proposalId:string,requestId:string,action:"accept"|"reject",chatId:string|null){
+    setReceived(current=>current.map(p=>{
+      if(p.id===proposalId)return {...p,status:action==="accept"?"accepted":"rejected"};
+      if(action==="accept"&&p.request_id===requestId&&p.status==="sent")return {...p,status:"rejected"};
+      return p;
+    }));
+    if(chatId){const proposal=received.find(p=>p.id===proposalId);if(proposal)setChats(current=>({...current,[requestId+":"+proposal.provider_id]:chatId}));}
+  }
   return <AppFrame title="Minhas Propostas" active="propostas">
     <h1 className="cs-top-title">Minhas Propostas</h1>
     <p className="cs-hint">{isSent?"Acompanhe os orçamentos que você enviou.":"Confira as propostas recebidas para seus pedidos."}</p>
@@ -99,8 +112,14 @@ export default function ProposalsPage(){
       <p className="cs-proposal-body">{proposal.message}</p>
       <div className="cs-proposal-bottom">
         <span className="cs-hint">{proposal.estimated_days!==null?"Prazo: "+proposal.estimated_days+" dia(s)":"Prazo a combinar"}</span>
-        <Link href={isSent?"/prestador/pedido/"+encodeURIComponent(proposal.request_id):"/cliente"} className="cs-small-link">Ver pedido <Icon name="chevron" size={15}/></Link>
+        <Link href={proposal.status==="accepted"
+          ? (chats[proposal.request_id+":"+proposal.provider_id]?"/conversas/"+encodeURIComponent(chats[proposal.request_id+":"+proposal.provider_id]):"/conversas")
+          : isSent?"/prestador/pedido/"+encodeURIComponent(proposal.request_id):"/cliente"} className="cs-small-link">
+          {proposal.status==="accepted"?"Abrir conversa":"Ver pedido"} <Icon name="chevron" size={15}/>
+        </Link>
       </div>
+      {!isSent&&proposal.status==="sent"&&<ProposalDecision proposalId={proposal.id} requestTitle={proposal.title||"serviço"}
+        onDecided={(action,chatId)=>handleDecision(proposal.id,proposal.request_id,action,chatId)}/>}
     </article>)}
   </AppFrame>;
 }
