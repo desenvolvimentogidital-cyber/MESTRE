@@ -99,7 +99,7 @@ export function AppFrame({ children, active, title }: { children: React.ReactNod
 
 export function FeaturePhoto({ kind = "builder", className = "" }: { kind?: "builder" | "camera"; className?: string }) {
   const src = kind === "builder"
-    ? "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=950&q=82"
-    : "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=950&q=82";
-  return <div className={"cs-feature-photo " + className}><img src={src} alt={kind === "builder" ? "Profissional da construção civil trabalhando" : "Serviço de câmera de segurança"}/></div>;
+    ? "https://images.unsplash.com/photo-1646227655718-dd721b681d91?auto=format&fit=crop&w=1080&q=85"
+    : "https://images.unsplash.com/photo-1676630656246-3047520adfdf?auto=format&fit=crop&w=1080&q=85";
+  return <div className={"cs-feature-photo " + className}><img src={src} loading={kind === "builder" ? "eager" : "lazy"} decoding="async" alt={kind === "builder" ? "Profissional de obra com capacete de segurança" : "Técnico instalando câmera de segurança em uma parede"}/></div>;
 }
