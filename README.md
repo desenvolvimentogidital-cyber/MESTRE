@@ -70,3 +70,13 @@ Abra `https://mestre-rho.vercel.app/instalar` no Google Chrome e escolha **Insta
 
 O aplicativo instalado utiliza a versão online do mesmo domínio. Alterações aprovadas no GitHub `main` acionam o deploy configurado na Vercel, e os usuários recebem a versão atualizada ao abrir ou recarregar o aplicativo. **A conversa no ChatGPT, por si só, não publica nem altera o software**; só commits efetivamente publicados o fazem. Não há modo offline nem push com o aplicativo fechado nesta etapa.
 
+
+
+## Busca pública com contato protegido
+- `/profissionais`: visitantes sem conta podem pesquisar prestadores por especialidade, inclusive "pedreiro" em reformas, categoria e cidade.
+- `/oportunidades`: visitantes sem conta podem consultar resumos de pedidos abertos de clientes, pesquisar e filtrar.
+- Nenhum identificador do cliente, anexo privado ou endereço de residência é retornado pela busca pública. Resumos textuais ocultam padrões comuns de telefone, e-mail e links; quem publica é avisado para não colocar dados pessoais no anúncio.
+- Ao clicar em **Conversar**, o visitante é encaminhado ao login/cadastro; depois de autenticado como cliente, a plataforma cria ou reutiliza uma conversa privada com o profissional ativo.
+- Para enviar um orçamento em um pedido público, é preciso entrar com conta profissional e acessar a área autenticada.
+- Conversas diretas têm limitação de novas solicitações por dia, acesso restrito aos participantes e não permitem contato com prestadores suspensos.
+
