@@ -44,7 +44,9 @@ jobs:
             echo "$route status: $status"
             test "$status" = "200"
           done
-          protected=$(curl --max-redirs 0 -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000/cliente")
-          echo "/cliente status: $protected"
-          test "$protected" = "307"
+          for protected_route in /cliente /prestador /prestador/perfil /propostas /perfil /notificacoes; do
+            protected=$(curl --max-redirs 0 -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000$protected_route")
+            echo "$protected_route status: $protected"
+            test "$protected" = "307"
+          done
 

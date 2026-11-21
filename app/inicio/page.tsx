@@ -86,6 +86,8 @@ export default function ExplorePage() {
     }
     <div className="cs-section-head"><h2 className="cs-section-title">Serviço em destaque</h2></div>
     <Link className="cs-list-card cs-card" href="/servicos/cameras" style={{ display: "flex" }}><span className="cs-list-icon"><Icon name="camera"/></span><span><h3>Instalação de câmeras</h3><p>Conheça o serviço e solicite um orçamento</p></span><Icon name="chevron"/></Link>
+    <div className="cs-section-head"><h2 className="cs-section-title">Sou profissional</h2></div>
+    <Link className="cs-list-card cs-card" href="/prestador" style={{ display: "flex" }}><span className="cs-list-icon"><Icon name="hammer"/></span><span><h3>Encontrar oportunidades</h3><p>Acesse pedidos de clientes e envie propostas</p></span><Icon name="chevron"/></Link>
     <div className="cs-section-head"><h2 className="cs-section-title">Seus serviços</h2></div>
     <Link className="cs-list-card cs-card" href="/cliente" style={{ display: "flex" }}><span className="cs-list-icon"><Icon name="briefcase"/></span><span><h3>Meus pedidos</h3><p>Acompanhe seus serviços e propostas</p></span><Icon name="chevron"/></Link>
   </AppFrame>;

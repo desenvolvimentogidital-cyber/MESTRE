@@ -19,7 +19,8 @@ export default async function ProfilePage() {
     <div className="cs-section-head"><h2 className="cs-section-title">Minha conta</h2></div>
     <div className="cs-card">
       <div className="cs-menu-link"><Icon name="user"/> <span>Meus dados</span> <span className="cs-hint" style={{marginLeft:"auto"}}>{profile?.phone || "Cadastro"}</span></div>
-      <Link className="cs-menu-link" href="/cliente"><Icon name="briefcase"/><span>Meus pedidos</span><Icon name="chevron"/></Link>
+      {profile?.account_type !== "provider" && <Link className="cs-menu-link" href="/cliente"><Icon name="briefcase"/><span>Meus pedidos</span><Icon name="chevron"/></Link>}
+      {(profile?.account_type === "provider" || profile?.account_type === "both") && <><Link className="cs-menu-link" href="/prestador"><Icon name="search"/><span>Pedidos para atender</span><Icon name="chevron"/></Link><Link className="cs-menu-link" href="/prestador/perfil"><Icon name="user"/><span>Meu perfil profissional</span><Icon name="chevron"/></Link></>}
       <Link className="cs-menu-link" href="/propostas"><Icon name="mail"/><span>Minhas propostas</span><Icon name="chevron"/></Link>
       <Link className="cs-menu-link" href="/notificacoes"><Icon name="bell"/><span>Notificações</span><Icon name="chevron"/></Link>
       <div className="cs-menu-link"><Icon name="shield"/><span>Segurança da conta</span><span className="cs-hint" style={{marginLeft:"auto"}}>Conexão protegida</span></div>
