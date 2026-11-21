@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
-  const protectedPath = /^\/(painel|cliente|prestador|admin|conversas)(\/|$)/.test(request.nextUrl.pathname);
+  const protectedPath = /^\/(painel|cliente|prestador|admin|conversas|propostas|perfil|notificacoes)(\/|$)/.test(request.nextUrl.pathname);
   const url = supabaseUrl;
   const key = supabasePublishableKey;
 
