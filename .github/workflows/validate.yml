@@ -62,7 +62,7 @@ jobs:
           size=int(sys.argv[1])
           with open(f"/tmp/conectaserv-{size}.png","rb") as f:
               blob=f.read(24)
-          assert blob[:8]==b"\\x89PNG\\r\\n\\x1a\\n", "Icon is not a PNG"
+          assert blob[:8]==b"\x89PNG\r\n\x1a\n", "Icon is not a PNG"
           assert struct.unpack(">II",blob[16:24])==(size,size), "Unexpected icon dimensions"
           print(f"PNG {size}x{size} OK")
           PY
