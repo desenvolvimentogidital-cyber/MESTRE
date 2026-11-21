@@ -110,7 +110,7 @@ export default function NewClientRequestPage() {
       <section className="client-form-wrap">
         <div className="eyebrow"><span className="eyebrow-dot" /> NOVO PEDIDO</div>
         <h1>O que você precisa?</h1>
-        <p className="client-form-intro">Descreva o serviço. Profissionais da sua região poderão encontrar seu pedido e enviar propostas.</p>
+        <p className="client-form-intro">Descreva o serviço. Seu anúncio será visível publicamente, inclusive para visitantes sem cadastro. Não informe telefone, e-mail, endereço exato ou dados pessoais; o contato acontece dentro do ConectaServ.</p>
         <form className="client-request-form" onSubmit={submit}>
           <label>Categoria do serviço
             <select required value={categoryId} onChange={e => setCategoryId(e.target.value)}>
