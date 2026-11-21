@@ -24,13 +24,15 @@ export default async function ProviderPage(){
   if(providerError || !provider){
     return <AppFrame active="inicio" title="Área do profissional"><div className="cs-error">Não foi possível localizar seu perfil profissional. Entre em contato com o suporte antes de enviar propostas.</div></AppFrame>;
   }
-  const [offersResult,requestsResult]=await Promise.all([
+  const [offersResult,requestsResult,serviceAreasResult]=await Promise.all([
     db.from("proposals").select("request_id,status").eq("provider_id",user.id),
     provider.is_active
       ? db.from("service_requests").select("id,category_id,title,description,city,state,budget_min,budget_max,created_at").eq("status","published").order("created_at",{ascending:false}).limit(50)
       : Promise.resolve({data:[],error:null}),
+    db.from("provider_categories").select("category_id").eq("provider_id",user.id),
   ]);
-  const requests=(requestsResult.data || []) as Opportunity[];
+  const selectedAreas=new Set((serviceAreasResult.data||[]).map(area=>area.category_id));
+  const requests=((requestsResult.data||[]) as Opportunity[]).filter(item=>selectedAreas.size===0 || selectedAreas.has(item.category_id));
   const offers=(offersResult.data || []) as OwnOffer[];
   const offered=new Map(offers.map(offer=>[offer.request_id,offer.status]));
   const ids=[...new Set(requests.map(r=>r.category_id))];
