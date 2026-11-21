@@ -27,6 +27,7 @@ export default async function ProfilePage() {
       <Link className="cs-menu-link" href="/propostas"><Icon name="mail"/><span>Minhas propostas</span><Icon name="chevron"/></Link>
       <Link className="cs-menu-link" href="/conversas"><Icon name="mail"/><span>Minhas conversas</span><Icon name="chevron"/></Link>
       <Link className="cs-menu-link" href="/notificacoes"><Icon name="bell"/><span>Notificações</span><Icon name="chevron"/></Link>
+      <Link className="cs-menu-link" href="/instalar"><Icon name="download"/><span>Instalar ConectaServ no celular</span><Icon name="chevron"/></Link>
       <Link className="cs-menu-link" href="/denuncias"><Icon name="shield"/><span>Minhas denúncias</span><Icon name="chevron"/></Link>
       {admin&&<Link className="cs-menu-link" href="/admin"><Icon name="shield"/><span>Administração e moderação</span><Icon name="chevron"/></Link>}
       <div className="cs-menu-link"><Icon name="shield"/><span>Segurança da conta</span><span className="cs-hint" style={{marginLeft:"auto"}}>Conexão protegida</span></div>

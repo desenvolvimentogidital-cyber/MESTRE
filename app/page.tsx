@@ -15,6 +15,7 @@ export default function Home() {
         <div className="cs-splash-actions">
           <Link href="/inicio" className="cs-button cs-button-primary">Começar <Icon name="arrow" size={18}/></Link>
           <Link href="/acesso" className="cs-button cs-button-outline">Entrar na minha conta</Link>
+          <Link href="/instalar" className="cs-small-link cs-install-quick"><Icon name="download" size={17}/> Colocar na tela inicial do celular</Link>
         </div>
       </div>
       <div className="cs-splash-art">

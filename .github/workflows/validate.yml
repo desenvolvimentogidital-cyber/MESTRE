@@ -39,10 +39,33 @@ jobs:
             fi
             sleep 1
           done
-          for route in / /acesso /inicio; do
+          for route in / /acesso /inicio /instalar; do
             status=$(curl --max-redirs 0 -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000$route")
             echo "$route status: $status"
             test "$status" = "200"
+          done
+          # Chrome Android needs a valid install manifest and PNG icons at both sizes.
+          curl -fsS http://127.0.0.1:3000/manifest.webmanifest -o /tmp/conectaserv-manifest.json
+          python3 - <<'PY'
+          import json
+          with open("/tmp/conectaserv-manifest.json",encoding="utf-8") as f:
+              data=json.load(f)
+          assert data["display"] == "standalone"
+          assert data["start_url"] == "/"
+          assert {x["sizes"] for x in data["icons"]} >= {"192x192","512x512"}
+          print("Manifest PWA OK")
+          PY
+          for size in 192 512; do
+            curl -fsS "http://127.0.0.1:3000/icons/$size" -o "/tmp/conectaserv-$size.png"
+            python3 - "$size" <<'PY'
+          import struct,sys
+          size=int(sys.argv[1])
+          with open(f"/tmp/conectaserv-{size}.png","rb") as f:
+              blob=f.read(24)
+          assert blob[:8]==b"\x89PNG\r\n\x1a\n", "Icon is not a PNG"
+          assert struct.unpack(">II",blob[16:24])==(size,size), "Unexpected icon dimensions"
+          print(f"PNG {size}x{size} OK")
+          PY
           done
           for protected_route in /cliente /prestador /prestador/perfil /propostas /perfil /notificacoes /conversas /admin /denuncias /denuncias/nova /avaliar/00000000-0000-0000-0000-000000000000; do
             protected=$(curl --max-redirs 0 -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000$protected_route")

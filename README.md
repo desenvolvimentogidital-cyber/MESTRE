@@ -64,3 +64,9 @@ O selo **Perfil conferido pela equipe** representa análise manual de informaç�
 ## Validação de homologação
 O código tem lint/build e verificações automatizadas de rotas. **Os testes com duas contas reais ainda são manuais.** Consulte `docs/HOMOLOGACAO.md` para o roteiro completo.
 
+
+## Instalação no Android
+Abra `https://mestre-rho.vercel.app/instalar` no Google Chrome e escolha **Instalar aplicativo** ou **Adicionar à tela inicial** no menu de três pontos. O ConectaServ terá um ícone e será aberto em uma janela sem a barra do navegador.
+
+O aplicativo instalado utiliza a versão online do mesmo domínio. Alterações aprovadas no GitHub `main` acionam o deploy configurado na Vercel, e os usuários recebem a versão atualizada ao abrir ou recarregar o aplicativo. **A conversa no ChatGPT, por si só, não publica nem altera o software**; só commits efetivamente publicados o fazem. Não há modo offline nem push com o aplicativo fechado nesta etapa.
+
