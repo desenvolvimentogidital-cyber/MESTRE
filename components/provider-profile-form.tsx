@@ -19,6 +19,7 @@ export function ProviderProfileForm({userId,initial,categories,selectedCategoryI
     e.preventDefault();setMessage("");setError("");
     if(name.trim().length<3){setError("Informe um nome profissional com pelo menos 3 caracteres.");return;}
     if(years.trim()&&(!Number.isInteger(Number(years))||Number(years)<0||Number(years)>80)){setError("Informe um tempo de experiência válido.");return;}
+    if(!active&&selected.some(id=>!savedCategories.includes(id))){setError("Ative seu perfil antes de adicionar novas categorias.");return;}
     setBusy(true);
     try{
       const db=createClient();
