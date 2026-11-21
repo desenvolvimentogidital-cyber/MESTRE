@@ -34,7 +34,10 @@ export default async function DashboardPage() {
           <br />
           Sua conta está protegida e pronta para completar o cadastro. Estamos construindo as áreas de pedidos, propostas e conversas.
         </div>
-        <Link className="btn btn-primary" href="/">Voltar ao início</Link>
+        {(profile?.account_type === "client" || profile?.account_type === "both") && (
+          <Link className="btn btn-primary" href="/cliente">Acessar meus pedidos →</Link>
+        )}
+        <Link className="btn btn-secondary" href="/">Voltar ao início</Link>
       </section>
     </main>
   );
