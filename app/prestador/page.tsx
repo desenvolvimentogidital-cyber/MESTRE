@@ -55,7 +55,8 @@ export default async function ProviderPage(){
       </div>
       <Link className="cs-button cs-button-outline" style={{marginTop:14,width:"100%"}} href="/prestador/perfil">Editar meu perfil <Icon name="chevron" size={17}/></Link>
     </div>
-    <div className="cs-section-head"><h2 className="cs-section-title">Pedidos disponíveis</h2><Link href="/propostas" className="cs-small-link">Minhas propostas <Icon name="arrow" size={16}/></Link></div>
+    <div className="cs-section-head"><h2 className="cs-section-title">Pedidos disponíveis</h2><Link href="/oportunidades" className="cs-small-link">Ver todos os pedidos <Icon name="arrow" size={16}/></Link></div>
+    <p className="cs-hint">Aqui aparecem pedidos das suas categorias. A busca pública mostra todos os pedidos publicados.</p>
     {!canServe && <div className="cs-empty"><Icon name="briefcase"/><h2>{provider.is_suspended?"Perfil suspenso":"Perfil pausado"}</h2><p>{provider.is_suspended?"Sua conta profissional foi suspensa pela moderação. Você não pode atender novos pedidos até a revisão administrativa.":"Ative seu perfil para visualizar oportunidades e participar dos orçamentos."}</p><Link href="/prestador/perfil" className="cs-button cs-button-primary">Ativar meu perfil</Link></div>}
     {canServe && requestsResult.error && <div role="alert" className="cs-error">Não foi possível carregar os pedidos no momento.</div>}
     {canServe && offersResult.error && <div role="alert" className="cs-error">Não foi possível verificar as propostas que você já enviou. Tente novamente.</div>}
