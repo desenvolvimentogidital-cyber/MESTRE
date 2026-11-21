@@ -6,12 +6,24 @@ import { Suspense, useState } from "react";
 import { Brand, FeaturePhoto, Icon, ThemeSwitch } from "@/components/conectaserv-ui";
 import { createClient } from "@/lib/supabase/client";
 
+async function limitWait<T>(promise:Promise<T>,seconds=18):Promise<T>{
+  let timer:ReturnType<typeof setTimeout>|undefined;
+  try{
+    return await Promise.race([
+      promise,
+      new Promise<never>((_,reject)=>{
+        timer=setTimeout(()=>reject(new Error("A conexão demorou demais. Confira sua internet e tente novamente.")),seconds*1000);
+      }),
+    ]);
+  }finally{if(timer)clearTimeout(timer);}
+}
+
 function AccessForm() {
   const router = useRouter();
   const params = useSearchParams();
   const suggestedType = params.get("tipo") === "prestador" ? "provider" : "client";
   const [type, setType] = useState<"client" | "provider">(suggestedType);
-  const [mode, setMode] = useState<"login" | "signup">(params.has("tipo") && params.get("acessar")!=="1" ? "signup" : "login");
+  const [mode, setMode] = useState<"login" | "signup">(params.get("cadastro")==="1" || (params.has("tipo") && params.get("acessar")!=="1") ? "signup" : "login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,30 +37,44 @@ function AccessForm() {
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if(busy)return;
     setBusy(true);
     setMessage("");
     try {
-      const db = createClient();
-      if (mode === "signup") {
-        const { data, error } = await db.auth.signUp({
-          email: email.trim(),
-          password,
-          options: { data: { full_name: name.trim(), account_type: type }, emailRedirectTo: window.location.origin + "/auth/callback?next=" + encodeURIComponent(nextPath) },
-        });
-        if (error) throw error;
-        if (data.session) {
-          router.replace(nextPath); router.refresh();
-        } else {
-          setMessage("Cadastro recebido. Confira seu e-mail para confirmar a conta antes de entrar.");
+      if(mode==="signup"){
+        const controller=new AbortController();
+        const timeout=setTimeout(()=>controller.abort(),18000);
+        try{
+          const response=await fetch("/api/auth/registrar",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({name:name.trim(),email:email.trim(),password,type,next:nextPath}),
+            cache:"no-store",
+            signal:controller.signal,
+          });
+          const result=await response.json() as {ok?:boolean;sessionReady?:boolean;message?:string;error?:string};
+          if(!response.ok||!result.ok)throw new Error(result.error||"Não foi possível concluir seu cadastro.");
+          if(result.sessionReady){
+            router.replace(nextPath);router.refresh();
+          }else{
+            setMessage(result.message||"Cadastro enviado. Confira seu e-mail para confirmar sua conta.");
+            setMode("login");
+            setPassword("");
+          }
+        }finally{clearTimeout(timeout);}
+      }else{
+        const db=createClient();
+        const {error}=await limitWait(db.auth.signInWithPassword({email:email.trim(),password}));
+        if(error){
+          if(error.code==="invalid_credentials")throw new Error("E-mail ou senha não conferem. Se ainda não tem conta, toque em Cadastre-se.");
+          if(error.code==="email_not_confirmed")throw new Error("Confirme seu e-mail antes de entrar. Confira também a pasta Spam.");
+          throw error;
         }
-      } else {
-        const { error } = await db.auth.signInWithPassword({ email: email.trim(), password });
-        if (error) throw error;
-        router.replace(nextPath);
-        router.refresh();
+        router.replace(nextPath);router.refresh();
       }
     } catch (err) {
-      setMessage(err instanceof Error ? err.message : "Não foi possível acessar sua conta.");
+      const text=err instanceof Error?err.message:"Não foi possível acessar sua conta.";
+      setMessage(err instanceof Error&&err.name==="AbortError"?"O cadastro está demorando mais que o normal. Verifique sua internet e seu e-mail antes de tentar novamente.":text);
     } finally {
       setBusy(false);
     }
@@ -93,7 +119,7 @@ function AccessForm() {
       <div className="cs-auth-card">
         <Brand centered/>
         <h1>{mode === "login" ? "Entrar na sua conta" : "Crie sua conta"}</h1>
-        <p className="cs-auth-sub">{mode === "login" ? "Acesse sua conta para continuar" : "Escolha como deseja participar do ConectaServ"}</p>
+        <p className="cs-auth-sub">{mode === "login" ? "Entre com seu e-mail e senha. Se for sua primeira vez, escolha Cadastre-se abaixo." : "Escolha como deseja participar do ConectaServ. Depois, confirme seu e-mail."}</p>
         {mode === "signup" && <div className="cs-role-switch">
           <button type="button" className={type === "client" ? "active" : ""} onClick={() => setType("client")}>Sou cliente</button>
           <button type="button" className={type === "provider" ? "active" : ""} onClick={() => setType("provider")}>Sou profissional</button>
@@ -108,10 +134,10 @@ function AccessForm() {
             <span className="cs-hint">Acesso seguro</span>
             <button type="button" disabled={busy} className="cs-small-link" style={{background:"none",border:0}} onClick={resetPassword}>Esqueceu a senha?</button>
           </div>}
-          <button type="submit" disabled={busy} className="cs-button cs-button-primary">{busy ? "Aguarde..." : mode === "login" ? "Entrar" : "Cadastrar"}</button>
+          <button type="submit" disabled={busy} className="cs-button cs-button-primary">{busy ? (mode==="signup"?"Enviando cadastro...":"Verificando acesso...") : mode === "login" ? "Entrar" : "Criar minha conta"}</button>
         </form>
         {(params.get("erro") === "configuracao" || params.get("erro") === "callback") && <p role="alert" className="cs-error">Não foi possível conectar à autenticação. A hospedagem precisa das variáveis públicas do Supabase.</p>}
-        {message && <p role="status" className="cs-error" style={{marginTop:12}}>{message}</p>}
+        {message && <p role="status" aria-live="polite" className="cs-error" style={{marginTop:12}}>{message}</p>}
         <div className="cs-auth-divider">ou entre com</div>
         <div className="cs-social-row">
           <button disabled={busy} type="button" onClick={() => social("google")} className="cs-social"><strong>G</strong> Google</button>
