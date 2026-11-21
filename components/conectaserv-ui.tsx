@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import {NotificationBell} from "@/components/notification-bell";
 import { useEffect, useState } from "react";
 
 type IconName = "home" | "briefcase" | "bell" | "user" | "search" | "bolt" | "drop" | "sparkle" | "hammer" | "arrow" | "chevron" | "moon" | "sun" | "heart" | "shield" | "menu" | "camera" | "star" | "check" | "location" | "clock" | "logout" | "mail" | "lock";
@@ -75,6 +76,7 @@ export function AppHeader({ title }: { title?: string }) {
   return <header className="cs-app-head">
     {title ? <Link href="/inicio" className="cs-back">‹</Link> : <Brand compact />}
     <strong>{title || "ConectaServ"}</strong>
+    <NotificationBell />
     <ThemeSwitch />
   </header>;
 }
