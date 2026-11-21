@@ -76,7 +76,9 @@ alter table public.reviews add constraint reviews_comment_length check (
 );
 drop policy if exists reviews_public_read on public.reviews;
 create policy reviews_public_read on public.reviews for select to anon, authenticated
-using (is_visible=true or client_id=(select auth.uid()) or (select private.is_moderator()));
+using (is_visible=true);
+create policy reviews_client_admin_read on public.reviews for select to authenticated
+using (client_id=(select auth.uid()) or (select private.is_moderator()));
 
 -- Only privileged trigger code can recalculate ratings. The user cannot supply an average.
 create or replace function private.recalculate_provider_rating()
