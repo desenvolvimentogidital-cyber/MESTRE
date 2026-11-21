@@ -52,7 +52,7 @@ export default function NewClientRequestPage() {
 
     setBusy(true);
     const supabase = createClient();
-    let uploadedPaths: string[] = [];
+    const uploadedPaths: string[] = [];
     let requestId = "";
     try {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
