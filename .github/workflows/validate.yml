@@ -26,6 +26,25 @@ jobs:
         run: npm run lint
       - name: Compilar aplicacao
         run: npm run build
-        env:
-          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
-          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_build_placeholder
+      - name: Testar paginas publicas e protecao sem variaveis externas
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm run start -- -p 3000 >/tmp/mestre-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 35); do
+            if curl -sSf --max-time 2 http://127.0.0.1:3000/ -o /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          for route in / /acesso /inicio; do
+            status=$(curl --max-redirs 0 -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000$route")
+            echo "$route status: $status"
+            test "$status" = "200"
+          done
+          protected=$(curl --max-redirs 0 -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000/cliente")
+          echo "/cliente status: $protected"
+          test "$protected" = "307"
+
