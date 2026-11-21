@@ -20,13 +20,14 @@ export default async function ProviderPage(){
       </div></AppFrame>;
   }
   const {data:provider,error:providerError}=await db.from("provider_profiles")
-    .select("display_name,city,state,is_active").eq("user_id",user.id).maybeSingle();
+    .select("display_name,city,state,is_active,is_suspended").eq("user_id",user.id).maybeSingle();
   if(providerError || !provider){
     return <AppFrame active="inicio" title="Área do profissional"><div className="cs-error">Não foi possível localizar seu perfil profissional. Entre em contato com o suporte antes de enviar propostas.</div></AppFrame>;
   }
+  const canServe=provider.is_active&&!provider.is_suspended;
   const [offersResult,requestsResult,serviceAreasResult]=await Promise.all([
     db.from("proposals").select("request_id,status").eq("provider_id",user.id),
-    provider.is_active
+    canServe
       ? db.from("service_requests").select("id,category_id,title,description,city,state,budget_min,budget_max,created_at").eq("status","published").order("created_at",{ascending:false}).limit(50)
       : Promise.resolve({data:[],error:null}),
     db.from("provider_categories").select("category_id").eq("provider_id",user.id),
@@ -50,16 +51,16 @@ export default async function ProviderPage(){
         <div><strong style={{display:"block",fontSize:16}}>Meu perfil profissional</strong>
           <p className="cs-hint" style={{margin:"6px 0 0"}}>{[provider.city,provider.state].filter(Boolean).join(", ") || "Complete sua região de atendimento"}</p>
         </div>
-        <span className={"cs-status "+(provider.is_active?"accepted":"cancelled")}>{provider.is_active?"Ativo":"Pausado"}</span>
+        <span className={"cs-status "+(canServe?"accepted":"cancelled")}>{provider.is_suspended?"Suspenso pela moderação":canServe?"Ativo":"Pausado"}</span>
       </div>
       <Link className="cs-button cs-button-outline" style={{marginTop:14,width:"100%"}} href="/prestador/perfil">Editar meu perfil <Icon name="chevron" size={17}/></Link>
     </div>
     <div className="cs-section-head"><h2 className="cs-section-title">Pedidos disponíveis</h2><Link href="/propostas" className="cs-small-link">Minhas propostas <Icon name="arrow" size={16}/></Link></div>
-    {!provider.is_active && <div className="cs-empty"><Icon name="briefcase"/><h2>Perfil pausado</h2><p>Ative seu perfil para visualizar oportunidades e participar dos orçamentos.</p><Link href="/prestador/perfil" className="cs-button cs-button-primary">Ativar meu perfil</Link></div>}
-    {provider.is_active && requestsResult.error && <div role="alert" className="cs-error">Não foi possível carregar os pedidos no momento.</div>}
-    {provider.is_active && offersResult.error && <div role="alert" className="cs-error">Não foi possível verificar as propostas que você já enviou. Tente novamente.</div>}
-    {provider.is_active && !requestsResult.error && requests.length===0 && <div className="cs-empty"><Icon name="search" size={29}/><h2>Sem pedidos publicados</h2><p>Novas oportunidades aparecerão aqui quando clientes publicarem serviços.</p></div>}
-    {provider.is_active && !requestsResult.error && !offersResult.error && <div className="cs-info-list">
+    {!canServe && <div className="cs-empty"><Icon name="briefcase"/><h2>{provider.is_suspended?"Perfil suspenso":"Perfil pausado"}</h2><p>{provider.is_suspended?"Sua conta profissional foi suspensa pela moderação. Você não pode atender novos pedidos até a revisão administrativa.":"Ative seu perfil para visualizar oportunidades e participar dos orçamentos."}</p><Link href="/prestador/perfil" className="cs-button cs-button-primary">Ativar meu perfil</Link></div>}
+    {canServe && requestsResult.error && <div role="alert" className="cs-error">Não foi possível carregar os pedidos no momento.</div>}
+    {canServe && offersResult.error && <div role="alert" className="cs-error">Não foi possível verificar as propostas que você já enviou. Tente novamente.</div>}
+    {canServe && !requestsResult.error && requests.length===0 && <div className="cs-empty"><Icon name="search" size={29}/><h2>Sem pedidos publicados</h2><p>Novas oportunidades aparecerão aqui quando clientes publicarem serviços.</p></div>}
+    {canServe && !requestsResult.error && !offersResult.error && <div className="cs-info-list">
       {requests.map(request=><article className="cs-card cs-proposal-card" key={request.id}>
         <div className="cs-proposal-top">
           <span className="cs-chip">{names[request.category_id]||"Serviço"}</span>

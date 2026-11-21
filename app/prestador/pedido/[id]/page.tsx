@@ -11,7 +11,8 @@ export default async function ProviderRequestPage({params}:{params:Promise<{id:s
   if(!user)redirect("/acesso?redirectTo=/prestador");
   const {data:profile}=await db.from("profiles").select("account_type").eq("id",user.id).maybeSingle();
   if(!profile || !["provider","both"].includes(profile.account_type))redirect("/inicio");
-  const {data:provider}=await db.from("provider_profiles").select("is_active").eq("user_id",user.id).maybeSingle();
+  const {data:provider}=await db.from("provider_profiles").select("is_active,is_suspended").eq("user_id",user.id).maybeSingle();
+  if(provider?.is_suspended)redirect("/prestador");
   if(!provider?.is_active)redirect("/prestador/perfil");
   const {data:request,error}=await db.from("service_requests")
     .select("id,category_id,title,description,city,state,neighborhood,budget_min,budget_max,status,created_at,client_id")
