@@ -93,21 +93,6 @@ function AccessForm() {
     } finally { setBusy(false); }
   }
 
-  async function social(provider: "google" | "facebook") {
-    setBusy(true); setMessage("");
-    try {
-      const db = createClient();
-      const { error } = await db.auth.signInWithOAuth({
-        provider,
-        options: { redirectTo: window.location.origin + "/auth/callback?next=" + encodeURIComponent(nextPath) },
-      });
-      if (error) throw error;
-    } catch {
-      setMessage("Este método de acesso precisa estar habilitado na autenticação do ConectaServ.");
-      setBusy(false);
-    }
-  }
-
   return <main className="cs-auth-shell">
     <aside className="cs-auth-aside">
       <Brand />
@@ -138,11 +123,9 @@ function AccessForm() {
         </form>
         {(params.get("erro") === "configuracao" || params.get("erro") === "callback") && <p role="alert" className="cs-error">Não foi possível conectar à autenticação. A hospedagem precisa das variáveis públicas do Supabase.</p>}
         {message && <p role="status" aria-live="polite" className="cs-error" style={{marginTop:12}}>{message}</p>}
-        <div className="cs-auth-divider">ou entre com</div>
-        <div className="cs-social-row">
-          <button disabled={busy} type="button" onClick={() => social("google")} className="cs-social"><strong>G</strong> Google</button>
-          <button disabled={busy} type="button" onClick={() => social("facebook")} className="cs-social"><strong>f</strong> Facebook</button>
-        </div>
+        <p className="cs-hint" style={{textAlign:"center",marginTop:17}}>
+          Por enquanto, utilize e-mail e senha. Acesso por Google e Facebook será liberado após a configuração.
+        </p>
         <p className="cs-auth-note">{mode === "login" ? "Não tem uma conta?" : "Já tem uma conta?"}{" "}
           <button type="button" onClick={() => { setMode(mode === "login" ? "signup" : "login"); setMessage(""); }}>{mode === "login" ? "Cadastre-se" : "Entrar"}</button>
         </p>
