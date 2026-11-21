@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppFrame, Icon } from "@/components/conectaserv-ui";
 import { createClient } from "@/lib/supabase/server";
+import { CompleteServiceButton } from "@/components/complete-service-button";
 
 type ClientRequest = {
   id: string; category_id: string; title: string; description: string;
@@ -61,6 +62,11 @@ export default async function ClientHomePage() {
         <span className="cs-hint"><Icon name="location" size={13}/> {request.city}, {request.state}</span>
         <time className="cs-proposal-date" dateTime={request.created_at}>{new Intl.DateTimeFormat("pt-BR",{dateStyle:"short"}).format(new Date(request.created_at))}</time>
       </div>
+      {request.status === "in_progress" && <div style={{display:"grid",gap:9,marginTop:12}}>
+        <Link className="cs-button cs-button-primary" href="/conversas"><Icon name="mail" size={17}/> Conversar com o profissional</Link>
+        <CompleteServiceButton requestId={request.id}/>
+      </div>}
+      {request.status === "completed" && <p className="cs-hint" style={{marginBottom:0}}>Serviço encerrado. O histórico da conversa continua disponível.</p>}
     </article>)}</div>}
   </AppFrame>;
 }
