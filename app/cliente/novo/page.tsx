@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { AppFrame } from "@/components/conectaserv-ui";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -52,7 +52,7 @@ export default function NewClientRequestPage() {
 
     setBusy(true);
     const supabase = createClient();
-    let uploadedPaths: string[] = [];
+    const uploadedPaths: string[] = [];
     let requestId = "";
     try {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
@@ -106,11 +106,7 @@ export default function NewClientRequestPage() {
   }
 
   return (
-    <main className="dashboard">
-      <header className="dash-header">
-        <Link className="brand" href="/"><span className="brand-mark">M</span>Mestre</Link>
-        <Link className="back-link" href="/cliente">← Meus pedidos</Link>
-      </header>
+    <AppFrame title="Publicar pedido" active="inicio"><div className="cs-request-form-shell">
       <section className="client-form-wrap">
         <div className="eyebrow"><span className="eyebrow-dot" /> NOVO PEDIDO</div>
         <h1>O que você precisa?</h1>
@@ -142,6 +138,6 @@ export default function NewClientRequestPage() {
           <button className="access-submit" disabled={busy || categories.length === 0}>{busy ? "Publicando pedido..." : "Publicar pedido grátis →"}</button>
         </form>
       </section>
-    </main>
+    </div></AppFrame>
   );
 }

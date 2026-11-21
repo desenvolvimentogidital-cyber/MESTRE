@@ -1,0 +1,22 @@
+name: Diagnosticar URLs Mestre
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  redirects:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verificar redirecionamentos e status HTTP publicos
+        shell: bash
+        run: |
+          for url in             "https://mestre-rho.vercel.app/"             "https://mestre-rho.vercel.app/acesso"             "https://mestre-rho.vercel.app/inicio"             "https://mestre-git-feat-c-ee9786-desenvolvimentogidital-cybers-projects.vercel.app/"             "https://mestre-git-feat-c-ee9786-desenvolvimentogidital-cybers-projects.vercel.app/inicio"
+          do
+            printf '\n=== %s ===\n' "$url"
+            curl -sS -D - -o /dev/null -L --max-redirs 8 --connect-timeout 8 --max-time 25 "$url"               | grep -Ei '^(HTTP/|location:|server:|x-vercel-id:|x-vercel-error:|cache-control:)' || true
+          done

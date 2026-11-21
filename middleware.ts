@@ -1,11 +1,12 @@
+import { supabaseUrl, supabasePublishableKey } from "@/lib/supabase/config";
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
   const protectedPath = /^\/(painel|cliente|prestador|admin|conversas)(\/|$)/.test(request.nextUrl.pathname);
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const url = supabaseUrl;
+  const key = supabasePublishableKey;
 
   if (!url || !key) {
     return protectedPath
