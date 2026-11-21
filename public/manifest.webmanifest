@@ -1,10 +1,46 @@
 {
   "name": "ConectaServ — Encontre. Contrate. Realize.",
   "short_name": "ConectaServ",
-  "description": "Conectando clientes a profissionais de serviços.",
+  "description": "Encontre profissionais, publique serviços e acompanhe propostas.",
+  "id": "/",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#f2f6ff",
   "theme_color": "#0751c6",
-  "lang": "pt-BR"
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/icons/192",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/512",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Encontrar serviços",
+      "short_name": "Serviços",
+      "url": "/inicio",
+      "description": "Buscar profissionais e serviços"
+    },
+    {
+      "name": "Publicar pedido",
+      "short_name": "Publicar",
+      "url": "/cliente/novo",
+      "description": "Descrever o serviço de que você precisa"
+    },
+    {
+      "name": "Minhas propostas",
+      "short_name": "Propostas",
+      "url": "/propostas",
+      "description": "Acompanhar seus orçamentos"
+    }
+  ]
 }
