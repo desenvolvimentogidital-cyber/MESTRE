@@ -2,7 +2,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-type ClientRequest = { id: string; category_id: string; title: string; description: string; city: string; state: string; status: string; created_at: string };\n\nconst statusLabels: Record<string, string> = {
+type ClientRequest = { id: string; category_id: string; title: string; description: string; city: string; state: string; status: string; created_at: string };
+
+const statusLabels: Record<string, string> = {
   draft: "Rascunho",
   published: "Publicado",
   in_progress: "Em andamento",
