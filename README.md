@@ -48,10 +48,10 @@ Pagamentos e comissões foram intencionalmente adiados. Notificações push com 
 ## Administração — ativação segura
 A tabela `public.admin_members` inicia vazia; nenhum cadastro recebe poderes de administração automaticamente.
 
-1. Crie sua própria conta no app e confirme o e-mail.
+1. Crie sua própria conta no aplicativo. A confirmação por e-mail está temporariamente dispensada; confirme que a conta é sua antes de autorizar poderes administrativos.
 2. No SQL Editor do **seu** Supabase, identifique o usuário pelo endereço de e-mail confirmado:
 ```sql
-select id,email,email_confirmed_at from auth.users where email='<seu email>';
+select id,email,created_at from auth.users where email='<seu email>';
 ```
 3. Confira se a conta é a sua e, somente no editor administrativo do banco, autorize o UUID correspondente:
 ```sql
