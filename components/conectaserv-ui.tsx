@@ -79,11 +79,11 @@ export function AppHeader({ title }: { title?: string }) {
   </header>;
 }
 
-export function BottomNav({ active }: { active: "inicio" | "propostas" | "notificacoes" | "perfil" }) {
+export function BottomNav({ active }: { active: "inicio" | "propostas" | "notificacoes" | "conversas" | "perfil" }) {
   const tabs = [
     { id: "inicio", href: "/inicio", name: "Início", icon: "home" },
     { id: "propostas", href: "/propostas", name: "Propostas", icon: "briefcase" },
-    { id: "notificacoes", href: "/notificacoes", name: "Notificações", icon: "bell" },
+    { id: "conversas", href: "/conversas", name: "Conversas", icon: "mail" },
     { id: "perfil", href: "/perfil", name: "Perfil", icon: "user" },
   ] as const;
   return <nav className="cs-bottom-nav" aria-label="Navegação principal">
@@ -91,7 +91,7 @@ export function BottomNav({ active }: { active: "inicio" | "propostas" | "notifi
   </nav>;
 }
 
-export function AppFrame({ children, active, title }: { children: React.ReactNode; active: "inicio" | "propostas" | "notificacoes" | "perfil"; title?: string }) {
+export function AppFrame({ children, active, title }: { children: React.ReactNode; active: "inicio" | "propostas" | "notificacoes" | "conversas" | "perfil"; title?: string }) {
   return <main className="cs-app"><AppHeader title={title}/><section className="cs-app-body">{children}</section><BottomNav active={active}/></main>;
 }
 
