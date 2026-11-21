@@ -44,6 +44,14 @@ jobs:
             echo "$route status: $status"
             test "$status" = "200"
           done
+          # The registration endpoint must reject invalid data immediately
+          # without attempting to create a user or contact the auth provider.
+          signup_status=$(curl --max-time 8 -s -o /tmp/registration-check.json -w "%{http_code}" \
+            -X POST "http://127.0.0.1:3000/api/auth/registrar" \
+            -H "Content-Type: application/json" \
+            --data '{"name":"X","email":"not-an-email","password":"x","type":"client"}')
+          echo "Invalid registration status: $signup_status"
+          test "$signup_status" = "400"
           # Chrome Android needs a valid install manifest and PNG icons at both sizes.
           curl -fsS http://127.0.0.1:3000/manifest.webmanifest -o /tmp/conectaserv-manifest.json
           python3 - <<'PY'
