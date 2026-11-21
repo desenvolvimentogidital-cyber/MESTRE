@@ -84,6 +84,8 @@ export default function ExplorePage() {
     </div>)}</div> :
       !loading && <div className="cs-empty"><Icon name="user" size={25}/><h2>Profissionais chegando</h2><p>Ainda não há perfis disponíveis para exibir. Publique seu pedido e acompanhe as novidades.</p><Link className="cs-button cs-button-outline" href="/cliente/novo">Publicar pedido</Link></div>
     }
+    <div className="cs-section-head"><h2 className="cs-section-title">Serviço em destaque</h2></div>
+    <Link className="cs-list-card cs-card" href="/servicos/cameras" style={{ display: "flex" }}><span className="cs-list-icon"><Icon name="camera"/></span><span><h3>Instalação de câmeras</h3><p>Conheça o serviço e solicite um orçamento</p></span><Icon name="chevron"/></Link>
     <div className="cs-section-head"><h2 className="cs-section-title">Seus serviços</h2></div>
     <Link className="cs-list-card cs-card" href="/cliente" style={{ display: "flex" }}><span className="cs-list-icon"><Icon name="briefcase"/></span><span><h3>Meus pedidos</h3><p>Acompanhe seus serviços e propostas</p></span><Icon name="chevron"/></Link>
   </AppFrame>;
