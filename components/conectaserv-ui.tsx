@@ -4,7 +4,7 @@ import Link from "next/link";
 import {NotificationBell} from "@/components/notification-bell";
 import { useEffect, useState } from "react";
 
-type IconName = "home" | "briefcase" | "bell" | "user" | "search" | "bolt" | "drop" | "sparkle" | "hammer" | "arrow" | "chevron" | "moon" | "sun" | "heart" | "shield" | "menu" | "camera" | "star" | "check" | "location" | "clock" | "logout" | "mail" | "lock";
+type IconName = "home" | "briefcase" | "bell" | "user" | "search" | "bolt" | "drop" | "sparkle" | "hammer" | "arrow" | "chevron" | "moon" | "sun" | "heart" | "shield" | "menu" | "camera" | "star" | "check" | "location" | "clock" | "logout" | "mail" | "lock" | "download";
 
 export function Icon({ name, size = 21 }: { name: IconName; size?: number }) {
   const common = { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 1.9, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, "aria-hidden": true as const };
@@ -33,6 +33,7 @@ export function Icon({ name, size = 21 }: { name: IconName; size?: number }) {
     logout: <><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5M14 7l5 5-5 5M19 12H9"/></>,
     mail: <><rect x="2" y="4" width="20" height="16" rx="3"/><path d="m3 6 9 7 9-7"/></>,
     lock: <><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></>,
+    download: <><path d="M12 3v12m-5-5 5 5 5-5M4 17v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></>,
   };
   return <svg {...common}>{shape[name]}</svg>;
 }
