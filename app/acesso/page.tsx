@@ -42,7 +42,7 @@ function AccessForm() {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
         if (error) throw error;
-        router.replace("/painel");
+        router.replace(nextPath);
         router.refresh();
       }
     } catch (error) {
