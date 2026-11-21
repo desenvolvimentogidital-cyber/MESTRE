@@ -39,7 +39,7 @@ jobs:
             fi
             sleep 1
           done
-          for route in / /acesso /inicio /instalar; do
+          for route in / /acesso /inicio /instalar /profissionais /oportunidades /oportunidades/00000000-0000-0000-0000-000000000000; do
             status=$(curl --max-redirs 0 -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000$route")
             echo "$route status: $status"
             test "$status" = "200"
@@ -67,6 +67,9 @@ jobs:
           print(f"PNG {size}x{size} OK")
           PY
           done
+          guest_contact=$(curl --max-redirs 0 -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000/profissional/00000000-0000-0000-0000-000000000001?iniciar=1")
+          echo "Contact without login: $guest_contact"
+          test "$guest_contact" = "307"
           for protected_route in /cliente /prestador /prestador/perfil /propostas /perfil /notificacoes /conversas /admin /denuncias /denuncias/nova /avaliar/00000000-0000-0000-0000-000000000000; do
             protected=$(curl --max-redirs 0 -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000$protected_route")
             echo "$protected_route status: $protected"

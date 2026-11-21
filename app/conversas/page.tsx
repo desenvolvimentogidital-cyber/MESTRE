@@ -14,6 +14,12 @@ export default async function ConversationsPage(){
     .order("created_at",{ascending:false});
   const chats=(data||[]) as Chat[];
   const titles:Record<string,string>={};
+  const providers:Record<string,string>={};
+  const providerIds=[...new Set(chats.map(c=>c.provider_id))];
+  if(providerIds.length){
+    const {data:profiles}=await db.from("provider_profiles").select("user_id,display_name").in("user_id",providerIds);
+    for(const profile of profiles||[])providers[profile.user_id]=profile.display_name;
+  }
   const ids=[...new Set(chats.map(c=>c.request_id).filter((id):id is string=>!!id))];
   if(ids.length){
     const {data:requests}=await db.from("service_requests").select("id,title").in("id",ids);
@@ -33,7 +39,7 @@ export default async function ConversationsPage(){
     <div className="cs-info-list">
       {chats.map(chat=><Link key={chat.id} href={"/conversas/"+encodeURIComponent(chat.id)} className="cs-list-card cs-card">
         <span className="cs-list-icon"><Icon name="mail"/></span>
-        <span style={{flex:1,minWidth:0}}><h3>{chat.request_id?titles[chat.request_id]||"Serviço contratado":"Conversa sobre serviço"}</h3>
+        <span style={{flex:1,minWidth:0}}><h3>{chat.request_id?titles[chat.request_id]||"Serviço contratado": "Contato com "+(providers[chat.provider_id]||"profissional")}</h3>
           <p>{chat.client_id===user.id?"Conversa com o profissional":"Conversa com o cliente"}</p></span>
         <Icon name="chevron"/>
       </Link>)}

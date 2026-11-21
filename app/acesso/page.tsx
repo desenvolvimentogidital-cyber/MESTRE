@@ -11,7 +11,7 @@ function AccessForm() {
   const params = useSearchParams();
   const suggestedType = params.get("tipo") === "prestador" ? "provider" : "client";
   const [type, setType] = useState<"client" | "provider">(suggestedType);
-  const [mode, setMode] = useState<"login" | "signup">(params.has("tipo") ? "signup" : "login");
+  const [mode, setMode] = useState<"login" | "signup">(params.has("tipo") && params.get("acessar")!=="1" ? "signup" : "login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
