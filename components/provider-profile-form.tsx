@@ -3,13 +3,15 @@ import {useState} from "react";
 import {createClient} from "@/lib/supabase/client";
 
 type Profile={display_name:string;bio:string|null;city:string|null;state:string|null;years_experience:number|null;is_active:boolean};
-export function ProviderProfileForm({userId,initial}:{userId:string;initial:Profile}){
+export function ProviderProfileForm({userId,initial,categories,selectedCategoryIds}:{userId:string;initial:Profile;categories:Array<{id:string;name:string}>;selectedCategoryIds:string[]}){
   const [name,setName]=useState(initial.display_name);
   const [bio,setBio]=useState(initial.bio||"");
   const [city,setCity]=useState(initial.city||"");
   const [state,setState]=useState(initial.state||"");
   const [years,setYears]=useState(initial.years_experience?.toString()||"");
   const [active,setActive]=useState(initial.is_active);
+  const [selected,setSelected]=useState<string[]>(selectedCategoryIds);
+  const [savedCategories,setSavedCategories]=useState<string[]>(selectedCategoryIds);
   const [busy,setBusy]=useState(false);
   const [message,setMessage]=useState("");
   const [error,setError]=useState("");
@@ -29,7 +31,18 @@ export function ProviderProfileForm({userId,initial}:{userId:string;initial:Prof
       }).eq("user_id",userId).select("user_id").maybeSingle();
       if(updateError)throw updateError;
       if(!data)throw new Error("O perfil não foi atualizado. Verifique sua permissão.");
-      setMessage("Perfil atualizado com sucesso.");
+      const added=selected.filter(id=>!savedCategories.includes(id));
+      const removed=savedCategories.filter(id=>!selected.includes(id));
+      if(added.length){
+        const {error:addError}=await db.from("provider_categories").insert(added.map(category_id=>({provider_id:userId,category_id})));
+        if(addError)throw addError;
+      }
+      if(removed.length){
+        const {error:deleteError}=await db.from("provider_categories").delete().eq("provider_id",userId).in("category_id",removed);
+        if(deleteError)throw deleteError;
+      }
+      setSavedCategories([...selected]);
+      setMessage("Perfil e áreas de atuação atualizados.");
     }catch(err){setError(err instanceof Error?err.message:"Não foi possível salvar seu perfil.");}
     finally{setBusy(false);}
   }
@@ -51,6 +64,10 @@ export function ProviderProfileForm({userId,initial}:{userId:string;initial:Prof
     <label className="cs-form-label">Anos de experiência
       <input type="number" min="0" max="80" step="1" inputMode="numeric" value={years} onChange={e=>setYears(e.target.value)}/>
     </label>
+    <div className="cs-form-label">Categorias de serviço
+      <p className="cs-hint" style={{margin:0}}>Marque as áreas em que você trabalha. Sem seleção, você verá pedidos de todas as categorias.</p>
+      <div className="cs-category-checks">{categories.map(category=><label key={category.id} className="cs-category-check"><input type="checkbox" checked={selected.includes(category.id)} onChange={e=>setSelected(current=>e.target.checked?[...current,category.id]:current.filter(id=>id!==category.id))}/>{category.name}</label>)}</div>
+    </div>
     <label className="cs-provider-toggle"><input type="checkbox" checked={active} onChange={e=>setActive(e.target.checked)}/>
       <span><strong>Perfil ativo</strong><small>Disponibiliza seu perfil e permite responder a pedidos publicados.</small></span>
     </label>
