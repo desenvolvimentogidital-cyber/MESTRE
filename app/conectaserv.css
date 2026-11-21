@@ -306,3 +306,40 @@ html[data-theme="dark"] .cs-tab.active{color:var(--orange);}
 .cs-install-guide svg{color:var(--blue);flex:0 0 auto;margin-top:2px;}
 .cs-install-quick{display:inline-flex;gap:9px;align-items:center;justify-content:center;padding:10px 5px;white-space:normal;}
 @media(max-width:440px){.cs-install-guide{padding:16px}.cs-install-heading{margin:9px auto 22px}.cs-install-icon{width:82px;height:82px;border-radius:22px;font-size:40px}}
+
+
+/* Public discovery and search — accessible on phones without an account */
+.cs-home-search{display:flex;gap:9px;align-items:stretch;width:100%;}
+.cs-home-search .cs-search{flex:1;min-width:0;margin:0;}
+.cs-home-search>.cs-button{flex:0 0 auto;min-width:90px;}
+.cs-public-shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0 8px;}
+.cs-public-shortcuts>a{display:flex;align-items:center;justify-content:center;gap:8px;min-height:49px;padding:11px 12px;color:var(--blue);border:1px solid var(--line);border-radius:13px;background:var(--surface);font-size:12px;font-weight:850;text-align:center;}
+.cs-public-shortcuts svg{flex-shrink:0;}
+.cs-public-search{display:grid;gap:13px;margin:19px 0 14px;}
+.cs-public-search .cs-search{margin:0;}
+.cs-public-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.cs-public-filters input,.cs-public-filters select{width:100%;}
+.cs-public-actions{display:flex;gap:10px;flex-wrap:wrap;}
+.cs-public-actions>.cs-button{flex:1;min-width:115px;}
+.cs-public-switch{display:flex;justify-content:space-between;align-items:center;gap:14px;margin:19px 0;padding:13px 15px;background:var(--soft);border:1px solid var(--line);border-radius:13px;}
+.cs-public-switch strong{font-size:12px;color:var(--ink);}
+.cs-public-switch a{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
+.cs-public-card{padding:18px;display:grid;gap:12px;}
+.cs-public-card>h3{margin:0;font-size:17px;color:var(--ink);line-height:1.35;}
+.cs-public-card>.cs-proposal-body{line-height:1.65;overflow-wrap:anywhere;margin:0;}
+.cs-public-head{display:flex;align-items:center;gap:13px;}
+.cs-public-head h3{font-size:16px;margin:0 0 5px;color:var(--ink);}
+.cs-public-head .cs-hint{display:flex;align-items:center;gap:4px;margin:0;}
+.cs-public-head>div:last-child{display:grid;gap:6px;}
+.cs-public-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.cs-public-tags>.cs-chip{font-size:11px;}
+.cs-public-tip{font-size:12px;text-align:center;margin:24px 0 8px;line-height:1.7;}
+@media(max-width:460px){
+  .cs-public-filters{grid-template-columns:1fr;}
+  .cs-home-search{flex-wrap:wrap;}
+  .cs-home-search .cs-search{flex-basis:100%;}
+  .cs-home-search>.cs-button{width:100%;}
+  .cs-public-switch{flex-wrap:wrap;justify-content:center;text-align:center;}
+  .cs-public-shortcuts>a{font-size:11px;padding:10px 8px;}
+  .cs-public-card{padding:15px;}
+}
