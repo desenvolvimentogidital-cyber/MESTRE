@@ -31,7 +31,7 @@ export default function ExplorePage() {
         const db = createClient();
         const [c, p] = await Promise.all([
           db.from("service_categories").select("id,name,slug").eq("is_active", true).order("name"),
-          db.from("provider_profiles").select("user_id,display_name,city,state,years_experience,is_verified,average_rating,review_count").eq("is_active", true).limit(5),
+          db.from("provider_profiles").select("user_id,display_name,city,state,years_experience,is_verified,average_rating,review_count").eq("is_active", true).eq("is_suspended",false).limit(5),
         ]);
         if (!mounted) return;
         if (c.error) throw c.error;
