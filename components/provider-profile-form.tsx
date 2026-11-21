@@ -2,7 +2,7 @@
 import {useState} from "react";
 import {createClient} from "@/lib/supabase/client";
 
-type Profile={display_name:string;bio:string|null;city:string|null;state:string|null;years_experience:number|null;is_active:boolean};
+type Profile={display_name:string;bio:string|null;city:string|null;state:string|null;years_experience:number|null;is_active:boolean;is_suspended:boolean};
 export function ProviderProfileForm({userId,initial,categories,selectedCategoryIds}:{userId:string;initial:Profile;categories:Array<{id:string;name:string}>;selectedCategoryIds:string[]}){
   const [name,setName]=useState(initial.display_name);
   const [bio,setBio]=useState(initial.bio||"");
@@ -69,8 +69,8 @@ export function ProviderProfileForm({userId,initial,categories,selectedCategoryI
       <p className="cs-hint" style={{margin:0}}>Marque as áreas em que você trabalha. Sem seleção, você verá pedidos de todas as categorias.</p>
       <div className="cs-category-checks">{categories.map(category=><label key={category.id} className="cs-category-check"><input type="checkbox" checked={selected.includes(category.id)} onChange={e=>setSelected(current=>e.target.checked?[...current,category.id]:current.filter(id=>id!==category.id))}/>{category.name}</label>)}</div>
     </div>
-    <label className="cs-provider-toggle"><input type="checkbox" checked={active} onChange={e=>setActive(e.target.checked)}/>
-      <span><strong>Perfil ativo</strong><small>Disponibiliza seu perfil e permite responder a pedidos publicados.</small></span>
+    <label className="cs-provider-toggle"><input type="checkbox" checked={active} disabled={initial.is_suspended} onChange={e=>setActive(e.target.checked)}/>
+      <span><strong>Perfil ativo</strong><small>{initial.is_suspended?"Suspenso pela moderação; procure a equipe para solicitar revisão.":"Disponibiliza seu perfil e permite responder a pedidos publicados."}</small></span>
     </label>
     {message&&<p className="cs-success" role="status">{message}</p>}
     {error&&<p className="cs-error" role="alert">{error}</p>}
