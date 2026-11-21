@@ -4,6 +4,8 @@ import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
+  // Cadastro e login nunca devem aguardar uma sessão existente para abrir.
+  if(request.nextUrl.pathname==="/api/auth/registrar" || request.nextUrl.pathname==="/acesso")return response;
   const protectedPath = /^\/(painel|cliente|prestador|admin|conversas|propostas|perfil|notificacoes|avaliar|denuncias)(\/|$)/.test(request.nextUrl.pathname);
   const url = supabaseUrl;
   const key = supabasePublishableKey;
