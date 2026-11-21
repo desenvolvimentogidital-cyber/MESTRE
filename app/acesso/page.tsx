@@ -30,6 +30,7 @@ function AccessForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [messageSuccess,setMessageSuccess]=useState(false);
 
   const requestedPath = params.get("redirectTo");
   const nextPath = requestedPath && requestedPath.startsWith("/") && !requestedPath.startsWith("//") && !requestedPath.startsWith("/\\")
@@ -40,6 +41,7 @@ function AccessForm() {
     if(busy)return;
     setBusy(true);
     setMessage("");
+    setMessageSuccess(false);
     try {
       if(mode==="signup"){
         const controller=new AbortController();
@@ -57,6 +59,7 @@ function AccessForm() {
           if(result.sessionReady){
             router.replace(nextPath);router.refresh();
           }else{
+            setMessageSuccess(true);
             setMessage(result.message||"Cadastro enviado. Confira seu e-mail para confirmar sua conta.");
             setMode("login");
             setPassword("");
@@ -122,12 +125,12 @@ function AccessForm() {
           <button type="submit" disabled={busy} className="cs-button cs-button-primary">{busy ? (mode==="signup"?"Enviando cadastro...":"Verificando acesso...") : mode === "login" ? "Entrar" : "Criar minha conta"}</button>
         </form>
         {(params.get("erro") === "configuracao" || params.get("erro") === "callback") && <p role="alert" className="cs-error">Não foi possível conectar à autenticação. A hospedagem precisa das variáveis públicas do Supabase.</p>}
-        {message && <p role="status" aria-live="polite" className="cs-error" style={{marginTop:12}}>{message}</p>}
+        {message && <p role={messageSuccess?"status":"alert"} aria-live="polite" className={messageSuccess?"cs-success":"cs-error"} style={{marginTop:12}}>{message}</p>}
         <p className="cs-hint" style={{textAlign:"center",marginTop:17}}>
           Por enquanto, utilize e-mail e senha. Acesso por Google e Facebook será liberado após a configuração.
         </p>
         <p className="cs-auth-note">{mode === "login" ? "Não tem uma conta?" : "Já tem uma conta?"}{" "}
-          <button type="button" onClick={() => { setMode(mode === "login" ? "signup" : "login"); setMessage(""); }}>{mode === "login" ? "Cadastre-se" : "Entrar"}</button>
+          <button type="button" onClick={() => { setMode(mode === "login" ? "signup" : "login"); setMessage("");setMessageSuccess(false); }}>{mode === "login" ? "Cadastre-se" : "Entrar"}</button>
         </p>
       </div>
     </section>
