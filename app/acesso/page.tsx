@@ -33,7 +33,7 @@ function AccessForm() {
         const { data, error } = await db.auth.signUp({
           email: email.trim(),
           password,
-          options: { data: { full_name: name.trim(), account_type: type } },
+          options: { data: { full_name: name.trim(), account_type: type }, emailRedirectTo: window.location.origin + "/auth/callback?next=" + encodeURIComponent(nextPath) },
         });
         if (error) throw error;
         if (data.session) {
@@ -59,7 +59,7 @@ function AccessForm() {
     setBusy(true); setMessage("");
     try {
       const db = createClient();
-      const { error } = await db.auth.resetPasswordForEmail(email.trim(), { redirectTo: window.location.origin + "/redefinir-senha" });
+      const { error } = await db.auth.resetPasswordForEmail(email.trim(), { redirectTo: window.location.origin + "/auth/callback?next=%2Fredefinir-senha" });
       if (error) throw error;
       setMessage("Se o e-mail estiver cadastrado, enviaremos um link para redefinir sua senha.");
     } catch (err) {
@@ -73,7 +73,7 @@ function AccessForm() {
       const db = createClient();
       const { error } = await db.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: window.location.origin + nextPath },
+        options: { redirectTo: window.location.origin + "/auth/callback?next=" + encodeURIComponent(nextPath) },
       });
       if (error) throw error;
     } catch {
@@ -110,7 +110,7 @@ function AccessForm() {
           </div>}
           <button type="submit" disabled={busy} className="cs-button cs-button-primary">{busy ? "Aguarde..." : mode === "login" ? "Entrar" : "Cadastrar"}</button>
         </form>
-        {params.get("erro") === "configuracao" && <p role="alert" className="cs-error">Não foi possível conectar à autenticação. A hospedagem precisa das variáveis públicas do Supabase.</p>}
+        {(params.get("erro") === "configuracao" || params.get("erro") === "callback") && <p role="alert" className="cs-error">Não foi possível conectar à autenticação. A hospedagem precisa das variáveis públicas do Supabase.</p>}
         {message && <p role="status" className="cs-error" style={{marginTop:12}}>{message}</p>}
         <div className="cs-auth-divider">ou entre com</div>
         <div className="cs-social-row">
@@ -126,5 +126,5 @@ function AccessForm() {
 }
 
 export default function AccessPage() {
-  return <Suspense fallback={<div className="loading">Carregando..."</div>}><AccessForm/></Suspense>;
+  return <Suspense fallback={<div className="loading">Carregando...</div>}><AccessForm/></Suspense>;
 }
