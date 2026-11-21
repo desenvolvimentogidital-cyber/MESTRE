@@ -47,7 +47,7 @@ export function Brand({ compact = false, centered = false }: { compact?: boolean
       <path d="M40 33a8 8 0 0 1 16 0v7H40Z" fill="#ff9818"/>
       <path d="M38 38h20" stroke="#102958" strokeWidth="3"/>
     </svg>
-    {!compact && <span className="cs-brand-word">Conecta<span>Serv</span><small>Encontre. Contrate. Realize.</small></span>}
+    {!compact && <span className="cs-brand-word"><strong>Conecta<span>Serv</span></strong><small>Encontre. Contrate. Realize.</small></span>}
   </Link>;
 }
 
