@@ -6,14 +6,10 @@ export const maxDuration=30;
 
 const allowedRoles=new Set(["client","provider"]);
 const emailPattern=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-function safeNext(value:unknown){
-  if(typeof value!=="string"||!value.startsWith("/")||value.startsWith("//")||value.startsWith("/\\"))return "/painel";
-  return value.slice(0,500);
-}
 function authMessage(message:string,code:string|undefined,status:number|undefined){
   const m=message.toLowerCase(),c=(code||"").toLowerCase();
   if(c.includes("email_address_not_authorized")||m.includes("email address not authorized")||m.includes("email not authorized")){
-    return "A confirmação por e-mail ainda não está liberada para este endereço. Precisamos configurar o envio de e-mails (SMTP) no Supabase antes de abrir cadastros ao público.";
+    return "O Supabase ainda exige envio de e-mail. Para liberar cadastro imediato, desative Confirm email em Authentication > Providers > Email no painel Supabase.";
   }
   if(status===429||c.includes("rate_limit")||m.includes("rate limit"))return "Muitas tentativas de cadastro. Aguarde alguns minutos e tente novamente.";
   if(c.includes("email_exists")||m.includes("already registered"))return "Não foi possível cadastrar este e-mail. Se já tiver conta, entre ou recupere sua senha.";
@@ -45,12 +41,9 @@ export async function POST(request:NextRequest){
 
   try{
     const db=await createClient();
-    const origin=new URL(request.url).origin;
-    const next=safeNext(body.next);
     const {data,error}=await db.auth.signUp({
       email,password,options:{
         data:{full_name:name,account_type:role},
-        emailRedirectTo:origin+"/auth/callback?next="+encodeURIComponent(next),
       },
     });
     if(error){
@@ -59,12 +52,12 @@ export async function POST(request:NextRequest){
       const mapped=authMessage(error.message,error.code,error.status);
       return NextResponse.json({error:mapped},{status:error.status===429?429:422});
     }
-    if(!data.user)return NextResponse.json({error:"Não recebemos confirmação do servidor de cadastro. Tente novamente."},{status:502});
+    if(!data.user)return NextResponse.json({error:"O servidor não confirmou a criação da conta. Tente novamente."},{status:502});
     const confirmed=Boolean(data.session);
     return NextResponse.json({
       ok:true,
       sessionReady:confirmed,
-      message:confirmed?"Cadastro concluído! Entrando na sua conta.":"Cadastro enviado. Verifique seu e-mail (inclusive Spam) e confirme a conta antes de entrar.",
+      message:confirmed?"Conta criada! Acessando o ConectaServ...":"O Supabase ainda está exigindo confirmação de e-mail. Desative Confirm email no painel do projeto para permitir entrar imediatamente, sem e-mail.",
     },{status:201,headers:{"Cache-Control":"no-store"}});
   }catch(err){
     console.error("conectaserv signup unexpected error",err instanceof Error?err.name:"unknown");
