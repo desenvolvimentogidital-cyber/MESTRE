@@ -60,7 +60,7 @@ function AccessForm() {
             router.replace(nextPath);router.refresh();
           }else{
             setMessageSuccess(true);
-            setMessage(result.message||"Cadastro enviado. Confira seu e-mail para confirmar sua conta.");
+            setMessage(result.message||"Para entrar sem confirmação, desative Confirm email no Supabase.");
             setMode("login");
             setPassword("");
           }
@@ -70,14 +70,14 @@ function AccessForm() {
         const {error}=await limitWait(db.auth.signInWithPassword({email:email.trim(),password}));
         if(error){
           if(error.code==="invalid_credentials")throw new Error("E-mail ou senha não conferem. Se ainda não tem conta, toque em Cadastre-se.");
-          if(error.code==="email_not_confirmed")throw new Error("Confirme seu e-mail antes de entrar. Confira também a pasta Spam.");
+          if(error.code==="email_not_confirmed")throw new Error("O Supabase ainda está exigindo confirmação de e-mail. Desative Confirm email no painel do Supabase para liberar o acesso imediato.");
           throw error;
         }
         router.replace(nextPath);router.refresh();
       }
     } catch (err) {
       const text=err instanceof Error?err.message:"Não foi possível acessar sua conta.";
-      setMessage(err instanceof Error&&err.name==="AbortError"?"O cadastro está demorando mais que o normal. Verifique sua internet e seu e-mail antes de tentar novamente.":text);
+      setMessage(err instanceof Error&&err.name==="AbortError"?"O cadastro está demorando mais que o normal. Confira sua internet antes de tentar novamente.":text);
     } finally {
       setBusy(false);
     }
@@ -107,7 +107,7 @@ function AccessForm() {
       <div className="cs-auth-card">
         <Brand centered/>
         <h1>{mode === "login" ? "Entrar na sua conta" : "Crie sua conta"}</h1>
-        <p className="cs-auth-sub">{mode === "login" ? "Entre com seu e-mail e senha. Se for sua primeira vez, escolha Cadastre-se abaixo." : "Escolha como deseja participar do ConectaServ. Depois, confirme seu e-mail."}</p>
+        <p className="cs-auth-sub">{mode === "login" ? "Entre com seu e-mail e senha. Se for sua primeira vez, escolha Cadastre-se abaixo." : "Escolha cliente ou profissional. O acesso será imediato quando a confirmação de e-mail estiver desativada no Supabase."}</p>
         {mode === "signup" && <div className="cs-role-switch">
           <button type="button" className={type === "client" ? "active" : ""} onClick={() => setType("client")}>Sou cliente</button>
           <button type="button" className={type === "provider" ? "active" : ""} onClick={() => setType("provider")}>Sou profissional</button>

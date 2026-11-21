@@ -48,10 +48,10 @@ Pagamentos e comissões foram intencionalmente adiados. Notificações push com 
 ## Administração — ativação segura
 A tabela `public.admin_members` inicia vazia; nenhum cadastro recebe poderes de administração automaticamente.
 
-1. Crie sua própria conta no app e confirme o e-mail.
+1. Crie sua própria conta no aplicativo. A confirmação por e-mail está temporariamente dispensada; confirme que a conta é sua antes de autorizar poderes administrativos.
 2. No SQL Editor do **seu** Supabase, identifique o usuário pelo endereço de e-mail confirmado:
 ```sql
-select id,email,email_confirmed_at from auth.users where email='<seu email>';
+select id,email,created_at from auth.users where email='<seu email>';
 ```
 3. Confira se a conta é a sua e, somente no editor administrativo do banco, autorize o UUID correspondente:
 ```sql
@@ -80,3 +80,17 @@ O aplicativo instalado utiliza a versão online do mesmo domínio. Alterações 
 - Para enviar um orçamento em um pedido público, é preciso entrar com conta profissional e acessar a área autenticada.
 - Conversas diretas têm limitação de novas solicitações por dia, acesso restrito aos participantes e não permitem contato com prestadores suspensos.
 
+
+
+## Cadastro sem confirmação de e-mail (temporário)
+O proprietário do projeto escolheu não exigir confirmação de e-mail por enquanto.
+
+**Configuração necessária no Supabase:** abra
+https://supabase.com/dashboard/project/iswfypzcjwrjnnuavans/auth/providers
+→ **Email** → desative **Confirm email** (Confirmar e-mail) → **Save**.
+
+Essa é uma configuração do Auth do Supabase e **não é controlada por uma migration SQL nem pelo código do GitHub**. Sem essa alteração manual, o Supabase poderá continuar retornando um usuário sem sessão ativa, impedindo o login imediato.
+
+Depois de desligar a confirmação, o fluxo do ConectaServ registra o usuário com `signUp` e redireciona diretamente ao painel, reutilizando a sessão devolvida pelo Supabase. Não são solicitados códigos ou cliques de confirmação.
+
+**Atenção:** sem verificação de e-mail, alguém pode cadastrar um endereço que não lhe pertence. Mantenha senhas fortes, moderação e controles de abuso; para lançamento público amplo, reavalie a confirmação e o SMTP. A recuperação de senha por e-mail ainda requer um provedor de envio configurado.
