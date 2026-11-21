@@ -6,7 +6,7 @@ import { AppFrame, FeaturePhoto, Icon } from "@/components/conectaserv-ui";
 import { createClient } from "@/lib/supabase/client";
 
 type Category = { id: string; name: string; slug: string };
-type Provider = { user_id: string; display_name: string; city: string | null; state: string | null; years_experience: number | null };
+type Provider = { user_id: string; display_name: string; city: string | null; state: string | null; years_experience: number | null; is_verified:boolean;average_rating:number;review_count:number };
 
 function iconFor(label: string): "hammer" | "bolt" | "drop" | "sparkle" | "camera" {
   const s = label.toLocaleLowerCase("pt-BR");
@@ -31,7 +31,7 @@ export default function ExplorePage() {
         const db = createClient();
         const [c, p] = await Promise.all([
           db.from("service_categories").select("id,name,slug").eq("is_active", true).order("name"),
-          db.from("provider_profiles").select("user_id,display_name,city,state,years_experience").eq("is_active", true).limit(5),
+          db.from("provider_profiles").select("user_id,display_name,city,state,years_experience,is_verified,average_rating,review_count").eq("is_active", true).limit(5),
         ]);
         if (!mounted) return;
         if (c.error) throw c.error;
@@ -79,8 +79,8 @@ export default function ExplorePage() {
     <div className="cs-section-head"><h2 className="cs-section-title">Profissionais em destaque</h2><Link className="cs-small-link" href="/cliente/novo">Pedir orçamento <Icon name="arrow" size={14}/></Link></div>
     {visibleProviders.length > 0 ? <div className="cs-info-list">{visibleProviders.map(pro => <div className="cs-provider-card cs-card" key={pro.user_id}>
       <div className="cs-provider-face" aria-hidden="true">👷</div>
-      <div><strong>{pro.display_name}</strong><small>{[pro.city,pro.state].filter(Boolean).join(", ") || "Profissional cadastrado"}{pro.years_experience ? " · " + pro.years_experience + " anos de experiência" : ""}</small></div>
-      <Link href="/cliente/novo" aria-label={"Solicitar serviço: " + pro.display_name}><Icon name="chevron"/></Link>
+      <div><strong>{pro.display_name} {pro.is_verified&&<span title="Perfil conferido pela equipe" className="cs-verified-mini"><Icon name="shield" size={14}/></span>}</strong><small>{[pro.city,pro.state].filter(Boolean).join(", ") || "Profissional cadastrado"}{pro.years_experience ? " · " + pro.years_experience + " anos de experiência" : ""}</small>{pro.review_count>0&&<small className="cs-rating-display"><Icon name="star" size={12}/> {Number(pro.average_rating).toFixed(1)} · {pro.review_count} avaliações</small>}</div>
+      <Link href={"/profissional/"+encodeURIComponent(pro.user_id)} aria-label={"Ver perfil: " + pro.display_name}><Icon name="chevron"/></Link>
     </div>)}</div> :
       !loading && <div className="cs-empty"><Icon name="user" size={25}/><h2>Profissionais chegando</h2><p>Ainda não há perfis disponíveis para exibir. Publique seu pedido e acompanhe as novidades.</p><Link className="cs-button cs-button-outline" href="/cliente/novo">Publicar pedido</Link></div>
     }

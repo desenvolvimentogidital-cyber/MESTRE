@@ -66,7 +66,10 @@ export default async function ClientHomePage() {
         <Link className="cs-button cs-button-primary" href="/conversas"><Icon name="mail" size={17}/> Conversar com o profissional</Link>
         <CompleteServiceButton requestId={request.id}/>
       </div>}
-      {request.status === "completed" && <p className="cs-hint" style={{marginBottom:0}}>Serviço encerrado. O histórico da conversa continua disponível.</p>}
+      {request.status === "completed" && <div style={{display:"grid",gap:9,marginTop:12}}>
+        <p className="cs-hint" style={{marginBottom:0}}>Serviço encerrado. O histórico da conversa continua disponível.</p>
+        <Link href={"/avaliar/"+encodeURIComponent(request.id)} className="cs-button cs-button-orange"><Icon name="star" size={17}/> Avaliar profissional</Link>
+      </div>}
     </article>)}</div>}
   </AppFrame>;
 }

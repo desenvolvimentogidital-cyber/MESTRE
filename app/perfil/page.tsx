@@ -8,7 +8,10 @@ export default async function ProfilePage() {
   const db = await createClient();
   const { data: { user } } = await db.auth.getUser();
   if (!user) redirect("/acesso?redirectTo=/perfil");
-  const { data: profile } = await db.from("profiles").select("full_name,account_type,phone").eq("id",user.id).maybeSingle();
+  const [{data:profile},{data:admin}]=await Promise.all([
+    db.from("profiles").select("full_name,account_type,phone").eq("id",user.id).maybeSingle(),
+    db.from("admin_members").select("user_id").eq("user_id",user.id).maybeSingle(),
+  ]);
   return <AppFrame active="perfil" title="Meu Perfil">
     <div className="cs-card cs-profile-card">
       <div className="cs-user-avatar" aria-hidden="true">👤</div>
@@ -24,6 +27,8 @@ export default async function ProfilePage() {
       <Link className="cs-menu-link" href="/propostas"><Icon name="mail"/><span>Minhas propostas</span><Icon name="chevron"/></Link>
       <Link className="cs-menu-link" href="/conversas"><Icon name="mail"/><span>Minhas conversas</span><Icon name="chevron"/></Link>
       <Link className="cs-menu-link" href="/notificacoes"><Icon name="bell"/><span>Notificações</span><Icon name="chevron"/></Link>
+      <Link className="cs-menu-link" href="/denuncias"><Icon name="shield"/><span>Minhas denúncias</span><Icon name="chevron"/></Link>
+      {admin&&<Link className="cs-menu-link" href="/admin"><Icon name="shield"/><span>Administração e moderação</span><Icon name="chevron"/></Link>}
       <div className="cs-menu-link"><Icon name="shield"/><span>Segurança da conta</span><span className="cs-hint" style={{marginLeft:"auto"}}>Conexão protegida</span></div>
       <div className="cs-menu-link">
         <form action="/auth/signout" method="post"><button type="submit"><Icon name="logout"/><span>Sair da conta</span></button></form>

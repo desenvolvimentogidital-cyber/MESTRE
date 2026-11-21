@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import {NotificationBell} from "@/components/notification-bell";
 import { useEffect, useState } from "react";
 
 type IconName = "home" | "briefcase" | "bell" | "user" | "search" | "bolt" | "drop" | "sparkle" | "hammer" | "arrow" | "chevron" | "moon" | "sun" | "heart" | "shield" | "menu" | "camera" | "star" | "check" | "location" | "clock" | "logout" | "mail" | "lock";
@@ -75,6 +76,7 @@ export function AppHeader({ title }: { title?: string }) {
   return <header className="cs-app-head">
     {title ? <Link href="/inicio" className="cs-back">‹</Link> : <Brand compact />}
     <strong>{title || "ConectaServ"}</strong>
+    <NotificationBell />
     <ThemeSwitch />
   </header>;
 }
@@ -97,7 +99,7 @@ export function AppFrame({ children, active, title }: { children: React.ReactNod
 
 export function FeaturePhoto({ kind = "builder", className = "" }: { kind?: "builder" | "camera"; className?: string }) {
   const src = kind === "builder"
-    ? "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=950&q=82"
-    : "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=950&q=82";
-  return <div className={"cs-feature-photo " + className}><img src={src} alt={kind === "builder" ? "Profissional da construção civil trabalhando" : "Serviço de câmera de segurança"}/></div>;
+    ? "https://images.unsplash.com/photo-1646227655718-dd721b681d91?auto=format&fit=crop&w=1080&q=85"
+    : "https://images.unsplash.com/photo-1676630656246-3047520adfdf?auto=format&fit=crop&w=1080&q=85";
+  return <div className={"cs-feature-photo " + className}><img src={src} loading={kind === "builder" ? "eager" : "lazy"} decoding="async" alt={kind === "builder" ? "Profissional de obra com capacete de segurança" : "Técnico instalando câmera de segurança em uma parede"}/></div>;
 }

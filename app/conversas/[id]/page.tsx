@@ -28,6 +28,7 @@ export default async function ConversationPage({params}:{params:Promise<{id:stri
     <Link href="/conversas" className="cs-small-link">← Minhas conversas</Link>
     <h1 className="cs-top-title" style={{marginTop:15}}>{title}</h1>
     <p className="cs-hint">{conversation.client_id===user.id?"Fale com o profissional contratado.":"Fale com o cliente que aceitou sua proposta."}</p>
+    <Link className="cs-small-link" href={"/denuncias/nova?userId="+encodeURIComponent(conversation.client_id===user.id?conversation.provider_id:conversation.client_id)+(conversation.request_id?"&requestId="+encodeURIComponent(conversation.request_id):"")}>Denunciar comportamento</Link>
     <ConversationThread conversationId={id} userId={user.id} requestId={conversation.request_id} initialStatus={status}/>
   </AppFrame>;
 }

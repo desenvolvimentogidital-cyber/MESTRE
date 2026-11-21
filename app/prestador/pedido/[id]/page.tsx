@@ -26,6 +26,7 @@ export default async function ProviderRequestPage({params}:{params:Promise<{id:s
   ]);
   return <AppFrame active="inicio" title="Detalhes do pedido">
     <Link href="/prestador" className="cs-small-link">← Voltar às oportunidades</Link>
+    <div style={{display:"flex",justifyContent:"flex-end",marginBottom:9}}><Link href={"/denuncias/nova?requestId="+encodeURIComponent(request.id)} className="cs-small-link">Denunciar pedido</Link></div>
     <div className="cs-card" style={{padding:20,marginTop:16}}>
       <span className="cs-chip">{category?.name||"Serviço"}</span>
       <h1 className="cs-top-title" style={{marginTop:14}}>{request.title}</h1>
