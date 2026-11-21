@@ -1,0 +1,36 @@
+name: Verificar site Mestre em producao
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-production:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Esperar deploy e verificar paginas publicas
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="https://mestre-rho.vercel.app"
+          for attempt in $(seq 1 25); do
+            echo "Tentativa $attempt: verificar versao publica"
+            good=1
+            for route in / /acesso /inicio; do
+              status=$(curl --max-redirs 5 --connect-timeout 6 --max-time 15 -sS -L -o /dev/null -w "%{http_code}" "$base$route") || status="erro"
+              echo "  $route: $status"
+              if [ "$status" != "200" ]; then good=0; fi
+            done
+            if [ "$good" = "1" ]; then
+              echo "Site em producao acessivel, sem loop de redirecionamento."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::Producao ainda inacessivel apos 25 tentativas."
+          exit 1
