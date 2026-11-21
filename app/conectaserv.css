@@ -236,3 +236,8 @@ html[data-theme="dark"] .cs-tab.active{color:var(--orange);}
 .cs-provider-toggle span{display:grid;gap:4px;}
 .cs-provider-toggle small{color:var(--muted);font-size:11px;line-height:1.5;}
 @media(max-width:400px){.cs-form-two{grid-template-columns:1fr;}.cs-offer-form{padding:17px;}}
+
+.cs-category-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;}
+.cs-category-check{display:flex;align-items:center;gap:9px;padding:11px;background:var(--soft);border-radius:11px;color:var(--ink);font-size:12px;font-weight:700;cursor:pointer;}
+.cs-category-check input{width:16px;height:16px;flex-shrink:0;accent-color:var(--blue);}
+@media(max-width:430px){.cs-category-checks{grid-template-columns:1fr;}}
