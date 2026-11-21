@@ -23,7 +23,7 @@ export default function Home() {
             <Link className="btn btn-primary" href="/acesso?tipo=cliente">Quero contratar <span>→</span></Link>
             <Link className="btn btn-secondary" href="/acesso?tipo=prestador">Quero oferecer serviços</Link>
           </div>
-          <div className="trust-line"><span className="trust-icon">✓</span> Cadastro gratuito · Sem comissão · Sem mensalidade</div>
+          <div className="trust-line"><span className="trust-icon">✓</span> Cadastro gratuito · Publique pedidos · Compare propostas</div>
         </div>
 
         <div className="visual" aria-label="Exemplo de profissionais disponíveis">
