@@ -17,7 +17,8 @@ button {cursor:pointer;}
 .cs-brand {display:inline-flex;align-items:center;gap:7px;line-height:1;}
 .cs-mark {width:55px;height:49px;display:block;flex-shrink:0;}
 .cs-brand-word {display:flex;flex-direction:column;white-space:nowrap;color:var(--ink);font-size:clamp(23px,5vw,35px);font-weight:900;letter-spacing:-1.6px;}
-.cs-brand-word>span {color:var(--orange);}
+.cs-brand-word strong{font:inherit;white-space:nowrap;display:block;}
+.cs-brand-word strong span {color:var(--orange);}
 .cs-brand-word small {font-weight:750;font-size:10px;letter-spacing:-.15px;margin-top:5px;}
 .cs-brand.centered {flex-direction:column;gap:4px;align-items:center;}
 .cs-brand.centered .cs-mark{height:95px;width:112px;}
