@@ -33,5 +33,34 @@ Abra http://localhost:3000.
 - A chave publishable pode ser usada no navegador; a proteção dos dados é feita pelas políticas RLS do Supabase.
 - Não use dados de `user_metadata` para decisões de autorização.
 
-## Estado atual
-A base visual, rotas de acesso e integração inicial de autenticação estão implementadas. Os fluxos de perfil, pedidos, propostas, chat, avaliações e administração ainda serão desenvolvidos e testados antes de considerar o produto pronto.
+## ConectaServ — módulos implementados
+- Identidade visual responsiva com temas claro e escuro.
+- Cadastro de clientes e profissionais e seleção de categorias.
+- Publicação de pedidos com localização; profissionais da categoria podem enviar propostas.
+- Aceite ou recusa de proposta, chat privado e conclusão de contratação.
+- Avaliações com 1 a 5 estrelas após serviço concluído; média real no perfil público.
+- Notificações automáticas **dentro do aplicativo** para novas oportunidades, propostas, contratações, mensagens, encerramentos e moderação.
+- Solicitação de conferência do perfil e aprovação/rejeição pela equipe.
+- Denúncias, fila administrativa e ações de moderação, restritas a administradores.
+
+Pagamentos e comissões foram intencionalmente adiados. Notificações push com o navegador fechado **não** estão configuradas, e o primeiro administrador precisa ser autorizado manualmente pelo proprietário do banco.
+
+## Administração — ativação segura
+A tabela `public.admin_members` inicia vazia; nenhum cadastro recebe poderes de administração automaticamente.
+
+1. Crie sua própria conta no app e confirme o e-mail.
+2. No SQL Editor do **seu** Supabase, identifique o usuário pelo endereço de e-mail confirmado:
+```sql
+select id,email,email_confirmed_at from auth.users where email='<seu email>';
+```
+3. Confira se a conta é a sua e, somente no editor administrativo do banco, autorize o UUID correspondente:
+```sql
+insert into public.admin_members(user_id) values ('<uuid confirmado>');
+```
+4. Abra `/admin`. Nenhum usuário comum consegue conceder essa permissão pelo navegador.
+
+O selo **Perfil conferido pela equipe** representa análise manual de informações profissionais. Não equivale à validação oficial de identidade nem substitui análise documental especializada.
+
+## Validação de homologação
+O código tem lint/build e verificações automatizadas de rotas. **Os testes com duas contas reais ainda são manuais.** Consulte `docs/HOMOLOGACAO.md` para o roteiro completo.
+
