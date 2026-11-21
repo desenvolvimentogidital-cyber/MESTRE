@@ -151,9 +151,19 @@ with check (
   )
 );
 
-alter table public.messages
-  add constraint messages_nonempty_and_limited_body
-  check (char_length(btrim(body)) between 1 and 2000);
+do $constraint$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.messages'::regclass
+      and conname = 'messages_nonempty_and_limited_body'
+  ) then
+    alter table public.messages
+      add constraint messages_nonempty_and_limited_body
+      check (char_length(btrim(body)) between 1 and 2000);
+  end if;
+end;
+$constraint$;
 
 drop policy if exists messages_insert_sender_participant on public.messages;
 create policy messages_insert_sender_participant on public.messages for insert to authenticated
