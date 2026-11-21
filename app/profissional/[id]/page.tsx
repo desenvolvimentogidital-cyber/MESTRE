@@ -1,14 +1,21 @@
 import Link from "next/link";
+import {redirect} from "next/navigation";
+import {ContactProfessional} from "@/components/contact-professional";
 import {AppFrame,Icon} from "@/components/conectaserv-ui";
 import {createClient} from "@/lib/supabase/server";
 
 type Review={id:string;rating:number;comment:string|null;created_at:string};
-export default async function ProfessionalProfilePage({params}:{params:Promise<{id:string}>}){
+export default async function ProfessionalProfilePage({params,searchParams}:{params:Promise<{id:string}>;searchParams:Promise<{iniciar?:string}>}){
   const {id}=await params;
+  const {iniciar}=await searchParams;
   const db=await createClient();
+  if(iniciar==="1"){
+    const {data:{user}}=await db.auth.getUser();
+    if(!user)redirect("/acesso?redirectTo="+encodeURIComponent("/profissional/"+encodeURIComponent(id)+"?iniciar=1"));
+  }
   const {data:pro}=await db.from("provider_profiles")
     .select("user_id,display_name,bio,city,state,years_experience,is_verified,average_rating,review_count")
-    .eq("user_id",id).eq("is_active",true).maybeSingle();
+    .eq("user_id",id).eq("is_active",true).eq("is_suspended",false).maybeSingle();
   if(!pro)return <AppFrame active="inicio" title="Profissional">
     <div className="cs-empty"><Icon name="user" size={28}/><h2>Perfil indisponível</h2><p>Não foi possível encontrar este profissional ativo.</p>
       <Link href="/inicio" className="cs-button cs-button-outline">Voltar aos serviços</Link></div>
@@ -45,7 +52,8 @@ export default async function ProfessionalProfilePage({params}:{params:Promise<{
       <Link className="cs-small-link" href={"/denuncias/nova?reviewId="+encodeURIComponent(review.id)}>Denunciar avaliação</Link>
     </article>)}</div>
     <div className="cs-section-head"><h2 className="cs-section-title">Contrate com segurança</h2></div>
-    <Link className="cs-button cs-button-primary" href="/cliente/novo">Publicar um pedido de serviço</Link>
+    <ContactProfessional providerId={id} autoStart={iniciar==="1"}/>
+    <Link className="cs-button cs-button-outline" style={{marginTop:12}} href="/cliente/novo">Publicar um pedido de serviço</Link>
     <Link className="cs-small-link" style={{marginTop:17}} href={"/denuncias/nova?userId="+encodeURIComponent(pro.user_id)}>Denunciar este perfil</Link>
   </AppFrame>;
 }
