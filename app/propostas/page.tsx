@@ -8,7 +8,7 @@ import {ProposalDecision} from "@/components/proposal-decision";
 
 type Proposal={
   id:string;request_id:string;provider_id:string;status:string;
-  amount:number|null;message:string;created_at:string;estimated_days:number|null;title?:string;
+  amount:number|null;message:string;created_at:string;estimated_days:number|null;title?:string;providerName?:string;
 };
 type Tab="all"|"sent"|"accepted";
 type Role="client"|"provider"|"both";
@@ -47,7 +47,13 @@ export default function ProposalsPage(){
               .in("request_id",(requests||[]).map(r=>r.id)).order("created_at",{ascending:false});
             if(proposalError)throw proposalError;
             const titles=Object.fromEntries((requests||[]).map(r=>[r.id,r.title]));
-            if(mounted)setReceived(((proposals||[]) as Proposal[]).map(p=>({...p,title:titles[p.request_id]})));
+            const offerList=(proposals||[]) as Proposal[];
+            const providers=[...new Set(offerList.map(p=>p.provider_id))];
+            const {data:providerProfiles}=providers.length
+              ? await db.from("provider_profiles").select("user_id,display_name").in("user_id",providers)
+              : {data:[] as Array<{user_id:string;display_name:string}>};
+            const names=Object.fromEntries((providerProfiles||[]).map(p=>[p.user_id,p.display_name]));
+            if(mounted)setReceived(offerList.map(p=>({...p,title:titles[p.request_id],providerName:names[p.provider_id]})));
           }
         }
         if(currentRole!=="client"){
@@ -105,7 +111,7 @@ export default function ProposalsPage(){
     </div>}
     {!busy&&!error&&filtered.map(proposal=><article className="cs-card cs-proposal-card" key={proposal.id}>
       <div className="cs-proposal-top">
-        <div><h3>{proposal.title||"Pedido de serviço"}</h3><span className="cs-proposal-date">{new Intl.DateTimeFormat("pt-BR",{dateStyle:"short"}).format(new Date(proposal.created_at))}</span></div>
+        <div><h3>{proposal.title||"Pedido de serviço"}</h3>{!isSent&&<p className="cs-hint" style={{margin:"5px 0"}}>Profissional: {proposal.providerName||"Profissional cadastrado"}</p>}<span className="cs-proposal-date">{new Intl.DateTimeFormat("pt-BR",{dateStyle:"short"}).format(new Date(proposal.created_at))}</span></div>
         <span className={"cs-status "+proposal.status}>{statusName[proposal.status]||proposal.status}</span>
       </div>
       <strong className="cs-price">{proposal.amount===null?"Sob consulta":money(proposal.amount)}</strong>
