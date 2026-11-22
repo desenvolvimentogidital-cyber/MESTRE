@@ -26,7 +26,16 @@ export function ConversationThread({conversationId,userId,requestId,initialStatu
         .order("created_at",{ascending:false}).limit(100);
       if(!active)return;
       if(fetchError){setError("Não foi possível carregar as mensagens.");}
-      else{setMessages(((data||[]) as Message[]).reverse());setError("");}
+      else{
+        setMessages(((data||[]) as Message[]).reverse());
+        setError("");
+        if(document.visibilityState==="visible"){
+          const {data:count,error:markError}=await db.rpc("mark_my_chat_read",{p_conversation_id:conversationId});
+          if(active&&!markError&&Number(count)>0){
+            window.dispatchEvent(new Event("cs-chat-read"));
+          }
+        }
+      }
       if(requestId){
         const {data:request}=await db.from("service_requests").select("status").eq("id",requestId).maybeSingle();
         if(active&&request)setStatus(request.status);
@@ -35,7 +44,10 @@ export function ConversationThread({conversationId,userId,requestId,initialStatu
     }
     void fetchThread();
     const timer=window.setInterval(()=>{void fetchThread();},8000);
-    return()=>{active=false;window.clearInterval(timer);};
+    function onFocus(){void fetchThread();}
+    window.addEventListener("focus",onFocus);
+    document.addEventListener("visibilitychange",onFocus);
+    return()=>{active=false;window.clearInterval(timer);window.removeEventListener("focus",onFocus);document.removeEventListener("visibilitychange",onFocus);};
   },[conversationId,requestId]);
   useEffect(()=>{tail.current?.scrollIntoView({behavior:"smooth",block:"end"});},[messages.length]);
 
@@ -81,6 +93,6 @@ export function ConversationThread({conversationId,userId,requestId,initialStatu
           {sending?"Enviando...":"Enviar"} <Icon name="arrow" size={16}/>
         </button>
       </form>}
-    <p className="cs-hint" style={{textAlign:"center"}}>As mensagens são atualizadas automaticamente durante a conversa.</p>
+    <p className="cs-hint" style={{textAlign:"center"}}>Mensagens novas aparecem aqui. Ao abrir a conversa, elas são marcadas como lidas.</p>
   </section>;
 }

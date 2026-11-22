@@ -38,7 +38,7 @@ export default function NotificationsPage(){
       setActor(auth.user.id);
       const {data, error:queryError}=await db.from("notifications")
         .select("id,kind,title,body,request_id,conversation_id,read_at,created_at")
-        .eq("recipient_id",auth.user.id).order("created_at",{ascending:false}).limit(75);
+        .eq("recipient_id",auth.user.id).neq("kind","new_message").order("created_at",{ascending:false}).limit(75);
       if(!active)return;
       if(queryError)setError("Não foi possível carregar seus avisos.");
       else{setItems((data||[]) as Notification[]);setError("");}
@@ -82,7 +82,7 @@ export default function NotificationsPage(){
     {error&&<p className="cs-error" role="alert">{error}</p>}
     {!busy&&shown.length===0&&<div className="cs-empty"><Icon name="bell" size={30}/>
       <h2>{unreadOnly?"Nenhum aviso pendente":"Ainda não há notificações"}</h2>
-      <p>Você receberá avisos automaticamente dentro do aplicativo sobre pedidos, orçamentos, mensagens e contratações.</p>
+      <p>Avisos sobre pedidos e propostas ficam aqui. Novas mensagens aparecem diretamente na aba Mensagens e dentro de cada conversa.</p>
       <Link className="cs-button cs-button-outline" href="/inicio">Ir para serviços</Link>
     </div>}
     <div className="cs-info-list">{shown.map(item=><article className={"cs-card cs-notice "+(!item.read_at?"is-new":"")} key={item.id}>
@@ -96,6 +96,6 @@ export default function NotificationsPage(){
         </div>
       </div>
     </article>)}</div>
-    <p className="cs-hint" style={{marginTop:20,textAlign:"center"}}>Os avisos são atualizados automaticamente enquanto você utiliza o ConectaServ.</p>
+    <p className="cs-hint" style={{marginTop:20,textAlign:"center"}}>Avisos gerais ficam nesta tela. Para mensagens novas, acesse Mensagens.</p>
   </AppFrame>;
 }

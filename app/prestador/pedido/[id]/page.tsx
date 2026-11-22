@@ -10,7 +10,7 @@ export default async function ProviderRequestPage({params}:{params:Promise<{id:s
   const {data:{user}}=await db.auth.getUser();
   if(!user)redirect("/acesso?redirectTo=/prestador");
   const {data:profile}=await db.from("profiles").select("account_type").eq("id",user.id).maybeSingle();
-  if(!profile || !["provider","both"].includes(profile.account_type))redirect("/inicio");
+  if(!profile || profile.account_type!=="provider")redirect("/inicio");
   const {data:provider}=await db.from("provider_profiles").select("is_active,is_suspended").eq("user_id",user.id).maybeSingle();
   if(provider?.is_suspended)redirect("/prestador");
   if(!provider?.is_active)redirect("/prestador/perfil");

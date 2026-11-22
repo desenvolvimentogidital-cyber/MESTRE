@@ -12,6 +12,7 @@ export default async function ProfilePage() {
     db.from("profiles").select("full_name,account_type,phone").eq("id",user.id).maybeSingle(),
     db.from("admin_members").select("user_id").eq("user_id",user.id).maybeSingle(),
   ]);
+  if(profile?.account_type!=="client"&&profile?.account_type!=="provider") redirect("/inicio");
   return <AppFrame active="perfil" title="Meu Perfil">
     <div className="cs-card cs-profile-card">
       <div className="cs-user-avatar" aria-hidden="true">👤</div>
@@ -22,10 +23,10 @@ export default async function ProfilePage() {
     <div className="cs-section-head"><h2 className="cs-section-title">Minha conta</h2></div>
     <div className="cs-card">
       <div className="cs-menu-link"><Icon name="user"/> <span>Meus dados</span> <span className="cs-hint" style={{marginLeft:"auto"}}>{profile?.phone || "Cadastro"}</span></div>
-      {profile?.account_type !== "provider" && <Link className="cs-menu-link" href="/cliente"><Icon name="briefcase"/><span>Meus pedidos</span><Icon name="chevron"/></Link>}
-      {(profile?.account_type === "provider" || profile?.account_type === "both") && <><Link className="cs-menu-link" href="/prestador"><Icon name="search"/><span>Pedidos para atender</span><Icon name="chevron"/></Link><Link className="cs-menu-link" href="/prestador/perfil"><Icon name="user"/><span>Meu perfil profissional</span><Icon name="chevron"/></Link></>}
+      {profile?.account_type === "client" && <Link className="cs-menu-link" href="/cliente"><Icon name="briefcase"/><span>Meus pedidos</span><Icon name="chevron"/></Link>}
+      {profile?.account_type === "provider" && <><Link className="cs-menu-link" href="/prestador"><Icon name="search"/><span>Pedidos para atender</span><Icon name="chevron"/></Link><Link className="cs-menu-link" href="/prestador/perfil"><Icon name="user"/><span>Meu perfil profissional</span><Icon name="chevron"/></Link></>}
       <Link className="cs-menu-link" href="/propostas"><Icon name="mail"/><span>Minhas propostas</span><Icon name="chevron"/></Link>
-      <Link className="cs-menu-link" href="/conversas"><Icon name="mail"/><span>Minhas conversas</span><Icon name="chevron"/></Link>
+      <Link className="cs-menu-link" href="/conversas"><Icon name="mail"/><span>Mensagens dos meus serviços</span><Icon name="chevron"/></Link>
       <Link className="cs-menu-link" href="/notificacoes"><Icon name="bell"/><span>Notificações</span><Icon name="chevron"/></Link>
       <Link className="cs-menu-link" href="/instalar"><Icon name="download"/><span>Instalar ConectaServ no celular</span><Icon name="chevron"/></Link>
       <Link className="cs-menu-link" href="/denuncias"><Icon name="shield"/><span>Minhas denúncias</span><Icon name="chevron"/></Link>

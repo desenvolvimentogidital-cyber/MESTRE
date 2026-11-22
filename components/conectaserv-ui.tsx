@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import {NotificationBell} from "@/components/notification-bell";
+import {MessageUnreadBadge} from "@/components/message-unread-badge";
+import {createClient} from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
 
 type IconName = "home" | "briefcase" | "bell" | "user" | "search" | "bolt" | "drop" | "sparkle" | "hammer" | "arrow" | "chevron" | "moon" | "sun" | "heart" | "shield" | "menu" | "camera" | "star" | "check" | "location" | "clock" | "logout" | "mail" | "lock" | "download";
@@ -77,25 +78,69 @@ export function AppHeader({ title }: { title?: string }) {
   return <header className="cs-app-head">
     {title ? <Link href="/inicio" className="cs-back">‹</Link> : <Brand compact />}
     <strong>{title || "ConectaServ"}</strong>
-    <NotificationBell />
     <ThemeSwitch />
   </header>;
 }
 
-export function BottomNav({ active }: { active: "inicio" | "propostas" | "notificacoes" | "conversas" | "perfil" }) {
-  const tabs = [
-    { id: "inicio", href: "/inicio", name: "Início", icon: "home" },
-    { id: "propostas", href: "/propostas", name: "Propostas", icon: "briefcase" },
-    { id: "conversas", href: "/conversas", name: "Conversas", icon: "mail" },
-    { id: "perfil", href: "/perfil", name: "Perfil", icon: "user" },
-  ] as const;
-  return <nav className="cs-bottom-nav" aria-label="Navegação principal">
-    {tabs.map(tab => <Link key={tab.id} href={tab.href} className={"cs-tab" + (active === tab.id ? " active" : "")} aria-current={active === tab.id ? "page" : undefined}><Icon name={tab.icon} size={22}/><span>{tab.name}</span></Link>)}
+type NavSection="inicio"|"propostas"|"notificacoes"|"conversas"|"perfil";
+type NavRole="loading"|"guest"|"client"|"provider";
+type NavTab={id:NavSection|"buscar"|"pedidos"|"acesso";href:string;name:string;icon:IconName};
+
+export function BottomNav({active}:{active:NavSection}){
+  const [role,setRole]=useState<NavRole>("loading");
+  useEffect(()=>{
+    let live=true;
+    const db=createClient();
+    async function resolveRole(){
+      const {data:auth}=await db.auth.getUser();
+      if(!live)return;
+      if(!auth.user){setRole("guest");return;}
+      const {data:profile}=await db.from("profiles").select("account_type").eq("id",auth.user.id).maybeSingle();
+      if(!live)return;
+      setRole(profile?.account_type==="client"?"client":profile?.account_type==="provider"?"provider":"guest");
+    }
+    void resolveRole();
+    return()=>{live=false;};
+  },[]);
+  if(role==="loading")return <nav className="cs-bottom-nav cs-bottom-nav-loading" aria-label="Carregando menu"><span className="cs-hint">Carregando seu menu...</span></nav>;
+  const tabs:NavTab[]=role==="client"?
+    [
+      {id:"inicio",href:"/cliente",name:"Meus pedidos",icon:"home"},
+      {id:"propostas",href:"/propostas",name:"Propostas",icon:"briefcase"},
+      {id:"conversas",href:"/conversas",name:"Mensagens",icon:"mail"},
+      {id:"perfil",href:"/perfil",name:"Meu perfil",icon:"user"},
+    ]:role==="provider"?
+    [
+      {id:"inicio",href:"/prestador",name:"Oportunidades",icon:"home"},
+      {id:"propostas",href:"/propostas",name:"Orçamentos",icon:"briefcase"},
+      {id:"conversas",href:"/conversas",name:"Mensagens",icon:"mail"},
+      {id:"perfil",href:"/perfil",name:"Meu perfil",icon:"user"},
+    ]:[
+      {id:"inicio",href:"/inicio",name:"Início",icon:"home"},
+      {id:"buscar",href:"/profissionais",name:"Profissionais",icon:"search"},
+      {id:"pedidos",href:"/oportunidades",name:"Pedidos",icon:"briefcase"},
+      {id:"acesso",href:"/acesso",name:"Entrar",icon:"user"},
+    ];
+  return <nav className="cs-bottom-nav" aria-label={role==="provider"?"Navegação profissional":role==="client"?"Navegação do cliente":"Navegação pública"}>
+    {tabs.map(tab=><Link key={tab.id} href={tab.href}
+      className={"cs-tab"+(active===tab.id?" active":"")}
+      aria-current={active===tab.id?"page":undefined}>
+      <span className="cs-nav-icon-wrap">
+        <Icon name={tab.icon} size={22}/>
+        {tab.id==="conversas"&&<MessageUnreadBadge/>}
+      </span>
+      <span>{tab.name}</span>
+    </Link>)}
   </nav>;
 }
 
-export function AppFrame({ children, active, title }: { children: React.ReactNode; active: "inicio" | "propostas" | "notificacoes" | "conversas" | "perfil"; title?: string }) {
-  return <main className="cs-app"><AppHeader title={title}/><section className="cs-app-body">{children}</section><BottomNav active={active}/></main>;
+export function AppFrame({children,active,title}:{
+  children:React.ReactNode;active:NavSection;title?:string;
+}){
+  return <main className="cs-app"><AppHeader title={title}/>
+    <section className="cs-app-body">{children}</section>
+    <BottomNav active={active}/>
+  </main>;
 }
 
 export function FeaturePhoto({ kind = "builder", className = "" }: { kind?: "builder" | "camera"; className?: string }) {
