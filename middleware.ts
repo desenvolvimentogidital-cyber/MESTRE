@@ -6,6 +6,15 @@ export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
   // Cadastro e login nunca devem aguardar uma sessão existente para abrir.
   if(request.nextUrl.pathname==="/api/auth/registrar" || request.nextUrl.pathname==="/acesso")return response;
+  // /admin is deliberately public only for its *login gate*. The server page
+  // verifies a real Supabase user AND an admin_members row before data is fetched.
+  // Never redirect this private login to the marketplace's /acesso page.
+  if(request.nextUrl.pathname==="/admin" || request.nextUrl.pathname==="/admin/"){
+    response.headers.set("Cache-Control","private, no-store");
+    response.headers.set("X-Robots-Tag","noindex, nofollow, noarchive");
+    return response;
+  }
+
   const protectedPath = /^\/(painel|cliente|prestador|admin|conversas|propostas|perfil|notificacoes|avaliar|denuncias)(\/|$)/.test(request.nextUrl.pathname);
   const url = supabaseUrl;
   const key = supabasePublishableKey;
