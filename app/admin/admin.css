@@ -227,3 +227,7 @@ html[data-theme="dark"] .mf-admin-demo-notice{background:#153e30;color:#b8f1d5;b
   border:1px solid var(--admin-line);overflow-wrap:anywhere;font-size:12px;
 }
 .mf-admin-onboarding-help{margin:0;}
+
+.mf-admin-login-card>a.mf-admin-demo-secondary{
+  display:grid;place-items:center;text-align:center;text-decoration:none;
+}
