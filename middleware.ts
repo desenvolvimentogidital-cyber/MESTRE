@@ -11,6 +11,13 @@ export async function middleware(request: NextRequest) {
   // Never redirect this private login to the marketplace's /acesso page.
   // Only the isolated, mock-only admin demo is publicly reachable.
   // It does not query Supabase or grant admin membership.
+  // Owner activation is publicly reachable, but only the signed-in,
+  // one-time invite RPC can grant the first real admin membership.
+  if(request.nextUrl.pathname==="/admin/ativar" || request.nextUrl.pathname==="/admin/ativar/"){
+    response.headers.set("Cache-Control","private, no-store");
+    response.headers.set("X-Robots-Tag","noindex, nofollow, noarchive");
+    return response;
+  }
   if(request.nextUrl.pathname==="/admin/teste" || request.nextUrl.pathname==="/admin/teste/"){
     response.headers.set("Cache-Control","private, no-store");
     response.headers.set("X-Robots-Tag","noindex, nofollow, noarchive");
