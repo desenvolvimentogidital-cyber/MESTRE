@@ -28,6 +28,22 @@ export default async function ClientHomePage() {
     const { data } = await db.from("service_categories").select("id,name").in("id",ids);
     (data || []).forEach(category => { names[category.id] = category.name; });
   }
+  const requestIds=requests.map(r=>r.id);
+  const chatsByRequest:Record<string,string>={};
+  const unreadByRequest:Record<string,number>={};
+  if(requestIds.length){
+    const [{data:chats},{data:inbox}]=await Promise.all([
+      db.from("conversations").select("id,request_id").eq("client_id",user.id).in("request_id",requestIds),
+      db.rpc("my_chat_inbox"),
+    ]);
+    const unreadByChat=new Map((inbox||[]).map(chat=>[chat.conversation_id,Number(chat.unread_count)||0]));
+    for(const chat of chats||[]){
+      if(chat.request_id){
+        chatsByRequest[chat.request_id]=chat.id;
+        unreadByRequest[chat.request_id]=unreadByChat.get(chat.id)||0;
+      }
+    }
+  }
   const countActive = requests.filter(r => r.status === "published" || r.status === "in_progress").length;
   return <AppFrame active="inicio" title="Meus Pedidos">
     <div className="cs-home-hello">
@@ -63,7 +79,13 @@ export default async function ClientHomePage() {
         <time className="cs-proposal-date" dateTime={request.created_at}>{new Intl.DateTimeFormat("pt-BR",{dateStyle:"short"}).format(new Date(request.created_at))}</time>
       </div>
       {request.status === "in_progress" && <div style={{display:"grid",gap:9,marginTop:12}}>
-        <Link className="cs-button cs-button-primary" href="/conversas"><Icon name="mail" size={17}/> Conversar com o profissional</Link>
+        <Link className="cs-button cs-button-primary"
+          href={chatsByRequest[request.id]?"/conversas/"+encodeURIComponent(chatsByRequest[request.id]):"/conversas"}>
+          <Icon name="mail" size={17}/> Mensagens deste serviço
+          {unreadByRequest[request.id]>0&&<span className="cs-message-count cs-message-count-inline">
+            {unreadByRequest[request.id]>99?"99+":unreadByRequest[request.id]}
+          </span>}
+        </Link>
         <CompleteServiceButton requestId={request.id}/>
       </div>}
       {request.status === "completed" && <div style={{display:"grid",gap:9,marginTop:12}}>
