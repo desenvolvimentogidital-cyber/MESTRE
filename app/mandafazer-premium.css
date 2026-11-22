@@ -479,3 +479,71 @@ html[data-theme="dark"] .mf-discovery-banner .cs-feature-photo::before{
 @media(prefers-reduced-motion:reduce){
   .cs-tab,.mf-category,.cs-button,.mf-quick-actions>a{transition:none;}
 }
+
+
+/* Login/registration: restrained and centered, matching account dashboards */
+.cs-auth-main{
+  padding:22px;
+  background:radial-gradient(ellipse 400px 260px at 50% 2%,rgba(30,135,235,.07),transparent),var(--bg);
+}
+.cs-auth-card{
+  width:min(100%,460px);
+  background:var(--surface);
+  border:1px solid var(--line);
+  padding:28px 30px 30px;
+  border-radius:26px;
+  box-shadow:var(--mf-raised);
+}
+.cs-auth-card .cs-brand-mandafazer{
+  display:flex;
+  max-width:300px;
+  margin:0 auto 14px;
+}
+.cs-auth-card h1{
+  font-size:clamp(24px,5vw,30px);
+  text-align:center;margin:8px 0 6px;
+  letter-spacing:-.9px;
+}
+.cs-auth-card .cs-auth-sub{
+  text-align:center;
+  max-width:350px;
+  margin:0 auto 20px;
+  color:var(--muted);
+  line-height:1.55;
+}
+.cs-auth-card label{color:var(--ink);}
+.cs-auth-card input{
+  border:1px solid var(--line);
+  background:var(--bg);
+  color:var(--ink);
+  border-radius:12px;
+  box-shadow:none;
+}
+.cs-auth-card input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(28,145,239,.12);}
+.cs-auth-card .cs-button-primary{margin-top:12px;min-height:50px;}
+.cs-auth-card .cs-auth-note{margin-top:21px;}
+.cs-auth-card .cs-auth-note button{color:var(--blue);font-weight:900;}
+.cs-auth-aside{
+  background:linear-gradient(150deg,#06204a,#0a3979 70%,#0776c9);
+}
+.cs-auth-aside .cs-brand-mandafazer{max-width:420px;}
+.cs-auth-aside h2{font-size:clamp(25px,3.5vw,39px);}
+.cs-role-switch{
+  background:var(--soft);
+  border-radius:13px;
+  border:1px solid var(--line);
+  padding:4px;
+}
+.cs-role-switch button{border-radius:9px;transition:background .15s ease,color .15s ease;}
+.cs-role-switch button.active{
+  background:var(--surface);
+  color:var(--blue);
+  box-shadow:0 3px 8px rgba(10,62,130,.09);
+}
+@media(max-width:740px){
+  .cs-auth-main{padding:58px 17px 23px;}
+  .cs-auth-card{padding:22px 18px 25px;border-radius:23px;}
+  .cs-auth-card .cs-brand-mandafazer{max-width:265px;margin-bottom:10px;}
+  .cs-auth-card h1{font-size:25px;}
+  .cs-auth-card .cs-auth-sub{font-size:12px;}
+}
