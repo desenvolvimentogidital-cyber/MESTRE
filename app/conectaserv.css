@@ -367,3 +367,6 @@ html[data-theme="dark"] .cs-tab.active{color:var(--orange);}
   .cs-chat-list-side time{font-size:9px;}
   .cs-bottom-nav .cs-tab{font-size:9px;}
 }
+
+/* Custom user-provided Mestre home screen icon preview */
+.cs-install-heading img.cs-install-icon{display:block;object-fit:cover;letter-spacing:normal;background:#04132d;border:2px solid #00baf8;box-shadow:0 18px 34px rgba(7,81,198,.25);}
