@@ -9,6 +9,13 @@ export async function middleware(request: NextRequest) {
   // /admin is deliberately public only for its *login gate*. The server page
   // verifies a real Supabase user AND an admin_members row before data is fetched.
   // Never redirect this private login to the marketplace's /acesso page.
+  // Only the isolated, mock-only admin demo is publicly reachable.
+  // It does not query Supabase or grant admin membership.
+  if(request.nextUrl.pathname==="/admin/teste" || request.nextUrl.pathname==="/admin/teste/"){
+    response.headers.set("Cache-Control","private, no-store");
+    response.headers.set("X-Robots-Tag","noindex, nofollow, noarchive");
+    return response;
+  }
   if(request.nextUrl.pathname==="/admin" || request.nextUrl.pathname==="/admin/"){
     response.headers.set("Cache-Control","private, no-store");
     response.headers.set("X-Robots-Tag","noindex, nofollow, noarchive");
