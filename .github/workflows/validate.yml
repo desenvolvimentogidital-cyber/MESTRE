@@ -44,6 +44,25 @@ jobs:
             echo "$route status: $status"
             test "$status" = "200"
           done
+          # The uploaded MandaFazer logo must be served as a real image and
+          # replace the former inline brand mark, in both account interfaces.
+          curl -fsS --max-time 10 "http://127.0.0.1:3000/mandafazer-logo.avif?v=20261122" -o /tmp/mandafazer-logo.avif
+          python3 - <<'PY'
+          from pathlib import Path
+          icon=Path("/tmp/mandafazer-logo.avif").read_bytes()
+          assert len(icon)>4000 and b"ftypavif" in icon[:32], "MandaFazer AVIF missing"
+          ui=Path("components/conectaserv-ui.tsx").read_text()
+          css=Path("app/conectaserv.css").read_text()
+          assert "mandafazer-logo.avif?v=20261122" in ui
+          assert "cs-brand-banner" in ui
+          assert "cs-brand" in ui and "<svg className=\"cs-mark\"" not in ui
+          assert 'html[data-theme="dark"] .cs-app-head' in css
+          assert 'html[data-theme="dark"] .cs-splash-header' in css
+          assert "background:#04142b;" in css
+          print("MandaFazer header image and stable theme passed")
+          PY
+          curl -fsS --max-time 10 http://127.0.0.1:3000/ > /tmp/mandafazer-home.html
+          grep -q 'mandafazer-logo.avif' /tmp/mandafazer-home.html
           # Message notifications are now restricted to each service conversation.
           # The top header bell should no longer be present in public HTML.
           python3 - <<'PY'

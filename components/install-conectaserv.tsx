@@ -23,7 +23,7 @@ export function InstallConectaServ(){
     function onInstalled(){
       setInstalled(true);
       setInstallEvent(null);
-      setFeedback("ConectaServ instalado na tela inicial!");
+      setFeedback("MandaFazer instalado na tela inicial!");
     }
     window.addEventListener("beforeinstallprompt",onPrompt);
     window.addEventListener("appinstalled",onInstalled);
@@ -38,24 +38,24 @@ export function InstallConectaServ(){
     try{
       await installEvent.prompt();
       const result=await installEvent.userChoice;
-      if(result.outcome==="accepted")setFeedback("Instalação aceita. Procure o ícone ConectaServ na tela inicial.");
+      if(result.outcome==="accepted")setFeedback("Instalação aceita. Procure o ícone MandaFazer na tela inicial.");
       else setFeedback("Você pode instalar depois pelo menu do navegador.");
       setInstallEvent(null);
     }catch{
-      setFeedback("Use o menu do navegador para adicionar o ConectaServ à tela inicial.");
+      setFeedback("Use o menu do navegador para adicionar o MandaFazer à tela inicial.");
     }
   }
 
   return <div className="cs-install-action">
     {installed
-      ? <div className="cs-success"><Icon name="check" size={17}/> O ConectaServ já está aberto como aplicativo.</div>
+      ? <div className="cs-success"><Icon name="check" size={17}/> O MandaFazer já está aberto como aplicativo.</div>
       : installEvent
         ? <button className="cs-button cs-button-orange" type="button" onClick={()=>void install()}>
-            <Icon name="download" size={19}/> Instalar ConectaServ no celular
+            <Icon name="download" size={19}/> Instalar MandaFazer no celular
           </button>
         : <div className="cs-card cs-install-guide">
             <p>Abra esta página no <strong>Google Chrome</strong>. Toque nos três pontinhos <strong>⋮</strong> e escolha <strong>Instalar aplicativo</strong> ou <strong>Adicionar à tela inicial</strong>.</p>
-            <p>Depois, confirme em <strong>Instalar</strong> ou <strong>Adicionar</strong>. O ícone ConectaServ ficará junto dos aplicativos do seu celular.</p>
+            <p>Depois, confirme em <strong>Instalar</strong> ou <strong>Adicionar</strong>. O ícone MandaFazer ficará junto dos aplicativos do seu celular.</p>
           </div>
     }
     {feedback&&<p className="cs-hint" role="status">{feedback}</p>}

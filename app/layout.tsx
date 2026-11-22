@@ -3,9 +3,9 @@ import "./globals.css";
 import "./conectaserv.css";
 
 export const metadata: Metadata = {
-  title: "ConectaServ — Encontre. Contrate. Realize.",
+  title: "MandaFazer — Conecta, Contrata, Resolve",
   description: "A plataforma que conecta clientes a profissionais de serviços.",
-  applicationName: "ConectaServ",
+  applicationName: "MandaFazer",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
@@ -14,10 +14,10 @@ export const metadata: Metadata = {
     ],
     apple: [{url: "/icons/192?v=3", sizes: "192x192", type: "image/png"}],
   },
-  appleWebApp: {capable: true, title: "ConectaServ", statusBarStyle: "default"},
+  appleWebApp: {capable: true, title: "MandaFazer", statusBarStyle: "default"},
 };
 export const viewport: Viewport = {
-  themeColor: "#0751c6",
+  themeColor: "#04142b",
   width: "device-width",
   initialScale: 1,
 };

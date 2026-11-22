@@ -23,6 +23,6 @@ export default function Home() {
         <div className="cs-splash-overlay"><Icon name="shield"/> Encontre. Contrate. Realize.</div>
       </div>
     </div>
-    <footer className="cs-splash-foot">ConectaServ · Seu próximo serviço começa aqui</footer>
+    <footer className="cs-splash-foot">MandaFazer · Seu próximo serviço começa aqui</footer>
   </main>;
 }
