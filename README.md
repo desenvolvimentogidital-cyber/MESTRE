@@ -36,7 +36,7 @@ Abra http://localhost:3000.
 ## ConectaServ — módulos implementados
 - Identidade visual responsiva com temas claro e escuro.
 - Cadastro de clientes e profissionais e seleção de categorias.
-- Publicação de pedidos com localização; profissionais da categoria podem enviar propostas.
+- Publicação de pedidos com localização, cancelamento de pedidos ainda não contratados e recusa automática de propostas pendentes; profissionais da categoria podem enviar propostas.
 - Aceite ou recusa de proposta, chat privado e conclusão de contratação.
 - Avaliações com 1 a 5 estrelas após serviço concluído; média real no perfil público.
 - Notificações automáticas **dentro do aplicativo** para novas oportunidades, propostas, contratações, mensagens, encerramentos e moderação.
