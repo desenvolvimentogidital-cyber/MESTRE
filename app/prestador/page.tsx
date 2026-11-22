@@ -12,7 +12,7 @@ export default async function ProviderPage(){
   const {data:{user}}=await db.auth.getUser();
   if(!user) redirect("/acesso?redirectTo=/prestador");
   const {data:profile}=await db.from("profiles").select("account_type,full_name").eq("id",user.id).maybeSingle();
-  if(!profile || !["provider","both"].includes(profile.account_type)) {
+  if(!profile || profile.account_type!=="provider") {
     return <AppFrame active="inicio" title="Área do profissional">
       <div className="cs-empty"><Icon name="shield" size={33}/><h2>Área de profissionais</h2>
         <p>Esta conta está cadastrada como cliente. Para oferecer serviços, cadastre uma conta profissional.</p>
