@@ -65,6 +65,9 @@ jobs:
             --data '{"name":"X","email":"not-an-email","password":"x","type":"client"}')
           echo "Invalid registration status: $signup_status"
           test "$signup_status" = "400"
+          # Ensure PWA icon comes from the user-supplied Mestre logo, not CS text.
+          grep -q 'mestreIconJpeg' 'app/icons/[size]/route.ts'
+          test -s 'lib/assets/mestre-original-icon.ts'
           # Chrome Android needs a valid install manifest and PNG icons at both sizes.
           curl -fsS http://127.0.0.1:3000/manifest.webmanifest -o /tmp/conectaserv-manifest.json
           python3 - <<'PY'
