@@ -176,3 +176,36 @@ html[data-theme="dark"] .mf-admin-label{color:#ffb45b;background:#ff991a22;borde
 @media(prefers-reduced-motion:reduce){
   .mf-admin-root button{transition:none!important;}
 }
+
+/* Demo-only workspace: entirely local state, never real admin data. */
+.mf-admin-demo-secondary{
+  width:100%;min-height:43px;margin-top:12px;padding:10px 14px;
+  border-radius:12px;border:1px solid var(--admin-line);background:transparent;
+  color:var(--admin-accent);font-weight:800;cursor:pointer;
+}
+.mf-admin-demo-banner{
+  margin-bottom:20px;padding:15px 18px;
+  background:#fff6e8;border:1px solid #e7bd78;border-radius:15px;color:#78450c;
+}
+.mf-admin-demo-banner strong{font-size:13px;letter-spacing:.4px;}
+.mf-admin-demo-banner p{margin:6px 0 0;font-size:12px;line-height:1.6;}
+html[data-theme="dark"] .mf-admin-demo-banner{
+  background:#38240f;border-color:#916732;color:#ffd9a4;
+}
+.mf-admin-demo-list{display:grid;gap:13px;margin-top:16px;}
+.mf-admin-demo-list .cs-offer-form{margin:0;}
+.mf-admin-demo-list .cs-offer-form strong{font-size:15px;}
+.mf-admin-demo-list .cs-offer-form p{color:var(--admin-muted);font-size:13px;line-height:1.5;}
+.mf-admin-demo-action{
+  border:0;border-radius:10px;background:#0c65bc;color:white;
+  padding:11px 15px;font-size:12px;font-weight:800;cursor:pointer;
+}
+.mf-admin-demo-action.secondary{background:transparent;color:var(--admin-ink);border:1px solid var(--admin-line);}
+.mf-admin-demo-actions{display:flex;flex-wrap:wrap;gap:10px;}
+.mf-admin-demo-notice{
+  margin-top:14px;border-radius:12px;border:1px solid #9bd9bd;
+  color:#136747;background:#e9fff3;padding:13px;font-size:12px;
+}
+html[data-theme="dark"] .mf-admin-demo-notice{background:#153e30;color:#b8f1d5;border-color:#286348;}
+.mf-admin-demo-footer-note{margin-top:24px;color:var(--admin-muted);font-size:12px;line-height:1.6;}
+.mf-admin-demo-footer-note a{color:var(--admin-accent);text-decoration:underline;}
