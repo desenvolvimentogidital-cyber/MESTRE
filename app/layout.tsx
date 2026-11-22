@@ -3,6 +3,7 @@ import "./globals.css";
 import "./conectaserv.css";
 import "./mandafazer-refresh.css";
 import "./mandafazer-premium.css";
+import "./mandafazer-image-one.css";
 
 export const metadata: Metadata = {
   title: "MandaFazer — Conecta, Contrata, Resolve",
