@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import {usePathname} from "next/navigation";
 import {MessageUnreadBadge} from "@/components/message-unread-badge";
 import {createClient} from "@/lib/supabase/client";
 import { useEffect, useState } from "react";
@@ -74,8 +75,24 @@ export function ThemeSwitch() {
   return <button type="button" className="cs-icon-button" onClick={toggle} aria-label={dark ? "Ativar tema claro" : "Ativar tema escuro"} title={dark ? "Tema claro" : "Tema escuro"}><Icon name={dark ? "sun" : "moon"}/></button>;
 }
 
+function HeaderMenu(){
+  return <details className="mf-v1-header-menu">
+    <summary aria-label="Abrir menu do aplicativo" title="Menu"><Icon name="menu" size={23}/></summary>
+    <nav aria-label="Menu do aplicativo" className="mf-v1-header-popover">
+      <Link href="/inicio"><Icon name="home" size={17}/> Início</Link>
+      <Link href="/profissionais"><Icon name="search" size={17}/> Encontrar profissionais</Link>
+      <Link href="/oportunidades"><Icon name="briefcase" size={17}/> Pedidos publicados</Link>
+      <Link href="/painel"><Icon name="layers" size={17}/> Meu painel</Link>
+      <Link href="/propostas"><Icon name="layers" size={17}/> Propostas</Link>
+      <Link href="/conversas"><Icon name="mail" size={17}/> Minhas conversas</Link>
+      <Link href="/perfil"><Icon name="user" size={17}/> Minha conta</Link>
+    </nav>
+  </details>;
+}
+
 export function AppHeader({ title }: { title?: string }) {
-  return <header className="cs-app-head">
+  return <header className="cs-app-head mf-v1-header">
+    <HeaderMenu/>
     <Brand compact/>
     {title&&<span className="cs-visually-hidden">{title}</span>}
     <ThemeSwitch/>
@@ -88,6 +105,7 @@ type NavTab={id:NavSection|"buscar"|"pedidos"|"acesso";href:string;name:string;i
 
 export function BottomNav({active}:{active:NavSection}){
   const [role,setRole]=useState<NavRole>("loading");
+  const pathname=usePathname();
   useEffect(()=>{
     let live=true;
     const db=createClient();
@@ -105,14 +123,14 @@ export function BottomNav({active}:{active:NavSection}){
   if(role==="loading")return <nav className="cs-bottom-nav cs-bottom-nav-loading" aria-label="Carregando menu"><span className="cs-hint">Carregando seu menu...</span></nav>;
   const tabs:NavTab[]=role==="client"?
     [
-      {id:"inicio",href:"/cliente",name:"Meus pedidos",icon:"home"},
-      {id:"propostas",href:"/propostas",name:"Propostas",icon:"briefcase"},
+      {id:"inicio",href:"/inicio",name:"Início",icon:"home"},
+      {id:"pedidos",href:"/cliente",name:"Meus pedidos",icon:"briefcase"},
       {id:"conversas",href:"/conversas",name:"Mensagens",icon:"mail"},
       {id:"perfil",href:"/perfil",name:"Meu perfil",icon:"user"},
     ]:role==="provider"?
     [
-      {id:"inicio",href:"/prestador",name:"Oportunidades",icon:"home"},
-      {id:"propostas",href:"/propostas",name:"Orçamentos",icon:"briefcase"},
+      {id:"inicio",href:"/inicio",name:"Início",icon:"home"},
+      {id:"pedidos",href:"/prestador",name:"Oportunidades",icon:"briefcase"},
       {id:"conversas",href:"/conversas",name:"Mensagens",icon:"mail"},
       {id:"perfil",href:"/perfil",name:"Meu perfil",icon:"user"},
     ]:[
@@ -122,15 +140,20 @@ export function BottomNav({active}:{active:NavSection}){
       {id:"acesso",href:"/acesso",name:"Entrar",icon:"user"},
     ];
   return <nav className="cs-bottom-nav" aria-label={role==="provider"?"Navegação profissional":role==="client"?"Navegação do cliente":"Navegação pública"}>
-    {tabs.map(tab=><Link key={tab.id} href={tab.href}
-      className={"cs-tab"+(active===tab.id?" active":"")}
-      aria-current={active===tab.id?"page":undefined}>
+    {tabs.map(tab=>{
+      const selected=pathname===tab.href ||
+        (tab.href==="/cliente"&&pathname?.startsWith("/cliente/")) ||
+        (tab.href==="/prestador"&&pathname?.startsWith("/prestador/")&&!pathname?.startsWith("/prestador/perfil")) ||
+        (tab.href==="/perfil"&&pathname==="/prestador/perfil");
+      return <Link key={tab.id} href={tab.href}
+        className={"cs-tab"+(selected?" active":"")}
+        aria-current={selected?"page":undefined}>
       <span className="cs-nav-icon-wrap">
         <Icon name={tab.icon} size={22}/>
         {tab.id==="conversas"&&<MessageUnreadBadge/>}
       </span>
       <span>{tab.name}</span>
-    </Link>)}
+    </Link>})}
   </nav>;
 }
 
