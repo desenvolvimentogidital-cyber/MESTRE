@@ -7,8 +7,8 @@
 - **Não** ative cobrança, pagamentos ou comissão. Fora do escopo atual.
 
 ## Teste 1 — publicação e aviso
-- Crie uma conta de cliente com e-mail confirmado.
-- Crie uma conta separada de profissional com outro e-mail confirmado.
+- Crie uma conta de cliente com e-mail e senha, **sem confirmação** durante a homologação (desative Confirm email no Supabase Auth).
+- Crie uma conta separada de profissional com outro e-mail e senha, também sem confirmação nesta fase.
 - No profissional, salve cidade/UF e selecione uma categoria.
 - No cliente, publique um pedido na mesma categoria e UF.
 - Confira o pedido em `/prestador` e o aviso automático em `/notificacoes`.
@@ -30,7 +30,7 @@
 - Um profissional não pode avaliar seu próprio serviço.
 
 ## Teste 4 — moderação e verificação
-- Após ativar o administrador com acesso privilegiado no Supabase, profissional solicita a conferência de perfil.
+- Gere convite exclusivo e ative a conta do proprietário em `/admin/ativar` (usuário **novo**, sem histórico de cliente ou prestador). Em seguida, o profissional solicita conferência de perfil.
 - Administrador entra em `/admin` e aprova/recusa, com justificativa.
 - Profissional recebe um aviso sobre a decisão e apenas o perfil aprovado exibe o selo.
 - Usuário denuncia um pedido, perfil, conversa ou avaliação.
@@ -47,5 +47,6 @@
 ## Limites explícitos
 - Avisos são gerados pelo banco e consultados periodicamente no aplicativo. **Push no Android com o site fechado não está habilitado.**
 - A conferência profissional é administrativa; não há integração oficial de KYC/documentos.
-- Não existem usuários de teste pré-criados no banco. Esses testes são realizados manualmente.
+- O código público `admin@gmail.com` / `123456789` abre apenas a **demonstração**, sem banco real. O administrador de verdade usa ativação exclusiva e credenciais privadas.
+- Os testes de banco de dados de pedidos, contratação, chat, avaliação, denúncia, moderação e verificação passaram em transações revertidas. O teste com contas reais em navegador ainda depende da ativação segura do administrador e da configuração de e-mails do Supabase.
 - Pagamentos/comissões ficam para uma etapa futura.
