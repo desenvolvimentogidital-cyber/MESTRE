@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import "./conectaserv.css";
+import "./mandafazer-refresh.css";
 
 export const metadata: Metadata = {
   title: "MandaFazer — Conecta, Contrata, Resolve",
@@ -22,5 +23,12 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="pt-BR"><body>{children}</body></html>;
+  return <html lang="pt-BR" suppressHydrationWarning>
+    <head>
+      <script id="mf-theme-boot" dangerouslySetInnerHTML={{__html:
+        "try{document.documentElement.dataset.theme=localStorage.getItem('conectaserv-theme')==='dark'?'dark':'light'}catch(e){document.documentElement.dataset.theme='light'}"
+      }}/>
+    </head>
+    <body>{children}</body>
+  </html>;
 }
