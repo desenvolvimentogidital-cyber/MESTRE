@@ -199,6 +199,27 @@ jobs:
           print("Server-side client, provider and admin access boundaries OK")
           print("Admin portal isolation, owner gate and noindex checks OK")
           PY
+          # A public demo cannot contain live administrative data or RPCs.
+          demo_status=$(curl --max-redirs 0 -s -o /tmp/mf-admin-demo.html -w "%{http_code}" http://127.0.0.1:3000/admin/teste)
+          echo "/admin/teste demo status: $demo_status"
+          test "$demo_status" = "200"
+          grep -q 'Verificando acesso de demonstração' /tmp/mf-admin-demo.html
+          python3 - <<'PY'
+          from pathlib import Path
+          demo=Path("app/admin/teste/page.tsx").read_text()
+          signin=Path("app/admin/admin-access.tsx").read_text()
+          middleware=Path("middleware.ts").read_text()
+          portal=Path("app/admin/page.tsx").read_text()
+          assert 'mf-admin-demo' in demo and 'AMBIENTE DE TESTE' in demo
+          assert 'sessionStorage' in demo and 'sessionStorage' in signin
+          assert 'admin@gmail.com' in signin
+          assert 'window.location.assign("/admin/teste")' in signin
+          assert 'admin_members' not in demo and 'createClient' not in demo
+          assert 'AdminWorkspace' not in demo and '.rpc(' not in demo
+          assert 'admin_members' in portal and 'if(!member||membershipError)' in portal
+          assert 'pathname==="/admin/teste"' in middleware
+          print("Mock admin access works without live data or permissions")
+          PY
           for protected_route in /cliente /prestador /prestador/perfil /propostas /perfil /notificacoes /conversas /denuncias /denuncias/nova /avaliar/00000000-0000-0000-0000-000000000000; do
             protected=$(curl --max-redirs 0 -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000$protected_route")
             echo "$protected_route status: $protected"
