@@ -245,6 +245,18 @@ jobs:
           assert "revoke execute" in migration and "grant execute" in migration
           assert "pg_advisory_xact_lock" in migration
           print("Owner-only admin activation, invite gate, and account isolation OK")
+          cancel_ui=Path("components/cancel-request-button.tsx").read_text()
+          client_home=Path("app/cliente/page.tsx").read_text()
+          cancel_migration=Path("supabase/migrations/20261122222015_cancel_uncontracted_service_request.sql").read_text()
+          assert 'cancel_my_service_request' in cancel_ui
+          assert 'request.status === "published"' in client_home
+          assert '<CancelRequestButton requestId={request.id}/>' in client_home
+          assert "private.has_account_role('client')" in cancel_migration
+          assert "for update" in cancel_migration and "status='cancelled'" in cancel_migration
+          assert "status='rejected'" in cancel_migration
+          assert "grant execute" in cancel_migration and "revoke execute" in cancel_migration
+          print("Owner-only cancellation and rejection of pending proposals OK")
+
           PY
           for protected_route in /cliente /prestador /prestador/perfil /propostas /perfil /notificacoes /conversas /denuncias /denuncias/nova /avaliar/00000000-0000-0000-0000-000000000000; do
             protected=$(curl --max-redirs 0 -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000$protected_route")
