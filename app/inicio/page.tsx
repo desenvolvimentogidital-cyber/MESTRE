@@ -104,7 +104,6 @@ export default function ExplorePage(){
     });
   },[categories]);
 
-  const cityFilter=chosenCity?"&cidade="+encodeURIComponent(chosenCity):"";
   const requestLink=role==="provider"?"/oportunidades":role==="client"?"/cliente/novo":"/acesso?tipo=cliente&redirectTo=%2Fcliente%2Fnovo";
   function search(e:React.FormEvent<HTMLFormElement>){
     e.preventDefault();
@@ -127,7 +126,7 @@ export default function ExplorePage(){
         <div className="mf-v1-hero-photo"><FeaturePhoto kind="builder"/></div>
         <div className="mf-v1-hero-shade"/>
         <div className="mf-v1-hero-copy">
-          <span className="mf-v1-kicker">Conecta · Contrata · Resolve</span>
+          <span className="mf-v1-kicker">{displayName?"Olá, "+displayName+"! · ":""}Conecta · Contrata · Resolve</span>
           <h1 id="mf-v1-title">Encontre o <span>profissional ideal</span> <em>perto de você!</em></h1>
           <p>Serviços de qualidade, com praticidade e confiança para sua região.</p>
         </div>
