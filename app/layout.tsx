@@ -9,10 +9,10 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
-      {url: "/icons/192", sizes: "192x192", type: "image/png"},
-      {url: "/icons/512", sizes: "512x512", type: "image/png"},
+      {url: "/icons/192?v=3", sizes: "192x192", type: "image/png"},
+      {url: "/icons/512?v=3", sizes: "512x512", type: "image/png"},
     ],
-    apple: [{url: "/icons/192", sizes: "192x192", type: "image/png"}],
+    apple: [{url: "/icons/192?v=3", sizes: "192x192", type: "image/png"}],
   },
   appleWebApp: {capable: true, title: "ConectaServ", statusBarStyle: "default"},
 };
