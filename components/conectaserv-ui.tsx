@@ -139,7 +139,7 @@ export function AppFrame({children,active,title}:{
 
 export function FeaturePhoto({ kind = "builder", className = "" }: { kind?: "builder" | "camera"; className?: string }) {
   const src = kind === "builder"
-    ? "https://images.unsplash.com/photo-1646227655718-dd721b681d91?auto=format&fit=crop&w=1080&q=85"
+    ? "https://images.pexels.com/photos/3932291/pexels-photo-3932291.jpeg?auto=compress&dpr=1&h=750&w=1260"
     : "https://images.unsplash.com/photo-1676630656246-3047520adfdf?auto=format&fit=crop&w=1080&q=85";
-  return <div className={"cs-feature-photo " + className}><img src={src} loading={kind === "builder" ? "eager" : "lazy"} decoding="async" alt={kind === "builder" ? "Profissional de obra com capacete de segurança" : "Técnico instalando câmera de segurança em uma parede"}/></div>;
+  return <div className={"cs-feature-photo " + className}><img src={src} loading={kind === "builder" ? "eager" : "lazy"} decoding="async" alt={kind === "builder" ? "Profissional de construção com capacete e uniforme" : "Técnico instalando câmera de segurança em uma parede"}/></div>;
 }
