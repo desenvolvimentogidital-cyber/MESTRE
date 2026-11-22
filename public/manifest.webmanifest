@@ -1,13 +1,13 @@
 {
-  "name": "ConectaServ — Encontre. Contrate. Realize.",
-  "short_name": "ConectaServ",
-  "description": "Encontre profissionais, publique serviços e acompanhe propostas.",
+  "name": "MandaFazer — Conecta, Contrata, Resolve",
+  "short_name": "MandaFazer",
+  "description": "Encontre profissionais, publique serviços e acompanhe propostas no MandaFazer.",
   "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#04132d",
-  "theme_color": "#04132d",
+  "background_color": "#04142b",
+  "theme_color": "#04142b",
   "lang": "pt-BR",
   "icons": [
     {
