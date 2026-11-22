@@ -7,10 +7,8 @@ export default async function ProfilePage(){
   const db=await createClient();
   const {data:{user}}=await db.auth.getUser();
   if(!user)redirect("/acesso?redirectTo=/perfil");
-  const [{data:profile},{data:admin}]=await Promise.all([
-    db.from("profiles").select("full_name,account_type,phone").eq("id",user.id).maybeSingle(),
-    db.from("admin_members").select("user_id").eq("user_id",user.id).maybeSingle(),
-  ]);
+  const {data:profile}=await db.from("profiles")
+    .select("full_name,account_type,phone").eq("id",user.id).maybeSingle();
   if(profile?.account_type!=="client"&&profile?.account_type!=="provider")redirect("/inicio");
   const client=profile.account_type==="client";
   return <AppFrame active="perfil" title="Minha conta">
@@ -71,9 +69,6 @@ export default async function ProfilePage(){
         <Link className="cs-menu-link" href="/denuncias">
           <Icon name="shield"/><span>Minhas denúncias</span><Icon name="chevron"/>
         </Link>
-        {admin&&<Link className="cs-menu-link" href="/admin">
-          <Icon name="lock"/><span>Administração e moderação</span><Icon name="chevron"/>
-        </Link>}
         <div className="cs-menu-link">
           <form action="/auth/signout" method="post">
             <button type="submit"><Icon name="logout"/><span>Sair da conta</span></button>
