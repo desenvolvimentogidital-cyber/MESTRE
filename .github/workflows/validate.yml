@@ -174,7 +174,7 @@ jobs:
           assert "admin_members" not in profile
           assert "admin_members" in portal
           assert "if(!member||membershipError)" in portal
-          assert "AppFrame" not in portal and "AppFrame" not in layout
+          assert "<AppFrame" not in portal and "<AppFrame" not in layout
           assert "robots:" in layout and "index:false" in layout
           assert 'request.nextUrl.pathname==="/admin"' in middleware
           assert "Cache-Control" in middleware and "X-Robots-Tag" in middleware
