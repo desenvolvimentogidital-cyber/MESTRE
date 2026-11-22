@@ -11,12 +11,19 @@ export function AdminAccess({state}:{state:Gate}){
   const [message,setMessage]=useState("");
   const [busy,setBusy]=useState(false);
   const [showPassword,setShowPassword]=useState(false);
+  const [showTestLogin,setShowTestLogin]=useState(false);
 
   async function login(event:React.FormEvent<HTMLFormElement>){
     event.preventDefault();
     if(busy)return;
     setBusy(true);setMessage("");
     try{
+      // Public demo credentials never create a Supabase session or grant admin rights.
+      if(email.trim().toLowerCase()==="admin@gmail.com" && password==="123456789"){
+        window.sessionStorage.setItem("mf-admin-demo","1");
+        window.location.assign("/admin/teste");
+        return;
+      }
       const db=createClient();
       const {error}=await db.auth.signInWithPassword({email:email.trim(),password});
       if(error)throw new Error("Não foi possível entrar. Confira o e-mail e a senha.");
@@ -48,17 +55,18 @@ export function AdminAccess({state}:{state:Gate}){
     </div>
     <section className="mf-admin-login-card">
       <span className="mf-admin-label"><Icon name="lock" size={15}/> Ambiente de acesso restrito</span>
-      {state==="denied"?<>
+      {state==="denied"&&!showTestLogin?<>
         <div className="mf-admin-login-symbol warning"><Icon name="shield" size={31}/></div>
         <h1>Conta não autorizada</h1>
         <p>Esta conta não possui permissão para acessar a administração. Apenas o responsável autorizado pode analisar profissionais e denúncias.</p>
         <button type="button" className="mf-admin-primary" onClick={()=>void switchAccount()} disabled={busy}>
           <Icon name="user" size={18}/> {busy?"Trocando...":"Entrar com outra conta"}
         </button>
+        <button type="button" className="mf-admin-demo-secondary" onClick={()=>setShowTestLogin(true)} disabled={busy}>Entrar na demonstração de teste</button>
       </>:<>
         <div className="mf-admin-login-symbol"><Icon name="lock" size={29}/></div>
         <h1>Central administrativa</h1>
-        <p>Faça login com a conta autorizada para gerenciar verificações de profissionais e moderação da plataforma.</p>
+        <p>Faça login com a conta autorizada para gerenciar verificações de profissionais e moderação da plataforma. Para testar sem confirmação de e-mail, use a conta demonstrativa: ela não acessa dados reais.</p>
         <form onSubmit={e=>void login(e)} className="mf-admin-login-form">
           <label>E-mail da administração
             <input type="email" autoComplete="username" inputMode="email" required
@@ -80,7 +88,7 @@ export function AdminAccess({state}:{state:Gate}){
         </form>
       </>}
       {message&&<p className="mf-admin-error" role="alert">{message}</p>}
-      <p className="mf-admin-gate-footnote">O endereço não concede privilégios. O acesso depende de autenticação e autorização individual no servidor.</p>
+      <p className="mf-admin-gate-footnote">A conta demonstrativa não é cadastrada no Supabase e não possui privilégios. A administração real exige autorização individual no servidor.</p>
     </section>
     <p className="mf-admin-copyright">Área reservada · MandaFazer</p>
   </main>;
