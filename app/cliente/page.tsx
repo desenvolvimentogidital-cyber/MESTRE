@@ -36,8 +36,8 @@ export default async function ClientHomePage() {
       db.from("conversations").select("id,request_id").eq("client_id",user.id).in("request_id",requestIds),
       db.rpc("my_chat_inbox"),
     ]);
-    const unreadByChat=new Map((inbox||[]).map(chat=>[chat.conversation_id,Number(chat.unread_count)||0]));
-    for(const chat of chats||[]){
+    const unreadByChat=new Map<string,number>(((inbox||[]) as Array<{conversation_id:string;unread_count:number}>).map(chat=>[chat.conversation_id,Number(chat.unread_count)||0]));
+    for(const chat of ((chats||[]) as Array<{id:string;request_id:string|null}>)){
       if(chat.request_id){
         chatsByRequest[chat.request_id]=chat.id;
         unreadByRequest[chat.request_id]=unreadByChat.get(chat.id)||0;
