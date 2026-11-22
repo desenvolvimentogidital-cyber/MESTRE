@@ -44,6 +44,19 @@ jobs:
             echo "$route status: $status"
             test "$status" = "200"
           done
+          # Message notifications are now restricted to each service conversation.
+          # The top header bell should no longer be present in public HTML.
+          python3 - <<'PY'
+          from pathlib import Path
+          ui=Path("components/conectaserv-ui.tsx").read_text()
+          assert "<NotificationBell" not in ui
+          assert "<MessageUnreadBadge" in ui
+          for role in ["client","provider"]:
+              assert f'role==="{role}"' in ui
+          assert Path("app/cliente/layout.tsx").exists()
+          assert Path("app/prestador/layout.tsx").exists()
+          print("Account navigation and chat badge checks OK")
+          PY
           # The registration endpoint must reject invalid data immediately
           # without attempting to create a user or contact the auth provider.
           signup_status=$(curl --max-time 8 -s -o /tmp/registration-check.json -w "%{http_code}" \
