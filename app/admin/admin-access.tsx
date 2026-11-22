@@ -1,5 +1,6 @@
 "use client";
 import {useState} from "react";
+import Link from "next/link";
 import {Icon} from "@/components/conectaserv-ui";
 import {createClient} from "@/lib/supabase/client";
 
@@ -87,6 +88,7 @@ export function AdminAccess({state}:{state:Gate}){
           </button>
         </form>
       </>}
+      <Link className="mf-admin-demo-secondary" href="/admin/ativar">Ativar a administração real com convite exclusivo</Link>
       {message&&<p className="mf-admin-error" role="alert">{message}</p>}
       <p className="mf-admin-gate-footnote">A conta demonstrativa não é cadastrada no Supabase e não possui privilégios. A administração real exige autorização individual no servidor.</p>
     </section>
