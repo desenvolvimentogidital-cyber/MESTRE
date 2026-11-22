@@ -12,6 +12,7 @@
 - No profissional, salve cidade/UF e selecione uma categoria.
 - No cliente, publique um pedido na mesma categoria e UF.
 - Confira o pedido em `/prestador` e o aviso automático em `/notificacoes`.
+- Em outro pedido publicado, use **Cancelar pedido** no painel do cliente; confirme que não aparece mais para o profissional e que propostas pendentes ficam recusadas. Tente cancelar um serviço já contratado: deve ser recusado.
 - Teste categoria diferente: o pedido não deve gerar notificação para quem selecionou outras áreas.
 
 ## Teste 2 — orçamento, contratação e mensagens
