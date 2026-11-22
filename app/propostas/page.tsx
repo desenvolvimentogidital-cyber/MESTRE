@@ -11,7 +11,7 @@ type Proposal={
   amount:number|null;message:string;created_at:string;estimated_days:number|null;title?:string;providerName?:string;
 };
 type Tab="all"|"sent"|"accepted";
-type Role="client"|"provider"|"both";
+type Role="client"|"provider";
 const statusName:Record<string,string>={sent:"Pendente",accepted:"Contratada",rejected:"Recusada",withdrawn:"Retirada"};
 const money=(n:number)=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL"}).format(n);
 
@@ -19,7 +19,6 @@ export default function ProposalsPage(){
   const router=useRouter();
   const [tab,setTab]=useState<Tab>("all");
   const [role,setRole]=useState<Role>("client");
-  const [view,setView]=useState<"received"|"sent">("received");
   const [received,setReceived]=useState<Proposal[]>([]);
   const [sent,setSent]=useState<Proposal[]>([]);
   const [chats,setChats]=useState<Record<string,string>>({});
@@ -36,8 +35,11 @@ export default function ProposalsPage(){
         const userId=auth.user.id;
         const {data:profile,error:profileError}=await db.from("profiles").select("account_type").eq("id",userId).maybeSingle();
         if(profileError)throw profileError;
-        const currentRole:Role=profile?.account_type==="provider"?"provider":profile?.account_type==="both"?"both":"client";
-        if(mounted){setRole(currentRole);setView(currentRole==="provider"?"sent":"received");}
+        if(profile?.account_type!=="client"&&profile?.account_type!=="provider"){
+          router.replace("/inicio");return;
+        }
+        const currentRole:Role=profile.account_type;
+        if(mounted)setRole(currentRole);
         if(currentRole!=="provider"){
           const {data:requests,error:requestError}=await db.from("service_requests").select("id,title").eq("client_id",userId);
           if(requestError)throw requestError;
@@ -78,7 +80,7 @@ export default function ProposalsPage(){
     load();
     return()=>{mounted=false;};
   },[router]);
-  const isSent=role==="provider"||(role==="both"&&view==="sent");
+  const isSent=role==="provider";
   const data=isSent?sent:received;
   const filtered=useMemo(()=>data.filter(p=>tab==="all"||(tab==="accepted"?p.status==="accepted":p.status==="sent")),[data,tab]);
   function handleDecision(proposalId:string,requestId:string,action:"accept"|"reject",chatId:string|null){
@@ -92,10 +94,6 @@ export default function ProposalsPage(){
   return <AppFrame title="Minhas Propostas" active="propostas">
     <h1 className="cs-top-title">Minhas Propostas</h1>
     <p className="cs-hint">{isSent?"Acompanhe os orçamentos que você enviou.":"Confira as propostas recebidas para seus pedidos."}</p>
-    {role==="both"&&<div className="cs-filter-tabs" role="group" aria-label="Tipo de proposta" style={{marginTop:15}}>
-      <button type="button" className={view==="received"?"active":""} onClick={()=>{setView("received");setTab("all");}}>Recebidas ({received.length})</button>
-      <button type="button" className={view==="sent"?"active":""} onClick={()=>{setView("sent");setTab("all");}}>Enviadas ({sent.length})</button>
-    </div>}
     <div className="cs-filter-tabs" role="group" aria-label="Filtrar por situação">
       <button type="button" className={tab==="all"?"active":""} onClick={()=>setTab("all")}>Todas ({data.length})</button>
       <button type="button" className={tab==="sent"?"active":""} onClick={()=>setTab("sent")}>Pendentes</button>
