@@ -83,11 +83,11 @@ export function AppHeader({ title }: { title?: string }) {
 }
 
 type NavSection="inicio"|"propostas"|"notificacoes"|"conversas"|"perfil";
-type NavRole="guest"|"client"|"provider";
+type NavRole="loading"|"guest"|"client"|"provider";
 type NavTab={id:NavSection|"buscar"|"pedidos"|"acesso";href:string;name:string;icon:IconName};
 
 export function BottomNav({active}:{active:NavSection}){
-  const [role,setRole]=useState<NavRole>("guest");
+  const [role,setRole]=useState<NavRole>("loading");
   useEffect(()=>{
     let live=true;
     const db=createClient();
@@ -102,6 +102,7 @@ export function BottomNav({active}:{active:NavSection}){
     void resolveRole();
     return()=>{live=false;};
   },[]);
+  if(role==="loading")return <nav className="cs-bottom-nav cs-bottom-nav-loading" aria-label="Carregando menu"><span className="cs-hint">Carregando seu menu...</span></nav>;
   const tabs:NavTab[]=role==="client"?
     [
       {id:"inicio",href:"/cliente",name:"Meus pedidos",icon:"home"},
