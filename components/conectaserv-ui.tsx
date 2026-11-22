@@ -40,17 +40,11 @@ export function Icon({ name, size = 21 }: { name: IconName; size?: number }) {
 }
 
 export function Brand({ compact = false, centered = false }: { compact?: boolean; centered?: boolean }) {
-  return <Link href="/" className={"cs-brand" + (centered ? " centered" : "")} aria-label="ConectaServ, página inicial">
-    <svg className="cs-mark" viewBox="0 0 90 80" role="img" aria-label="Símbolo ConectaServ">
-      <path d="M11 51C8 31 24 16 47 8L80 35H65L46 20C28 29 18 44 18 57Z" fill="#0752c5"/>
-      <path d="M43 10 57 2l28 26-8 7-27-23Z" fill="#102958"/>
-      <path d="M68 8h9v20h-9Z" fill="#102958"/>
-      <path d="M25 65C41 46 57 44 83 53 58 53 43 67 12 72Z" fill="#ff8417"/>
-      <path d="M35 57c1-10 6-18 13-19 8 1 12 8 12 19l-12 8Z" fill="#12376c"/>
-      <path d="M40 33a8 8 0 0 1 16 0v7H40Z" fill="#ff9818"/>
-      <path d="M38 38h20" stroke="#102958" strokeWidth="3"/>
-    </svg>
-    {!compact && <span className="cs-brand-word"><strong>Conecta<span>Serv</span></strong><small>Encontre. Contrate. Realize.</small></span>}
+  return <Link href="/" className={"cs-brand cs-brand-mandafazer"+(compact?" compact":"")+(centered?" centered":"")}
+    aria-label="MandaFazer, página inicial">
+    <img src="/mandafazer-logo.avif?v=20261122" width={780} height={204}
+      className="cs-brand-banner" alt="MandaFazer — Conecta, Contrata, Resolve"
+      decoding="async" />
   </Link>;
 }
 
@@ -76,9 +70,9 @@ export function ThemeSwitch() {
 
 export function AppHeader({ title }: { title?: string }) {
   return <header className="cs-app-head">
-    {title ? <Link href="/inicio" className="cs-back">‹</Link> : <Brand compact />}
-    <strong>{title || "ConectaServ"}</strong>
-    <ThemeSwitch />
+    <Brand compact/>
+    {title&&<span className="cs-visually-hidden">{title}</span>}
+    <ThemeSwitch/>
   </header>;
 }
 
