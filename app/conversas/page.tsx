@@ -51,12 +51,14 @@ export default async function ConversationsPage(){
   }).sort((a,b)=>Date.parse(b.last_message_at||"")-Date.parse(a.last_message_at||"")||0);
   const unread=initialChats.reduce((sum,c)=>sum+c.unread_count,0);
   return <AppFrame active="conversas" title="Mensagens">
-    <span className="cs-eyebrow">{profile.account_type==="client"?"Conversas do cliente":"Conversas do profissional"}</span>
-    <div className="cs-section-head" style={{marginTop:8}}>
-      <h1 className="cs-top-title">Minhas mensagens</h1>
-      {unread>0&&<span className="cs-message-count cs-message-count-inline">{unread>99?"99+":unread}</span>}
-    </div>
-    <p className="cs-hint">Cada conversa fica identificada pelo serviço. As mensagens novas aparecem com um número ao lado.</p>
+    <section className="mf-inbox-intro">
+      <span className="cs-eyebrow">{profile.account_type==="client"?"Mensagens do cliente":"Mensagens do profissional"}</span>
+      <div className="mf-inbox-heading">
+        <h1 className="cs-top-title">Conversas</h1>
+        {unread>0&&<span className="cs-message-count cs-message-count-inline" aria-label={unread+" mensagens não lidas"}>{unread>99?"99+":unread}</span>}
+      </div>
+      <p>Todos os contatos organizados por serviço. Mensagens novas ficam destacadas aqui.</p>
+    </section>
     {(error||summaryError)&&<p role="alert" className="cs-error">Não foi possível carregar todas as mensagens. Tente atualizar a página.</p>}
     {!error&&chats.length===0&&<div className="cs-empty">
       <Icon name="mail" size={30}/>
