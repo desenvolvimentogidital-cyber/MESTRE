@@ -92,8 +92,16 @@ export default function ProposalsPage(){
     if(chatId){const proposal=received.find(p=>p.id===proposalId);if(proposal)setChats(current=>({...current,[requestId+":"+proposal.provider_id]:chatId}));}
   }
   return <AppFrame title="Minhas Propostas" active="propostas">
-    <h1 className="cs-top-title">Minhas Propostas</h1>
-    <p className="cs-hint">{isSent?"Acompanhe os orçamentos que você enviou.":"Confira as propostas recebidas para seus pedidos."}</p>
+    <div className="mf-page-heading">
+      <span className="cs-eyebrow">{isSent?"Área do profissional":"Área do cliente"}</span>
+      <h1 className="cs-top-title">{isSent?"Meus orçamentos":"Minhas propostas"}</h1>
+      <p>{isSent?"Gerencie os orçamentos enviados aos clientes.":"Tudo sobre seus orçamentos, do pedido à contratação."}</p>
+    </div>
+    {!busy&&!error&&<div className="mf-proposal-metrics" aria-label="Resumo das propostas">
+      <span>Propostas<strong>{data.length}</strong></span>
+      <span>Pendentes<strong>{data.filter(p=>p.status==="sent").length}</strong></span>
+      <span>Contratadas<strong>{data.filter(p=>p.status==="accepted").length}</strong></span>
+    </div>}
     <div className="cs-filter-tabs" role="group" aria-label="Filtrar por situação">
       <button type="button" className={tab==="all"?"active":""} onClick={()=>setTab("all")}>Todas ({data.length})</button>
       <button type="button" className={tab==="sent"?"active":""} onClick={()=>setTab("sent")}>Pendentes</button>

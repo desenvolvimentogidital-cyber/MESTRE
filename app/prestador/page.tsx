@@ -42,18 +42,32 @@ export default async function ProviderPage(){
     const {data:categories}=await db.from("service_categories").select("id,name").in("id",ids);
     for(const category of categories || [])names[category.id]=category.name;
   }
-  return <AppFrame active="inicio" title="Área do profissional">
-    <span className="cs-eyebrow">Bem-vindo ao ConectaServ</span>
-    <h1 className="cs-top-title" style={{marginTop:8}}>Olá, {provider.display_name.split(" ")[0]}! 👋</h1>
-    <p className="cs-hint">Encontre oportunidades e envie propostas para clientes que precisam do seu serviço.</p>
-    <div className="cs-card" style={{padding:18,marginTop:20}}>
-      <div className="cs-proposal-top">
-        <div><strong style={{display:"block",fontSize:16}}>Meu perfil profissional</strong>
-          <p className="cs-hint" style={{margin:"6px 0 0"}}>{[provider.city,provider.state].filter(Boolean).join(", ") || "Complete sua região de atendimento"}</p>
-        </div>
-        <span className={"cs-status "+(canServe?"accepted":"cancelled")}>{provider.is_suspended?"Suspenso pela moderação":canServe?"Ativo":"Pausado"}</span>
+  return <AppFrame active="inicio" title="Área profissional">
+    <section className="mf-workspace-hero">
+      <div>
+        <span className="cs-eyebrow">Seu espaço · Profissional</span>
+        <h1>Olá, {provider.display_name.split(" ")[0]}! 👋</h1>
+        <p>Novas oportunidades e seus orçamentos, tudo organizado.</p>
       </div>
-      <Link className="cs-button cs-button-outline" style={{marginTop:14,width:"100%"}} href="/prestador/perfil">Editar meu perfil <Icon name="chevron" size={17}/></Link>
+      <span className="mf-hero-glyph" aria-hidden="true"><Icon name="briefcase" size={29}/></span>
+    </section>
+    <div className="mf-workspace-stats" aria-label="Resumo profissional">
+      <div className="mf-stat"><small>Oportunidades disponíveis</small><strong>{requests.length}</strong><i/></div>
+      <div className="mf-stat"><small>Propostas enviadas</small><strong>{offers.length}</strong><i/></div>
+    </div>
+    <div className="cs-card" style={{padding:16,marginBottom:17}}>
+      <div className="cs-proposal-top">
+        <div>
+          <strong style={{display:"block",fontSize:14}}>Meu perfil profissional</strong>
+          <p className="cs-hint" style={{margin:"5px 0 0"}}>{[provider.city,provider.state].filter(Boolean).join(", ")||"Complete sua região de atendimento"}</p>
+        </div>
+        <span className={"cs-status "+(canServe?"accepted":"cancelled")}>
+          {provider.is_suspended?"Suspenso":canServe?"Ativo":"Pausado"}
+        </span>
+      </div>
+      <Link className="cs-small-link" style={{marginTop:12}} href="/prestador/perfil">
+        Editar meu perfil <Icon name="arrow" size={16}/>
+      </Link>
     </div>
     <div className="cs-section-head"><h2 className="cs-section-title">Pedidos disponíveis</h2><Link href="/oportunidades" className="cs-small-link">Ver todos os pedidos <Icon name="arrow" size={16}/></Link></div>
     <p className="cs-hint">Aqui aparecem pedidos das suas categorias. A busca pública mostra todos os pedidos publicados.</p>

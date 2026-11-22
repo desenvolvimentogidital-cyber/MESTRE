@@ -46,19 +46,21 @@ export default async function ClientHomePage() {
   }
   const countActive = requests.filter(r => r.status === "published" || r.status === "in_progress").length;
   return <AppFrame active="inicio" title="Meus Pedidos">
-    <div className="cs-home-hello">
+    <section className="mf-workspace-hero">
       <div>
-        <span className="cs-eyebrow">Área do cliente</span>
-        <h1 className="cs-top-title" style={{marginTop:6}}>Olá{profileResult.data?.full_name ? ", " + profileResult.data.full_name.split(" ")[0] : ""}! 👋</h1>
-        <p>Gerencie os serviços que você publicou.</p>
+        <span className="cs-eyebrow">Seu espaço · Cliente</span>
+        <h1>Olá{profileResult.data?.full_name?", "+profileResult.data.full_name.split(" ")[0]:""}! 👋</h1>
+        <p>Acompanhe cada etapa dos seus serviços em um só lugar.</p>
       </div>
-      <span className="cs-user-avatar" aria-hidden="true">🏠</span>
+      <span className="mf-hero-glyph" aria-hidden="true"><Icon name="home" size={29}/></span>
+    </section>
+    <div className="mf-workspace-stats" aria-label="Resumo dos meus pedidos">
+      <div className="mf-stat"><small>Pedidos publicados</small><strong>{requests.length}</strong><i/></div>
+      <div className="mf-stat"><small>Em aberto / andamento</small><strong>{countActive}</strong><i/></div>
     </div>
-    <div className="cs-card" style={{display:"grid",gridTemplateColumns:"1fr 1fr",padding:18,gap:14,marginTop:22}}>
-      <div><div className="cs-hint">Pedidos publicados</div><div className="cs-price" style={{fontSize:31,marginTop:5}}>{requests.length}</div></div>
-      <div><div className="cs-hint">Em aberto</div><div className="cs-price" style={{fontSize:31,marginTop:5}}>{countActive}</div></div>
-    </div>
-    <Link href="/cliente/novo" className="cs-button cs-button-orange" style={{width:"100%",marginTop:20}}>＋ Publicar um novo pedido</Link>
+    <Link href="/cliente/novo" className="cs-button cs-button-orange mf-workspace-cta">
+      <Icon name="briefcase" size={18}/> Publicar novo serviço <Icon name="arrow" size={18}/>
+    </Link>
     <div className="cs-section-head"><h2 className="cs-section-title">Meus pedidos</h2><Link href="/propostas" className="cs-small-link">Propostas <Icon name="arrow" size={16}/></Link></div>
     {requestResult.error && <div role="alert" className="cs-error">Não foi possível carregar os pedidos. Tente novamente mais tarde.</div>}
     {!requestResult.error && requests.length === 0 && <div className="cs-empty">

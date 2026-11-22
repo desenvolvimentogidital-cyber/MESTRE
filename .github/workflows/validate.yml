@@ -44,6 +44,30 @@ jobs:
             echo "$route status: $status"
             test "$status" = "200"
           done
+          # Premium marketplace UI: homepage, profile, proposals and conversation redesign.
+          python3 - <<'PY'
+          from pathlib import Path
+          css=Path("app/mandafazer-premium.css").read_text()
+          explore=Path("app/inicio/page.tsx").read_text()
+          profile=Path("app/perfil/page.tsx").read_text()
+          proposals=Path("app/propostas/page.tsx").read_text()
+          inbox=Path("app/conversas/page.tsx").read_text()
+          layout=Path("app/layout.tsx").read_text()
+          assert 'import "./mandafazer-premium.css"' in layout
+          for fragment in ["mf-discovery-banner","mf-categories","mf-quick-actions","mf-search-wrap","mf-home-list"]:
+              assert fragment in explore, fragment
+              assert "."+fragment in css, fragment
+          for fragment in ["mf-profile-intro","mf-profile-links","mf-profile-group"]:
+              assert fragment in profile and "."+fragment in css, fragment
+          assert "mf-proposal-metrics" in proposals and ".mf-proposal-metrics" in css
+          assert "mf-inbox-intro" in inbox and ".mf-inbox-intro" in css
+          assert "mf-workspace-hero" in Path("app/cliente/page.tsx").read_text()
+          assert "mf-workspace-hero" in Path("app/prestador/page.tsx").read_text()
+          assert 'html[data-theme="dark"]' in css
+          assert '.cs-app-head' in css and '#04142b' in css
+          assert Path("app/cliente/layout.tsx").exists() and Path("app/prestador/layout.tsx").exists()
+          print("Premium client/provider UI, header and dark mode checks OK")
+          PY
           # Approved MandaFazer 2026 redesign must keep light/dark visuals
           # and real links to core modules, without changing the auth boundary.
           curl -fsS http://127.0.0.1:3000/ -o /tmp/mandafazer-v2.html
