@@ -1,4 +1,5 @@
 "use client";
+
 import {useEffect,useMemo,useState} from "react";
 import Link from "next/link";
 import {useRouter} from "next/navigation";
@@ -6,177 +7,238 @@ import {AppFrame,FeaturePhoto,Icon} from "@/components/conectaserv-ui";
 import {createClient} from "@/lib/supabase/client";
 
 type Category={id:string;name:string;slug:string};
-type Provider={user_id:string;display_name:string;city:string|null;state:string|null;years_experience:number|null;is_verified:boolean;average_rating:number;review_count:number};
-type Role="client"|"provider"|"guest";
-type CategoryIcon="wind"|"scissors"|"bolt"|"drop"|"truck"|"leaf"|"sparkle"|"wrench"|"hammer"|"camera";
+type Professional={
+  user_id:string;display_name:string;bio:string|null;city:string|null;state:string|null;
+  is_verified:boolean;average_rating:number|null;review_count:number|null;
+  years_experience:number|null;specialties:string[]|null;
+};
+type AccountType="guest"|"client"|"provider";
+type CategoryIcon="home"|"hammer"|"bolt"|"drop"|"wind"|"wrench"|"scissors"|"truck"|"leaf"|"sparkle"|"camera"|"layers";
 
-function iconFor(label:string):CategoryIcon{
-  const s=label.toLocaleLowerCase("pt-BR");
-  if(s.includes("ar-cond")||s.includes("climat"))return "wind";
-  if(s.includes("beleza")||s.includes("estética"))return "scissors";
-  if(s.includes("elétr")||s.includes("eletric"))return "bolt";
-  if(s.includes("hidr")||s.includes("encan"))return "drop";
-  if(s.includes("frete")||s.includes("mudança"))return "truck";
-  if(s.includes("jardin"))return "leaf";
-  if(s.includes("limp"))return "sparkle";
-  if(s.includes("móve")||s.includes("montage"))return "wrench";
-  if(s.includes("câmer")||s.includes("tecnol")||s.includes("seguran"))return "camera";
+function categoryIcon(category:Category):CategoryIcon{
+  const text=(category.name+" "+category.slug).toLocaleLowerCase("pt-BR");
+  if(text.includes("constru")||text.includes("reforma"))return "home";
+  if(text.includes("elétr")||text.includes("eletric"))return "bolt";
+  if(text.includes("hidr")||text.includes("encan"))return "drop";
+  if(text.includes("ar-cond")||text.includes("climat"))return "wind";
+  if(text.includes("móve")||text.includes("montage"))return "wrench";
+  if(text.includes("beleza")||text.includes("estética"))return "scissors";
+  if(text.includes("frete")||text.includes("mudança"))return "truck";
+  if(text.includes("jardin"))return "leaf";
+  if(text.includes("limp"))return "sparkle";
+  if(text.includes("câmer")||text.includes("tecnol")||text.includes("seguran"))return "camera";
   return "hammer";
 }
+function firstName(value:string){return value.trim().split(/\s+/)[0]||"Profissional";}
 
 export default function ExplorePage(){
   const router=useRouter();
+  const [query,setQuery]=useState("");
+  const [city,setCity]=useState("");
+  const [chosenCity,setChosenCity]=useState("");
   const [categories,setCategories]=useState<Category[]>([]);
-  const [providers,setProviders]=useState<Provider[]>([]);
-  const [role,setRole]=useState<Role>("guest");
-  const [search,setSearch]=useState("");
-  const [message,setMessage]=useState("");
+  const [professionals,setProfessionals]=useState<Professional[]>([]);
+  const [role,setRole]=useState<AccountType>("guest");
+  const [displayName,setDisplayName]=useState("");
   const [loading,setLoading]=useState(true);
+  const [loadingPros,setLoadingPros]=useState(true);
+  const [error,setError]=useState("");
+  const [proError,setProError]=useState("");
 
   useEffect(()=>{
-    let mounted=true;
-    async function load(){
+    let active=true;
+    try{
+      const saved=window.localStorage.getItem("mandafazer-city")||"";
+      if(saved&&active){setCity(saved.slice(0,80));setChosenCity(saved.slice(0,80));}
+    }catch{}
+    const db=createClient();
+    async function fetchHome(){
       try{
-        const db=createClient();
-        const [c,p,a]=await Promise.all([
+        const [cats,userResult]=await Promise.all([
           db.from("service_categories").select("id,name,slug").eq("is_active",true).order("name"),
-          db.from("provider_profiles").select("user_id,display_name,city,state,years_experience,is_verified,average_rating,review_count")
-            .eq("is_active",true).eq("is_suspended",false).limit(5),
           db.auth.getUser(),
         ]);
-        if(!mounted)return;
-        if(c.error)throw c.error;
-        setCategories((c.data||[]) as Category[]);
-        if(!p.error)setProviders((p.data||[]) as Provider[]);
-        if(a.data.user){
-          const {data:profile}=await db.from("profiles").select("account_type").eq("id",a.data.user.id).maybeSingle();
-          if(mounted)setRole(profile?.account_type==="client"?"client":profile?.account_type==="provider"?"provider":"guest");
+        if(!active)return;
+        if(cats.error)throw cats.error;
+        setCategories((cats.data||[]) as Category[]);
+        if(userResult.data.user){
+          const {data:profile}=await db.from("profiles").select("account_type,full_name").eq("id",userResult.data.user.id).maybeSingle();
+          if(!active)return;
+          if(profile?.account_type==="provider"||profile?.account_type==="client"){
+            setRole(profile.account_type);
+            setDisplayName(typeof profile.full_name==="string"?firstName(profile.full_name):"");
+          }
         }
       }catch{
-        if(mounted)setMessage("Não foi possível atualizar as categorias. Confira sua conexão e tente novamente.");
-      }finally{if(mounted)setLoading(false);}
+        if(active)setError("Não foi possível carregar as categorias. Verifique sua conexão.");
+      }finally{if(active)setLoading(false);}
     }
-    void load();
-    return()=>{mounted=false;};
+    void fetchHome();
+    return()=>{active=false;};
   },[]);
 
-  const visibleCategories=useMemo(()=>categories.filter(c=>
-    c.name.toLocaleLowerCase("pt-BR").includes(search.toLocaleLowerCase("pt-BR"))||
-    (search.toLocaleLowerCase("pt-BR").startsWith("pedreir")&&c.slug==="reformas-construcao")
-  ),[categories,search]);
-  const visibleProviders=useMemo(()=>providers.filter(p=>
-    p.display_name.toLocaleLowerCase("pt-BR").includes(search.toLocaleLowerCase("pt-BR"))
-  ),[providers,search]);
+  useEffect(()=>{
+    let active=true;
+    async function fetchProfessionals(){
+      setLoadingPros(true);setProError("");
+      try{
+        const db=createClient();
+        const {data,error:requestError}=await db.rpc("search_professional_profiles",{
+          p_query:"",p_category_id:null,p_city:chosenCity,p_limit:12,p_offset:0,
+        });
+        if(requestError)throw requestError;
+        if(active)setProfessionals((data||[]) as Professional[]);
+      }catch{
+        if(active)setProError("Não foi possível carregar os perfis no momento.");
+      }finally{if(active)setLoadingPros(false);}
+    }
+    void fetchProfessionals();
+    return()=>{active=false;};
+  },[chosenCity]);
 
-  return <AppFrame active="inicio" title="Explorar serviços">
-    <section className="mf-explore-intro">
-      <div>
-        <span className="cs-eyebrow">Bem-vindo ao MandaFazer</span>
-        <h1 className="cs-top-title" style={{marginTop:7}}>Seu próximo serviço começa aqui.</h1>
-        <p>O que você precisa resolver hoje?</p>
-      </div>
-      <span className="mf-avatar" aria-hidden="true"><Icon name="user" size={24}/></span>
-    </section>
+  const topCategories=useMemo(()=>{
+    const priority=["reformas-construcao","eletrica","hidraulica","ar-condicionado","pintura","tecnologia-cameras"];
+    return [...categories].sort((a,b)=>{
+      const ai=priority.findIndex(k=>a.slug.includes(k)),bi=priority.findIndex(k=>b.slug.includes(k));
+      return (ai<0?100:ai)-(bi<0?100:bi)||a.name.localeCompare(b.name,"pt-BR");
+    });
+  },[categories]);
 
-    <form className="mf-search-wrap" role="search" onSubmit={e=>{
-      e.preventDefault();router.push("/profissionais?q="+encodeURIComponent(search.trim()));
-    }}>
-      <label className="cs-search">
-        <Icon name="search" size={21}/>
-        <input aria-label="Buscar profissionais e especialidades" value={search} maxLength={80}
-          onChange={e=>setSearch(e.target.value)} placeholder="Pedreiro, eletricista, diarista..."/>
-      </label>
-      <button className="cs-button cs-button-primary" type="submit">Buscar <Icon name="arrow" size={15}/></button>
-    </form>
+  const requestLink=role==="provider"?"/oportunidades":role==="client"?"/cliente/novo":"/acesso?tipo=cliente&redirectTo=%2Fcliente%2Fnovo";
+  function search(e:React.FormEvent<HTMLFormElement>){
+    e.preventDefault();
+    const destination="/profissionais?q="+encodeURIComponent(query.trim().slice(0,80))+
+      (city.trim()?"&cidade="+encodeURIComponent(city.trim().slice(0,80)):"");
+    const normalized=city.trim().slice(0,80);
+    setChosenCity(normalized);
+    try{window.localStorage.setItem("mandafazer-city",normalized);}catch{}
+    router.push(destination);
+  }
+  function applyCity(){
+    const normalized=city.trim().slice(0,80);
+    setChosenCity(normalized);
+    try{window.localStorage.setItem("mandafazer-city",normalized);}catch{}
+  }
 
-    <nav className="mf-quick-actions" aria-label="Navegação de pesquisa">
-      <Link href={"/profissionais?q="+encodeURIComponent(search.trim())}>
-        <Icon name="user" size={20}/><span>Encontrar profissionais</span>
+  return <AppFrame active="inicio" title="Encontre serviços no MandaFazer">
+    <div className="mf-v1-home">
+      <section className="mf-v1-hero" aria-labelledby="mf-v1-title">
+        <div className="mf-v1-hero-photo"><FeaturePhoto kind="builder"/></div>
+        <div className="mf-v1-hero-shade"/>
+        <div className="mf-v1-hero-copy">
+          <span className="mf-v1-kicker">{displayName?"Olá, "+displayName+"! · ":""}Conecta · Contrata · Resolve</span>
+          <h1 id="mf-v1-title">Encontre o <span>profissional ideal</span> <em>perto de você!</em></h1>
+          <p>Serviços de qualidade, com praticidade e confiança para sua região.</p>
+        </div>
+        <span className="mf-v1-hero-ring" aria-hidden="true"/>
+      </section>
+
+      <form className="mf-v1-search-panel" role="search" onSubmit={search}>
+        <div className="mf-v1-search-line">
+          <Icon name="search" size={22}/>
+          <input aria-label="Qual serviço você precisa?" value={query} onChange={e=>setQuery(e.target.value)}
+            maxLength={80} placeholder="Qual serviço você precisa?"/>
+          <button className="mf-v1-search-go" type="submit" aria-label="Buscar profissionais"><Icon name="search" size={23}/></button>
+        </div>
+        <div className="mf-v1-location-line">
+          <Icon name="location" size={23}/>
+          <label htmlFor="mf-v1-city"><small>Sua localização</small>
+            <input id="mf-v1-city" aria-label="Cidade para buscar profissionais" placeholder="Digite sua cidade"
+              maxLength={80} value={city} onChange={e=>setCity(e.target.value)}/>
+          </label>
+          <button type="button" onClick={applyCity} title="Aplicar cidade ao destaque"
+            aria-label="Filtrar profissionais desta página por cidade" className="mf-v1-location-apply">
+            <Icon name="arrow" size={19}/>
+          </button>
+        </div>
+      </form>
+
+      <section className="mf-v1-benefits" aria-label="Vantagens do MandaFazer">
+        <div><Icon name="shield" size={24}/><span>Perfis com<br/>verificação</span></div>
+        <div><Icon name="star" size={24}/><span>Avaliações<br/>de clientes</span></div>
+        <div><Icon name="bolt" size={24}/><span>Orçamentos<br/>pelo aplicativo</span></div>
+        <div><Icon name="lock" size={24}/><span>Conversas<br/>privadas</span></div>
+      </section>
+
+      <section className="mf-v1-section" aria-labelledby="mf-v1-categories">
+        <div className="mf-v1-section-heading">
+          <h2 id="mf-v1-categories">Categorias de Serviços</h2>
+          <Link href="/profissionais" className="mf-v1-view-all">Ver todas <Icon name="arrow" size={18}/></Link>
+        </div>
+        {loading&&<p role="status" className="cs-hint">Carregando categorias...</p>}
+        {error&&<p className="cs-error" role="alert">{error}</p>}
+        <div className="mf-v1-category-scroll">
+          {topCategories.map((cat,index)=><Link
+            key={cat.id} className={"mf-v1-category"+(index===0?" is-featured":"")}
+            href={"/profissionais?categoria="+encodeURIComponent(cat.id)+(chosenCity?"&cidade="+encodeURIComponent(chosenCity):"")}>
+            <Icon name={categoryIcon(cat)} size={30}/>
+            <span>{cat.name}</span>
+          </Link>)}
+        </div>
+      </section>
+
+      <section className="mf-v1-section" aria-labelledby="mf-v1-nearby">
+        <div className="mf-v1-nearby" role="group" aria-label="Busca de profissionais por região">
+          <div className="mf-v1-map-art" aria-hidden="true">
+            <span className="mf-v1-map-road one"/><span className="mf-v1-map-road two"/>
+            <span className="mf-v1-map-road three"/><span className="mf-v1-map-road four"/>
+            <span className="mf-v1-map-pin pin-one"><Icon name="location" size={21}/></span>
+            <span className="mf-v1-map-pin pin-two"><Icon name="location" size={21}/></span>
+            <span className="mf-v1-map-pin pin-three"><Icon name="location" size={21}/></span>
+          </div>
+          <div className="mf-v1-nearby-content">
+            <span className="mf-v1-location-symbol"><Icon name="location" size={21}/></span>
+            <div>
+              <h2 id="mf-v1-nearby">Profissionais na sua região</h2>
+              <p>{chosenCity?chosenCity:"Escolha sua cidade"}</p>
+              <span>{loadingPros?"Buscando...":proError?"Busca indisponível":professionals.length+" perfil(is) exibido(s)"}</span>
+            </div>
+          </div>
+          <Link href={"/profissionais?cidade="+encodeURIComponent(chosenCity)}
+            className="mf-v1-map-action">Explorar região <Icon name="arrow" size={16}/></Link>
+        </div>
+        <p className="mf-v1-map-caption">Mapa ilustrativo. Não mostra a localização exata dos profissionais.</p>
+      </section>
+
+      <section className="mf-v1-section" aria-labelledby="mf-v1-featured">
+        <div className="mf-v1-section-heading">
+          <h2 id="mf-v1-featured">Profissionais em destaque</h2>
+          <Link className="mf-v1-view-all" href={"/profissionais?cidade="+encodeURIComponent(chosenCity)}>Ver todos <Icon name="arrow" size={18}/></Link>
+        </div>
+        {loadingPros&&<p className="cs-hint" role="status">Carregando perfis...</p>}
+        {proError&&<p role="alert" className="cs-error">{proError}</p>}
+        {!loadingPros&&!proError&&professionals.length===0&&<div className="cs-empty">
+          <Icon name="user" size={27}/>
+          <h3>Ainda não encontramos profissionais{chosenCity?" nessa cidade":""}.</h3>
+          <p>Confira outras regiões ou procure por uma especialidade.</p>
+          <Link href="/profissionais" className="cs-button cs-button-outline">Encontrar profissionais</Link>
+        </div>}
+        <div className="mf-v1-pro-grid">
+          {professionals.slice(0,4).map(pro=><Link href={"/profissional/"+encodeURIComponent(pro.user_id)}
+            key={pro.user_id} className="mf-v1-pro-card">
+            <span className="mf-v1-pro-avatar" aria-hidden="true"><Icon name="user" size={26}/></span>
+            <span className="mf-v1-pro-data">
+              <strong>{pro.display_name}</strong>
+              <small>{pro.specialties?.slice(0,2).join(" · ")||[pro.city,pro.state].filter(Boolean).join(", ")||"Profissional cadastrado"}</small>
+              <span className="mf-v1-pro-rating">
+                {Number(pro.review_count)>0?<><Icon name="star" size={14}/> {Number(pro.average_rating).toFixed(1)} ({pro.review_count} avaliações)</>:
+                  "Sem avaliações ainda"}
+              </span>
+            </span>
+            {pro.is_verified?<span className="mf-v1-verified" title="Perfil verificado" aria-label="Perfil verificado"><Icon name="check" size={17}/></span>:
+              <Icon name="chevron" size={17}/>}
+          </Link>)}
+        </div>
+      </section>
+
+      <Link href={requestLink} className="mf-v1-primary-cta">
+        <Icon name={role==="provider"?"briefcase":"layers"} size={27}/>
+        {role==="provider"?"Ver Pedidos de Serviço":"Publicar Pedido de Serviço"}
+        <Icon name="arrow" size={23}/>
       </Link>
-      <Link href={"/oportunidades?q="+encodeURIComponent(search.trim())}>
-        <Icon name="briefcase" size={20}/><span>Pedidos publicados</span>
-      </Link>
-    </nav>
-
-    <section className="mf-discovery-banner">
-      <div>
-        <h2>Seu serviço, nas mãos certas.</h2>
-        <p>Compare perfis e escolha com confiança.</p>
-        <Link href="/profissionais" className="cs-button cs-button-orange">Explorar serviços <Icon name="arrow" size={16}/></Link>
-      </div>
-      <FeaturePhoto kind="builder"/>
-    </section>
-
-    <section>
-      <div className="mf-heading-row">
-        <h2>Explore por categoria</h2>
-        <small>Deslize para ver mais <Icon name="arrow" size={12}/></small>
-      </div>
-      {loading&&<p className="cs-hint" role="status">Carregando categorias...</p>}
-      {message&&<div role="alert" className="cs-error">{message}</div>}
-      {!loading&&!message&&visibleCategories.length===0&&<div className="cs-empty">
-        <Icon name="search" size={24}/>
-        <h2>Nenhuma categoria encontrada</h2>
-        <p>Experimente outra busca para encontrar o serviço certo.</p>
-      </div>}
-      <div className="mf-categories" aria-label="Categorias de serviços">
-        {visibleCategories.map(c=><Link key={c.id} className="mf-category"
-          href={"/profissionais?categoria="+encodeURIComponent(c.id)}
-          title={"Buscar profissionais: "+c.name}>
-          <span className="mf-category-icon"><Icon name={iconFor(c.name)} size={23}/></span>
-          <span>{c.name}</span>
-        </Link>)}
-      </div>
-    </section>
-
-    <section>
-      <div className="mf-heading-row">
-        <h2>Profissionais em destaque</h2>
-        <Link className="cs-small-link" href="/profissionais">Ver todos <Icon name="arrow" size={15}/></Link>
-      </div>
-      {visibleProviders.length>0?<div className="mf-home-list">
-        {visibleProviders.map(p=><Link key={p.user_id} className="mf-highlight-professional cs-card"
-          href={"/profissional/"+encodeURIComponent(p.user_id)}>
-          <span className="cs-provider-face" aria-hidden="true"><Icon name="user" size={25}/></span>
-          <span><strong>{p.display_name}</strong>
-            <small>{[p.city,p.state].filter(Boolean).join(", ")||"Profissional cadastrado"}
-              {p.is_verified?" · Perfil verificado":""}
-              {p.review_count>0?" · ★ "+Number(p.average_rating).toFixed(1):""}</small>
-          </span>
-          <Icon name="chevron" size={19}/>
-        </Link>)}
-      </div>:!loading&&<div className="cs-empty">
-        <Icon name="user" size={26}/>
-        <h2>Em breve, novos profissionais</h2>
-        <p>Enquanto isso, você pode procurar por especialidade ou publicar um pedido.</p>
-        <Link className="cs-button cs-button-outline" href="/profissionais">Explorar profissionais</Link>
-      </div>}
-    </section>
-
-    <section>
-      <div className="mf-heading-row"><h2>Descubra mais</h2></div>
-      <div className="mf-home-list">
-        <Link className="cs-list-card cs-card" href="/servicos/cameras">
-          <span className="cs-list-icon"><Icon name="camera" size={22}/></span>
-          <span><h3>Instalação de câmeras</h3><p>Segurança residencial e comercial</p></span>
-          <Icon name="chevron" size={18}/>
-        </Link>
-        {role==="client"&&<Link className="cs-list-card cs-card" href="/cliente">
-          <span className="cs-list-icon"><Icon name="home" size={21}/></span>
-          <span><h3>Minha área de cliente</h3><p>Meus pedidos, propostas e contratações</p></span>
-          <Icon name="chevron" size={18}/>
-        </Link>}
-        {role==="provider"&&<Link className="cs-list-card cs-card" href="/prestador">
-          <span className="cs-list-icon"><Icon name="briefcase" size={21}/></span>
-          <span><h3>Minha área profissional</h3><p>Oportunidades e orçamentos enviados</p></span>
-          <Icon name="chevron" size={18}/>
-        </Link>}
-        {role==="guest"&&<Link className="cs-list-card cs-card" href="/acesso">
-          <span className="cs-list-icon"><Icon name="shield" size={21}/></span>
-          <span><h3>Crie sua conta</h3><p>Publique pedidos ou ofereça seus serviços</p></span>
-          <Icon name="chevron" size={18}/>
-        </Link>}
-      </div>
-    </section>
+      {role==="client"&&<Link className="mf-v1-secondary-cta" href="/cliente">Acompanhar meus pedidos <Icon name="arrow" size={17}/></Link>}
+      {role==="provider"&&<Link className="mf-v1-secondary-cta" href="/prestador">Abrir meu painel profissional <Icon name="arrow" size={17}/></Link>}
+      {role==="guest"&&<Link className="mf-v1-secondary-cta" href="/acesso">Já tenho conta — Entrar <Icon name="arrow" size={17}/></Link>}
+    </div>
   </AppFrame>;
 }
