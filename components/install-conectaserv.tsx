@@ -8,7 +8,7 @@ type InstallEvent = Event & {
   userChoice: Promise<{outcome: "accepted" | "dismissed"; platform: string}>;
 };
 
-export function InstallMandaFazer(){
+export function InstallConectaServ(){
   const [installEvent,setInstallEvent]=useState<InstallEvent|null>(null);
   const [installed,setInstalled]=useState(false);
   const [feedback,setFeedback]=useState("");
