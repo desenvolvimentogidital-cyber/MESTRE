@@ -5,7 +5,7 @@ import {InstallConectaServ} from "@/components/install-conectaserv";
 export default function InstallPage(){
   return <AppFrame active="inicio" title="Instalar ConectaServ">
     <div className="cs-install-heading">
-      <div className="cs-install-icon" aria-hidden="true"><span>C</span><span>S</span></div>
+      <img className="cs-install-icon" src="/icons/192?v=3" alt="Ícone Mestre com casa e símbolo M" width={94} height={94}/>
       <span className="cs-eyebrow">Acesso rápido no Android</span>
       <h1 className="cs-top-title">ConectaServ no seu celular</h1>
       <p className="cs-hint">Abra como um aplicativo, sem precisar digitar o endereço do site toda vez.</p>
