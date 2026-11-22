@@ -141,7 +141,7 @@ export function BottomNav({active}:{active:NavSection}){
     ];
   return <nav className="cs-bottom-nav" aria-label={role==="provider"?"Navegação profissional":role==="client"?"Navegação do cliente":"Navegação pública"}>
     {tabs.map(tab=>{
-      const selected=pathname===tab.href ||
+      const selected=pathname===tab.href || (!pathname&&active===tab.id) ||
         (tab.href==="/cliente"&&pathname?.startsWith("/cliente/")) ||
         (tab.href==="/prestador"&&pathname?.startsWith("/prestador/")&&!pathname?.startsWith("/prestador/perfil")) ||
         (tab.href==="/perfil"&&pathname==="/prestador/perfil");
