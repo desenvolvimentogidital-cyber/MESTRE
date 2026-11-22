@@ -209,3 +209,21 @@ html[data-theme="dark"] .mf-admin-demo-banner{
 html[data-theme="dark"] .mf-admin-demo-notice{background:#153e30;color:#b8f1d5;border-color:#286348;}
 .mf-admin-demo-footer-note{margin-top:24px;color:var(--admin-muted);font-size:12px;line-height:1.6;}
 .mf-admin-demo-footer-note a{color:var(--admin-accent);text-decoration:underline;}
+
+/* Owner activation is visually separated from mock admin mode. */
+.mf-admin-onboarding-actions{display:grid;gap:10px;}
+.mf-admin-onboarding-actions p,
+.mf-admin-onboarding-help{
+  margin:0 0 8px;color:var(--admin-muted);font-size:13px;line-height:1.6;
+}
+.mf-admin-onboarding-actions .mf-admin-primary{
+  text-decoration:none;
+}
+.mf-admin-onboarding-actions .mf-admin-demo-secondary{
+  display:grid;place-items:center;text-decoration:none;text-align:center;
+}
+.mf-admin-onboarding-email{
+  margin:0;padding:12px;border-radius:10px;background:var(--admin-bg);
+  border:1px solid var(--admin-line);overflow-wrap:anywhere;font-size:12px;
+}
+.mf-admin-onboarding-help{margin:0;}
