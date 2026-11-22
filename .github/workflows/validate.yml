@@ -220,6 +220,32 @@ jobs:
           assert 'pathname==="/admin/teste"' in middleware
           print("Mock admin access works without live data or permissions")
           PY
+          activation_code=$(curl --max-redirs 0 -s -o /tmp/mf-owner-activation.html -w "%{http_code}" http://127.0.0.1:3000/admin/ativar)
+          echo "/admin/ativar (guest) status: $activation_code"
+          test "$activation_code" = "200"
+          grep -q 'Ativar o administrador real' /tmp/mf-owner-activation.html
+          python3 - <<'PY'
+          from pathlib import Path
+          entry=Path("app/admin/ativar/page.tsx").read_text()
+          landing=Path("app/admin/admin-access.tsx").read_text()
+          middleware=Path("middleware.ts").read_text()
+          dashboard=Path("app/painel/page.tsx").read_text()
+          registration=Path("app/api/auth/registrar/route.ts").read_text()
+          migration=Path("supabase/migrations/20261122221557_owner_admin_invitation_activation.sql").read_text()
+          assert "activate_admin_with_invite" in entry and "db.rpc(" in entry
+          assert "admin_members" not in entry and "service_role" not in entry
+          assert "sessionStorage" in entry and 'window.location.hash' in entry
+          assert 'href="/admin/ativar"' in landing
+          assert 'pathname==="/admin/ativar"' in middleware
+          assert 'profile?.account_type === "admin"' in dashboard
+          assert 'new Set(["client","provider"])' in registration
+          assert "account_type in ('client','provider','admin')" in migration
+          assert "from private.admin_activation_codes" in migration
+          assert "v_actor is null" in migration and "exists(select 1 from public.admin_members)" in migration
+          assert "revoke execute" in migration and "grant execute" in migration
+          assert "pg_advisory_xact_lock" in migration
+          print("Owner-only admin activation, invite gate, and account isolation OK")
+          PY
           for protected_route in /cliente /prestador /prestador/perfil /propostas /perfil /notificacoes /conversas /denuncias /denuncias/nova /avaliar/00000000-0000-0000-0000-000000000000; do
             protected=$(curl --max-redirs 0 -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000$protected_route")
             echo "$protected_route status: $protected"
