@@ -179,6 +179,24 @@ jobs:
           assert 'request.nextUrl.pathname==="/admin"' in middleware
           assert "Cache-Control" in middleware and "X-Robots-Tag" in middleware
           assert "signInWithPassword" in signin and "signUp" not in signin
+          # Account boundaries must enforce role checks on the server, not only
+          # hide links or client-side panels.
+          client_layout=Path("app/cliente/layout.tsx").read_text()
+          provider_layout=Path("app/prestador/layout.tsx").read_text()
+          panel=Path("app/painel/page.tsx").read_text()
+          assert 'getUser()' in client_layout and 'getUser()' in provider_layout
+          assert 'select("account_type")' in client_layout
+          assert 'select("account_type")' in provider_layout
+          assert 'profile?.account_type!=="client"' in client_layout
+          assert 'profile?.account_type!=="provider"' in provider_layout
+          assert 'redirect(profile?.account_type==="provider"?"/prestador":"/inicio")' in client_layout
+          assert 'redirect(profile?.account_type==="client"?"/cliente":"/inicio")' in provider_layout
+          assert 'profile?.account_type === "provider"' in panel
+          assert 'profile?.account_type === "client"' in panel
+          assert 'if(!user||authError)' in portal
+          assert 'db.from("admin_members")' in portal
+          assert 'if(!member||membershipError)' in portal
+          print("Server-side client, provider and admin access boundaries OK")
           print("Admin portal isolation, owner gate and noindex checks OK")
           PY
           for protected_route in /cliente /prestador /prestador/perfil /propostas /perfil /notificacoes /conversas /denuncias /denuncias/nova /avaliar/00000000-0000-0000-0000-000000000000; do
