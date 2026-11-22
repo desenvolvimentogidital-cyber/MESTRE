@@ -7,6 +7,7 @@ export default async function DashboardPage() {
   if (!user) redirect("/acesso?redirectTo=/painel");
   const { data: profile } = await db.from("profiles")
     .select("account_type").eq("id",user.id).maybeSingle();
+  if (profile?.account_type === "admin") redirect("/admin");
   if (profile?.account_type === "provider") redirect("/prestador");
   if (profile?.account_type === "client") redirect("/cliente");
   redirect("/inicio");
