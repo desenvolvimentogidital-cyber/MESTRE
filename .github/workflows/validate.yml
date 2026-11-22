@@ -44,6 +44,27 @@ jobs:
             echo "$route status: $status"
             test "$status" = "200"
           done
+          # Approved MandaFazer 2026 redesign must keep light/dark visuals
+          # and real links to core modules, without changing the auth boundary.
+          curl -fsS http://127.0.0.1:3000/ -o /tmp/mandafazer-v2.html
+          python3 - <<'PY'
+          from pathlib import Path
+          html=Path("/tmp/mandafazer-v2.html").read_text()
+          css=Path("app/mandafazer-refresh.css").read_text()
+          layout=Path("app/layout.tsx").read_text()
+          for marker in [
+              "cs-splash-v2","cs-hero-photo","cs-hero-service-panel",
+              "cs-splash-benefits","/inicio","/acesso","/instalar",
+              "/profissionais?q=","MandaFazer",
+          ]:
+              assert marker in html, f"Missing landing visual/link: {marker}"
+          assert "html[data-theme=\"dark\"] .cs-splash-v2" in css
+          assert "html[data-theme=\"dark\"] .cs-splash-v2 .cs-splash-copy h1 span" in css
+          assert "--bg:#f1f6ff" in css and "--bg:#051529" in css
+          assert 'import "./mandafazer-refresh.css"' in layout
+          assert "mf-theme-boot" in layout
+          print("MandaFazer light/dark landing and shared UI checks OK")
+          PY
           # The uploaded MandaFazer logo must be served as a real image and
           # replace the former inline brand mark, in both account interfaces.
           curl -fsS --max-time 10 "http://127.0.0.1:3000/mandafazer-logo.avif?v=20261122" -o /tmp/mandafazer-logo.avif
