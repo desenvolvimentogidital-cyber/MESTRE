@@ -370,3 +370,117 @@ html[data-theme="dark"] .cs-tab.active{color:var(--orange);}
 
 /* Custom user-provided Mestre home screen icon preview */
 .cs-install-heading img.cs-install-icon{display:block;object-fit:cover;letter-spacing:normal;background:#04132d;border:2px solid #00baf8;box-shadow:0 18px 34px rgba(7,81,198,.25);}
+
+
+/* MandaFazer: one uninterrupted dark header in light and dark modes.
+   The logo is the original horizontal artwork provided by the project owner. */
+.cs-brand-mandafazer{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:0;
+  max-width:100%;
+  text-decoration:none;
+  line-height:0;
+}
+.cs-brand-banner{
+  display:block;
+  width:100%;
+  max-width:100%;
+  height:auto;
+  object-fit:contain;
+}
+.cs-app-head,
+.cs-splash-header,
+html[data-theme="dark"] .cs-app-head,
+html[data-theme="dark"] .cs-splash-header{
+  background:#04142b;
+  border-bottom:1px solid #0b385b;
+  color:#f5fbff;
+}
+.cs-app-head{
+  height:auto;
+  min-height:96px;
+  padding:8px 15px;
+  gap:10px;
+  justify-content:space-between;
+}
+.cs-app-head .cs-brand-mandafazer{
+  flex:1 1 auto;
+  max-width:465px;
+}
+.cs-app-head .cs-brand-banner{
+  max-height:100px;
+}
+.cs-splash-header{
+  min-height:110px;
+  padding:8px 20px;
+  gap:10px;
+}
+.cs-splash-header .cs-brand-mandafazer{
+  flex:1 1 auto;
+  max-width:510px;
+}
+.cs-splash-header .cs-brand-banner{
+  max-height:115px;
+}
+.cs-app-head .cs-icon-button,
+.cs-splash-header .cs-icon-button,
+html[data-theme="dark"] .cs-app-head .cs-icon-button,
+html[data-theme="dark"] .cs-splash-header .cs-icon-button{
+  color:#f5fbff;
+  background:#113150;
+  border:1px solid #235b7c;
+  flex:0 0 40px;
+  border-radius:12px;
+}
+.cs-app-head .cs-icon-button:focus-visible,
+.cs-splash-header .cs-icon-button:focus-visible{
+  outline:2px solid #08e1f4;
+  outline-offset:3px;
+}
+.cs-auth-card .cs-brand-mandafazer{
+  width:100%;
+  max-width:380px;
+}
+.cs-visually-hidden{
+  position:absolute !important;
+  width:1px !important;
+  height:1px !important;
+  padding:0 !important;
+  margin:-1px !important;
+  overflow:hidden !important;
+  clip:rect(0,0,0,0) !important;
+  white-space:nowrap !important;
+  border:0 !important;
+}
+@media(max-width:740px){
+  .cs-app-head{
+    min-height:85px;
+    padding:6px 12px;
+    gap:8px;
+  }
+  .cs-app-head .cs-brand-banner{
+    max-height:82px;
+  }
+  .cs-splash-header{
+    min-height:86px;
+    padding:6px 12px;
+    gap:8px;
+  }
+  .cs-splash-header .cs-brand-banner{
+    max-height:82px;
+  }
+}
+@media(max-width:365px){
+  .cs-app-head,.cs-splash-header{
+    padding-left:8px;
+    padding-right:8px;
+    gap:6px;
+  }
+  .cs-app-head .cs-icon-button,.cs-splash-header .cs-icon-button{
+    flex-basis:36px;
+    width:36px;
+    height:36px;
+  }
+}
