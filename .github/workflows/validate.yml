@@ -154,6 +154,19 @@ jobs:
           assert "24 hours" in migration and "count(*)" in migration
           assert 'href="/suporte"' in ui
           print("Legal pages, signup acceptance, password strength, support inbox protection OK")
+          operator=Path("components/public-operator.tsx").read_text()
+          settings=Path("components/admin-legal-settings.tsx").read_text()
+          settings_migration=Path("supabase/migrations/20261123103536_admin_legal_identity_public_settings.sql").read_text()
+          assert "site_legal_settings" in operator
+          assert "admin_update_site_legal_settings" in settings
+          assert "private.is_moderator()" in settings_migration
+          assert "revoke all on public.site_legal_settings" in settings_migration
+          assert "<PublicOperator/>" in privacy and "<PublicOperator/>" in terms
+          assert "operator_name" in settings and "contact_email" in settings
+          assert 'view==="settings"&&<AdminLegalSettings/>' in inbox
+          assert 'redirect(areas?.length?"/prestador":"/prestador/perfil")' in Path("app/painel/page.tsx").read_text()
+          print("Public operator identity and onboarding controlled by real administrator")
+
           PY
 
           # Ensure PWA icon comes from the user-supplied Mestre logo, not CS text.
