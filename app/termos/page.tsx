@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {AppFrame} from "@/components/conectaserv-ui";
+import {PublicOperator} from "@/components/public-operator";
 
 export const metadata={title:"Termos de Uso | MandaFazer",description:"Regras para utilização do marketplace de profissionais MandaFazer."};
 export default function TermsPage(){
@@ -26,7 +27,7 @@ export default function TermsPage(){
       <h2>7. Proteção de dados e contato</h2>
       <p>Consulte a <Link href="/privacidade">Política de Privacidade</Link> para entender o tratamento de dados pessoais. Dúvidas, reclamações e solicitações podem ser enviadas pelo <Link href="/suporte">canal de atendimento com protocolo</Link>.</p>
       <h2>8. Identificação do operador</h2>
-      <p>O nome comercial da plataforma é <strong>MandaFazer</strong>. A identificação jurídica completa do responsável pela operação será acrescentada antes da abertura geral ao público.</p>
+      <p>O nome comercial da plataforma é <strong>MandaFazer</strong>. Os dados do responsável pela operação aparecem abaixo depois de publicados pela administração.</p><PublicOperator/>
       <nav className="mf-legal-actions"><Link className="cs-button cs-button-primary" href="/suporte">Falar com o suporte</Link><Link className="cs-button cs-button-outline" href="/privacidade">Política de Privacidade</Link></nav>
     </article>
   </AppFrame>;
