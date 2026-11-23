@@ -38,6 +38,14 @@
 - Administrador visualiza o relato e arquiva, suspende ou toma a ação apropriada.
 - Confirme que um usuário comum não pode abrir o painel ou executar decisões administrativas.
 
+## Liberação operacional
+- Conferir a aba **Suporte** do painel administrativo real e o formulário público `/suporte`; guardar o protocolo.
+- Conferir a aba **Configurações** e preencher o nome ou razão social do operador e o contato oficial; checar publicação em `/privacidade` e `/termos`.
+- Testar cadastro novo com Termos aceitos e senha forte. O servidor deve rejeitar aceite ausente e senha fraca.
+- Confirmar configurações de autenticação e proteção de senhas vazadas no Supabase Dashboard.
+- Pelo perfil profissional, selecionar especialidades reais. Perfis sem categoria não devem aparecer como fornecedores associados à categoria.
+- Não anunciar lançamento público geral antes de completar identificação do responsável e administração real.
+
 ## Teste 5 — experiência no celular
 - Navegação por ícones, upload de foto, rolagem e formulários.
 - Alternar tema claro/escuro e atualizar a página.
