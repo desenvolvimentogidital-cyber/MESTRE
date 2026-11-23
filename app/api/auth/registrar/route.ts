@@ -1,8 +1,10 @@
 import {NextRequest,NextResponse} from "next/server";
 import {createClient} from "@/lib/supabase/server";
+import {hasKnownLeakedPassword} from "@/lib/security/password-breach";
 
 export const dynamic="force-dynamic";
 export const maxDuration=30;
+export const runtime="nodejs";
 
 const allowedRoles=new Set(["client","provider"]);
 const emailPattern=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -13,7 +15,7 @@ function authMessage(message:string,code:string|undefined,status:number|undefine
   }
   if(status===429||c.includes("rate_limit")||m.includes("rate limit"))return "Muitas tentativas de cadastro. Aguarde alguns minutos e tente novamente.";
   if(c.includes("email_exists")||m.includes("already registered"))return "Não foi possível cadastrar este e-mail. Se já tiver conta, entre ou recupere sua senha.";
-  if(c.includes("weak_password")||m.includes("weak password")||m.includes("password should"))return "Escolha uma senha mais forte, com pelo menos 8 caracteres.";
+  if(c.includes("weak_password")||m.includes("weak password")||m.includes("password should"))return "Escolha uma senha mais forte, com pelo menos 10 caracteres.";
   if(c.includes("email")||m.includes("invalid email"))return "Confira o endereço de e-mail informado.";
   if(status===500||m.includes("database error"))return "O cadastro falhou no servidor de autenticação. Tente novamente; se persistir, informe ao suporte.";
   return "O cadastro não pôde ser concluído agora. Confira os dados e tente novamente.";
@@ -40,6 +42,18 @@ export async function POST(request:NextRequest){
   if(body.acceptedTerms!==true)return NextResponse.json({error:"Leia e aceite os Termos de Uso antes de criar sua conta."},{status:400});
   if(!allowedRoles.has(role))return NextResponse.json({error:"Escolha cliente ou profissional."},{status:400});
 
+  // Application-level screening: the Supabase project is on Free, where
+  // provider-native leaked-password protection is unavailable.
+  // Fail closed if the check cannot be completed; never leak the password.
+  try{
+    if(await hasKnownLeakedPassword(password)){
+      return NextResponse.json({error:"Essa senha já apareceu em vazamentos de dados. Escolha uma senha diferente, única e mais forte."},{status:422,headers:{"Cache-Control":"no-store"}});
+    }
+  }catch{
+    return NextResponse.json({error:"Não foi possível verificar a segurança da senha agora. Tente novamente em alguns instantes."},{status:503,headers:{"Cache-Control":"no-store"}});
+  }
+
+
   try{
     const db=await createClient();
     const {data,error}=await db.auth.signUp({
@@ -58,7 +72,7 @@ export async function POST(request:NextRequest){
     return NextResponse.json({
       ok:true,
       sessionReady:confirmed,
-      message:confirmed?"Conta criada! Acessando o ConectaServ...":"O Supabase ainda está exigindo confirmação de e-mail. Desative Confirm email no painel do projeto para permitir entrar imediatamente, sem e-mail.",
+      message:confirmed?"Conta criada! Acessando o MandaFazer...":"O Supabase ainda está exigindo confirmação de e-mail. Desative Confirm email no painel do projeto para permitir entrar imediatamente, sem e-mail.",
     },{status:201,headers:{"Cache-Control":"no-store"}});
   }catch(err){
     console.error("conectaserv signup unexpected error",err instanceof Error?err.name:"unknown");
