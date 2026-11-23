@@ -239,3 +239,8 @@ html[data-theme="dark"] .mf-admin-demo-notice{background:#153e30;color:#b8f1d5;b
 .mf-admin-legal-check{display:flex;flex-direction:row;align-items:flex-start;gap:9px;font-size:12px;line-height:1.55;color:var(--admin-muted);}
 .mf-admin-legal-check input[type="checkbox"]{width:17px;height:17px;min-width:17px;margin-top:2px;flex:0 0 17px;}
 .mf-admin-legal-check a{color:var(--admin-accent);text-decoration:underline;text-underline-offset:2px;}
+
+/* Official operator publication is an explicit, mobile-friendly owner choice. */
+.mf-admin-legal-confirm{display:flex;align-items:flex-start;gap:10px;color:var(--admin-muted);font-size:12px;line-height:1.65;cursor:pointer;}
+.mf-admin-legal-confirm input[type="checkbox"]{width:19px;height:19px;min-width:19px;margin-top:2px;flex:0 0 19px;}
+.mf-admin-legal-settings .cs-button-outline{min-height:44px;align-self:start;}
