@@ -97,7 +97,7 @@ export default function ExplorePage(){
   },[chosenCity]);
 
   const topCategories=useMemo(()=>{
-    const priority=["reformas-construcao","eletrica","hidraulica","ar-condicionado","pintura","tecnologia-cameras"];
+    const priority=["reformas-construcao","eletricista","encanador","ar-condicionado","montagem-de-moveis","tecnologia-cameras"];
     return [...categories].sort((a,b)=>{
       const ai=priority.findIndex(k=>a.slug.includes(k)),bi=priority.findIndex(k=>b.slug.includes(k));
       return (ai<0?100:ai)-(bi<0?100:bi)||a.name.localeCompare(b.name,"pt-BR");
@@ -165,6 +165,7 @@ export default function ExplorePage(){
           <h2 id="mf-v1-categories">Categorias de Serviços</h2>
           <Link href="/profissionais" className="mf-v1-view-all">Ver todas <Icon name="arrow" size={18}/></Link>
         </div>
+        <p className="mf-service-home-hint">Toque na área desejada para ver os serviços relacionados e os profissionais, sem precisar digitar um nome.</p>
         {loading&&<p role="status" className="cs-hint">Carregando categorias...</p>}
         {error&&<p className="cs-error" role="alert">{error}</p>}
         <div className="mf-v1-category-scroll">
