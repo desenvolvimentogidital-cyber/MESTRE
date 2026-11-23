@@ -480,3 +480,7 @@ html[data-theme="dark"] .cs-status.rejected{background:#4a2431;color:#ffb0c0;}
 .mf-legal-check input{margin-top:3px;min-width:18px;width:18px;height:18px;flex:0 0 18px;}
 .mf-legal-check a{color:var(--blue);text-decoration:underline;text-underline-offset:2px;}
 @media(max-width:600px){.mf-legal-content{padding:18px 15px}.mf-legal-actions{display:grid;grid-template-columns:1fr}.mf-legal-actions .cs-button{justify-content:center;}.mf-footer-legal{padding-bottom:100px;}}
+
+.mf-operator-public{padding:11px 16px;margin:12px 0;border:1px solid var(--line);border-radius:14px;background:var(--soft);overflow-wrap:anywhere;}
+.mf-operator-public p{margin:6px 0;}
+.mf-admin-legal-settings{display:grid;gap:10px;margin:15px 0;}
