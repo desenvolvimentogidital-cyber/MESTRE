@@ -257,6 +257,25 @@ jobs:
           assert "grant execute" in cancel_migration and "revoke execute" in cancel_migration
           print("Owner-only cancellation and rejection of pending proposals OK")
 
+          # Every category must show only related professionals, not service-type cards.
+          discovery=Path("components/public-marketplace-search.tsx").read_text()
+          home=Path("app/inicio/page.tsx").read_text()
+          provider_home=Path("app/prestador/page.tsx").read_text()
+          provider_form=Path("components/provider-profile-form.tsx").read_text()
+          assert 'href={"/profissionais?categoria="+encodeURIComponent(cat.id)}' in home
+          assert 'p_category_id:filter.category||null' in discovery
+          assert 'p_query:categoryView?"":filter.query' in discovery
+          assert 'p_city:categoryView?"":filter.city' in discovery
+          assert '"Profissionais de "+category.name' in discovery
+          assert 'serviceSuggestions' not in discovery
+          assert 'selectedService' not in discovery
+          assert 'Serviços relacionados' not in discovery
+          assert "selectedAreas.size===0" in provider_home
+          assert 'if(selected.length===0)' in provider_form
+          assert not Path("lib/service-catalog.ts").exists()
+          print("Category clicks show only associated professional profiles, no service list")
+
+
           PY
           for protected_route in /cliente /prestador /prestador/perfil /propostas /perfil /notificacoes /conversas /denuncias /denuncias/nova /avaliar/00000000-0000-0000-0000-000000000000; do
             protected=$(curl --max-redirs 0 -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000$protected_route")
