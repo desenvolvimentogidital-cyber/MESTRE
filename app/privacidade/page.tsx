@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {AppFrame} from "@/components/conectaserv-ui";
+import {PublicOperator} from "@/components/public-operator";
 
 export const metadata={title:"Política de Privacidade | MandaFazer",description:"Entenda como o MandaFazer trata dados pessoais de clientes e profissionais."};
 const updated="23 de novembro de 2026";
@@ -11,7 +12,7 @@ export default function PrivacyPage(){
       <p className="cs-hint">Atualizada em {updated}</p>
       <p>O MandaFazer é uma plataforma para aproximar clientes e profissionais de serviços. Esta política explica quais dados são utilizados, para que são necessários e como solicitar informações ou exercer direitos relacionados aos seus dados pessoais.</p>
       <h2>1. Quem opera a plataforma e como entrar em contato</h2>
-      <p>A plataforma utiliza o nome comercial <strong>MandaFazer</strong>. Os dados jurídicos completos do responsável pela operação ainda estão em preparação e devem ser publicados antes da abertura geral dos cadastros. Enquanto isso, existe um canal público de solicitações, que fornece número de protocolo, em <Link href="/suporte">Fale com o MandaFazer</Link>.</p>
+      <p>A plataforma utiliza o nome comercial <strong>MandaFazer</strong>. Os dados do responsável pela operação e seu contato oficial são publicados abaixo quando cadastrados pela administração.</p><PublicOperator/>
       <h2>2. Quais dados são tratados</h2>
       <p>Dados informados no cadastro, como nome, e-mail, tipo de conta e, quando aplicável, telefone e informações de perfil profissional; áreas de atuação, cidade e estado; informações que você publica em pedidos, propostas, avaliações e denúncias; mensagens trocadas com outros participantes; além de dados técnicos necessários à autenticação e à segurança da aplicação.</p>
       <h2>3. Finalidades do tratamento</h2>
