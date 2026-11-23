@@ -245,6 +245,8 @@ jobs:
           assert 'profile?.account_type!=="provider"' in provider_layout
           print("Admin: hidden to visitors, demo retired, single owner membership required")
           PY
+          python3 - <<'PY'
+          from pathlib import Path
           cancel_ui=Path("components/cancel-request-button.tsx").read_text()
           client_home=Path("app/cliente/page.tsx").read_text()
           cancel_migration=Path("supabase/migrations/20261122222015_cancel_uncontracted_service_request.sql").read_text()
