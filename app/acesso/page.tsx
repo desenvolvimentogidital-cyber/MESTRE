@@ -28,6 +28,7 @@ function AccessForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [termsAccepted,setTermsAccepted]=useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [messageSuccess,setMessageSuccess]=useState(false);
@@ -44,13 +45,14 @@ function AccessForm() {
     setMessageSuccess(false);
     try {
       if(mode==="signup"){
+        if(!termsAccepted)throw new Error("Leia e aceite os Termos de Uso antes de criar a conta.");
         const controller=new AbortController();
         const timeout=setTimeout(()=>controller.abort(),18000);
         try{
           const response=await fetch("/api/auth/registrar",{
             method:"POST",
             headers:{"Content-Type":"application/json"},
-            body:JSON.stringify({name:name.trim(),email:email.trim(),password,type,next:nextPath}),
+            body:JSON.stringify({name:name.trim(),email:email.trim(),password,type,next:nextPath,acceptedTerms:termsAccepted}),
             cache:"no-store",
             signal:controller.signal,
           });
@@ -117,11 +119,17 @@ function AccessForm() {
           <label className="cs-label" htmlFor="cs-email">E-mail</label>
           <div className="cs-auth-field"><Icon name="mail" size={18}/><input id="cs-email" type="email" required autoComplete="email" placeholder="E-mail" value={email} onChange={e => setEmail(e.target.value)}/></div>
           <label className="cs-label" htmlFor="cs-pass">Senha</label>
-          <div className="cs-auth-field"><Icon name="lock" size={18}/><input id="cs-pass" type={showPassword ? "text" : "password"} minLength={6} required autoComplete={mode === "login" ? "current-password" : "new-password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="Sua senha"/><button className="cs-password-toggle" type="button" onClick={() => setShowPassword(!showPassword)}>{showPassword ? "Ocultar" : "Mostrar"}</button></div>
+          <div className="cs-auth-field"><Icon name="lock" size={18}/><input id="cs-pass" type={showPassword ? "text" : "password"} minLength={mode==="signup"?10:6} required autoComplete={mode === "login" ? "current-password" : "new-password"} value={password} onChange={e => setPassword(e.target.value)} placeholder="Sua senha"/><button className="cs-password-toggle" type="button" onClick={() => setShowPassword(!showPassword)}>{showPassword ? "Ocultar" : "Mostrar"}</button></div>
           {mode === "login" && <div className="cs-auth-meta">
             <span className="cs-hint">Acesso seguro</span>
             <button type="button" disabled={busy} className="cs-small-link" style={{background:"none",border:0}} onClick={resetPassword}>Esqueceu a senha?</button>
           </div>}
+          {mode==="signup"&&<>
+            <p className="cs-hint">Crie uma senha de pelo menos 10 caracteres, incluindo letras e números.</p>
+            <label className="mf-legal-check"><input type="checkbox" required checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)}/>
+              <span>Li e aceito os <Link href="/termos" target="_blank" rel="noopener noreferrer">Termos de Uso</Link> e tomei conhecimento da <Link href="/privacidade" target="_blank" rel="noopener noreferrer">Política de Privacidade</Link>.</span>
+            </label>
+          </>}
           <button type="submit" disabled={busy} className="cs-button cs-button-primary">{busy ? (mode==="signup"?"Enviando cadastro...":"Verificando acesso...") : mode === "login" ? "Entrar" : "Criar minha conta"}</button>
         </form>
         {(params.get("erro") === "configuracao" || params.get("erro") === "callback") && <p role="alert" className="cs-error">Não foi possível conectar à autenticação. A hospedagem precisa das variáveis públicas do Supabase.</p>}
@@ -129,6 +137,7 @@ function AccessForm() {
         <p className="cs-hint" style={{textAlign:"center",marginTop:17}}>
           Por enquanto, utilize e-mail e senha. Acesso por Google e Facebook será liberado após a configuração.
         </p>
+        <p className="cs-hint" style={{textAlign:"center"}}>Precisa de ajuda? <Link href="/suporte">Fale com o suporte</Link>.</p>
         <p className="cs-auth-note">{mode === "login" ? "Não tem uma conta?" : "Já tem uma conta?"}{" "}
           <button type="button" onClick={() => { setMode(mode === "login" ? "signup" : "login"); setMessage("");setMessageSuccess(false); }}>{mode === "login" ? "Cadastre-se" : "Entrar"}</button>
         </p>
