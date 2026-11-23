@@ -24,6 +24,8 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Verificar codigo
         run: npm run lint
+      - name: Testar senhas vazadas sem conexão externa
+        run: node --no-warnings --experimental-strip-types scripts/test-password-breach.mjs
       - name: Compilar aplicacao
         run: npm run build
       - name: Testar paginas publicas e protecao sem variaveis externas
@@ -154,6 +156,21 @@ jobs:
           assert "24 hours" in migration and "count(*)" in migration
           assert 'href="/suporte"' in ui
           print("Legal pages, signup acceptance, password strength, support inbox protection OK")
+          breach=Path("lib/security/password-breach.ts").read_text()
+          reset_api=Path("app/api/conta/redefinir-senha/route.ts").read_text()
+          reset_page=Path("app/redefinir-senha/page.tsx").read_text()
+          legal_admin=Path("components/admin-legal-settings.tsx").read_text()
+          assert 'hasKnownLeakedPassword(password)' in signup
+          assert 'hasKnownLeakedPassword(password)' in reset_api
+          assert 'createHash("sha1")' in breach and '"Add-Padding":"true"' in breach
+          assert 'db.auth.getUser()' in reset_api and 'db.auth.updateUser({password})' in reset_api
+          assert 'fetch("/api/conta/redefinir-senha"' in reset_page
+          assert 'db.auth.updateUser({ password })' not in reset_page
+          assert 'fillFromMyAccount' in legal_admin and 'if(!confirmed)' in legal_admin
+          assert 'setConfirmed(false)' in legal_admin and 'mf-admin-legal-confirm' in legal_admin
+          assert 'window.location.hash==="#configuracoes"' in inbox
+          print("Password breach checks and owner-confirmed legal identity OK")
+
           operator=Path("components/public-operator.tsx").read_text()
           settings=Path("components/admin-legal-settings.tsx").read_text()
           settings_migration=Path("supabase/migrations/20261123103536_admin_legal_identity_public_settings.sql").read_text()
