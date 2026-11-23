@@ -25,6 +25,18 @@ export default function NewClientRequestPage() {
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
 
+  // Category/service chosen on the discovery page is filled automatically.
+  // Avoid asking the client to know a professional's name or retype the service.
+  useEffect(()=>{
+    const params=new URLSearchParams(window.location.search);
+    const selectedCategory=params.get("categoria")||"";
+    const selectedService=(params.get("servico")||"").trim().slice(0,100);
+    if(/^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(selectedCategory)){
+      setCategoryId(selectedCategory);
+    }
+    if(selectedService)setTitle(selectedService);
+  },[]);
+
   useEffect(() => {
     const supabase = createClient();
     supabase.from("service_categories").select("id,name").eq("is_active", true).order("name")
