@@ -1,7 +1,7 @@
-import {AdminAccess} from "./admin-access";
 import {AdminWorkspace} from "@/components/admin-workspace";
 import {Icon} from "@/components/conectaserv-ui";
 import {createClient} from "@/lib/supabase/server";
+import {notFound} from "next/navigation";
 
 export const dynamic="force-dynamic";
 export const revalidate=0;
@@ -10,11 +10,15 @@ export const revalidate=0;
 export default async function PrivateAdminPage(){
   const db=await createClient();
   const {data:{user},error:authError}=await db.auth.getUser();
-  if(!user||authError)return <AdminAccess state="signin"/>;
-  const {data:member,error:membershipError}=await db.from("admin_members")
-    .select("user_id").eq("user_id",user.id).maybeSingle();
-  // Fail closed: a missing row or database error never reveals administrative data.
-  if(!member||membershipError)return <AdminAccess state="denied"/>;
+  // A visitor or ordinary account must not even see the administrative login gate.
+  if(!user||authError)notFound();
+  const [{data:member,error:membershipError},{data:profile,error:profileError}]=await Promise.all([
+    db.from("admin_members").select("user_id").eq("user_id",user.id).maybeSingle(),
+    db.from("profiles").select("account_type").eq("id",user.id).maybeSingle(),
+  ]);
+  // Only the sole authorized owner has both the admin membership and role.
+  // Never render administrative HTML to a guest, client or professional.
+  if(!member||membershipError||profileError||profile?.account_type!=="admin")notFound();
 
   return <main className="mf-admin-console">
     <header className="mf-admin-topbar">
