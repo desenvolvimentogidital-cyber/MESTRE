@@ -13,14 +13,20 @@ export function AdminLegalSettings(){
  const [saved,setSaved]=useState("");
  useEffect(()=>{
   let active=true;
-  const db=createClient();
-  void db.from("site_legal_settings").select("operator_name,contact_email,cnpj").eq("id",1).maybeSingle()
-   .then(({data,error:e})=>{
+  async function load(){
+   try{
+    const db=createClient();
+    const {data,error:e}=await db.from("site_legal_settings").select("operator_name,contact_email,cnpj").eq("id",1).maybeSingle();
     if(!active)return;
-    if(e)setError("Não foi possível carregar as informações públicas do responsável.");
-    else{setOperatorName(data?.operator_name||"");setContactEmail(data?.contact_email||"");setCnpj(data?.cnpj||"");}
-    setLoading(false);
-   }).catch(()=>{if(active){setError("Não foi possível carregar os dados.");setLoading(false);}});
+    if(e)throw e;
+    setOperatorName(data?.operator_name||"");
+    setContactEmail(data?.contact_email||"");
+    setCnpj(data?.cnpj||"");
+   }catch{
+    if(active)setError("Não foi possível carregar as informações públicas do responsável.");
+   }finally{if(active)setLoading(false);}
+  }
+  void load();
   return()=>{active=false;};
  },[]);
  async function submit(e:React.FormEvent<HTMLFormElement>){
