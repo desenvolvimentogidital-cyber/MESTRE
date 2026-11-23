@@ -42,6 +42,12 @@ Abra http://localhost:3000.
 - Notificações automáticas **dentro do aplicativo** para novas oportunidades, propostas, contratações, mensagens, encerramentos e moderação.
 - Solicitação de conferência do perfil e aprovação/rejeição pela equipe.
 - Denúncias, fila administrativa e ações de moderação, restritas a administradores.
+- Canal público de atendimento em `/suporte`, com protocolo para o usuário e fila privada em `/admin`, inclusive solicitações de privacidade.
+- Política de Privacidade em `/privacidade` e Termos de Uso em `/termos`, exibidos no cadastro.
+- Novos cadastros exigem aceite dos Termos e senha com pelo menos 10 caracteres, letras e números; senhas antigas ainda podem entrar.
+- Cadastro profissional sem área de atuação leva à página de perfil para selecionar especialidades antes de aparecer nas buscas.
+- O administrador real preenche nome/razão social, e-mail de contato e CNPJ (se houver) pela aba **Configurações**; esses dados aparecem publicamente nos documentos legais.
+
 
 Pagamentos e comissões foram intencionalmente adiados. Notificações push com o navegador fechado **não** estão configuradas, e o primeiro administrador precisa ser autorizado manualmente pelo proprietário do banco.
 
@@ -66,6 +72,14 @@ O selo **Perfil conferido pela equipe** representa análise manual de informaç�
 ## Validação de homologação
 O código tem lint/build e verificações automatizadas de rotas. **Os testes com duas contas reais ainda são manuais.** Consulte `docs/HOMOLOGACAO.md` para o roteiro completo.
 
+
+## Condições para abertura ao público
+- Ativar o **administrador real** pelo convite único recebido pelo proprietário; a demonstração não pode moderar dados reais.
+- Preencher a identificação legal do responsável e o contato público pela aba Configurações do painel.
+- Fazer os profissionais selecionarem suas categorias de atuação; não atribuir categorias fictícias a contas existentes.
+- Conferir no Supabase Auth os ajustes de e-mail e a proteção contra senhas comprometidas. A configuração **Confirm email** não é controlada por migrations do GitHub.
+- O suporte pode ser registrado e atendido no painel, mas o retorno por e-mail ainda é manual.
+- O código e a interface passam por CI, mas isso não substitui a verificação operacional de acesso administrativo e configurações de Auth.
 
 ## Instalação no Android
 Abra `https://mestre-rho.vercel.app/instalar` no Google Chrome e escolha **Instalar aplicativo** ou **Adicionar à tela inicial** no menu de três pontos. O ConectaServ terá um ícone e será aberto em uma janela sem a barra do navegador.
