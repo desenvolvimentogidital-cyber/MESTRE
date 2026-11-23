@@ -2,6 +2,7 @@
 import {useCallback,useEffect,useState} from "react";
 import {createClient} from "@/lib/supabase/client";
 import {Icon} from "@/components/conectaserv-ui";
+import {AdminLegalSettings} from "@/components/admin-legal-settings";
 
 type Report={
   id:string;reason:string;details:string|null;status:string;created_at:string;
@@ -24,7 +25,7 @@ export function AdminWorkspace(){
   const [verifications,setVerifications]=useState<Verification[]>([]);
   const [supportTickets,setSupportTickets]=useState<SupportTicket[]>([]);
   const [names,setNames]=useState<Record<string,string>>({});
-  const [view,setView]=useState<"reports"|"verifications"|"support">("reports");
+  const [view,setView]=useState<"reports"|"verifications"|"support"|"settings">("reports");
   const [notes,setNotes]=useState<Record<string,string>>({});
   const [actions,setActions]=useState<Record<string,string>>({});
   const [loading,setLoading]=useState(true);
@@ -108,6 +109,7 @@ export function AdminWorkspace(){
       <button type="button" className={view==="reports"?"active":""} onClick={()=>setView("reports")}>Denúncias ({reports.length})</button>
       <button type="button" className={view==="verifications"?"active":""} onClick={()=>setView("verifications")}>Verificações ({verifications.length})</button>
       <button type="button" className={view==="support"?"active":""} onClick={()=>setView("support")}>Suporte ({supportTickets.length})</button>
+      <button type="button" className={view==="settings"?"active":""} onClick={()=>setView("settings")}>Configurações</button>
       <button type="button" onClick={()=>{setLoading(true);void load();}}>Atualizar</button>
     </div>
     {loading&&<p className="cs-hint">Carregando fila...</p>}
@@ -181,5 +183,6 @@ export function AdminWorkspace(){
       </button>
       <p className="cs-hint">O protocolo comprova o recebimento no sistema. Para responder ao titular, utilize o e-mail informado; este painel ainda não envia e-mails automaticamente.</p>
     </article>)}</div>}
+    {!loading&&view==="settings"&&<AdminLegalSettings/>}
   </div>;
 }
