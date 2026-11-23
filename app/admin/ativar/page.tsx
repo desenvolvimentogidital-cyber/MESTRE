@@ -38,11 +38,9 @@ export default function ActivateOwnerAdmin(){
     }
     try{
       const db=createClient();
-      void db.auth.getUser().then(async({data,error})=>{
+      void db.auth.getUser().then(({data,error})=>{
         if(error||!data.user){setAccess("guest");return;}
         setEmail(data.user.email||"");
-        const {data:member}=await db.from("admin_members").select("user_id").eq("user_id",data.user.id).maybeSingle();
-        if(member){window.location.replace("/admin");return;}
         setAccess("signedin");
       }).catch(()=>setAccess("guest"));
     }catch{setMessage("A autenticação não está configurada nesta implantação.");setAccess("guest");}
