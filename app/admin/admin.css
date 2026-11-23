@@ -231,3 +231,11 @@ html[data-theme="dark"] .mf-admin-demo-notice{background:#153e30;color:#b8f1d5;b
 .mf-admin-login-card>a.mf-admin-demo-secondary{
   display:grid;place-items:center;text-align:center;text-decoration:none;
 }
+
+/* One-screen owner onboarding on Android, preserving the existing invite. */
+.mf-admin-onboarding-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:5px;background:var(--admin-bg);border:1px solid var(--admin-line);border-radius:13px;}
+.mf-admin-onboarding-tabs button{border:0;background:transparent;color:var(--admin-muted);border-radius:10px;min-height:42px;font-size:12px;font-weight:850;cursor:pointer;}
+.mf-admin-onboarding-tabs button.active{background:var(--admin-accent);color:#fff;}
+.mf-admin-legal-check{display:flex;flex-direction:row;align-items:flex-start;gap:9px;font-size:12px;line-height:1.55;color:var(--admin-muted);}
+.mf-admin-legal-check input[type="checkbox"]{width:17px;height:17px;min-width:17px;margin-top:2px;flex:0 0 17px;}
+.mf-admin-legal-check a{color:var(--admin-accent);text-decoration:underline;text-underline-offset:2px;}
