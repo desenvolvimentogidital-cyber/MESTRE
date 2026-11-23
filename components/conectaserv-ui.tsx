@@ -86,6 +86,8 @@ function HeaderMenu(){
       <Link href="/propostas"><Icon name="layers" size={17}/> Propostas</Link>
       <Link href="/conversas"><Icon name="mail" size={17}/> Minhas conversas</Link>
       <Link href="/perfil"><Icon name="user" size={17}/> Minha conta</Link>
+      <Link href="/suporte"><Icon name="mail" size={17}/> Ajuda e suporte</Link>
+      <Link href="/privacidade"><Icon name="shield" size={17}/> Privacidade</Link>
     </nav>
   </details>;
 }
@@ -162,6 +164,11 @@ export function AppFrame({children,active,title}:{
 }){
   return <main className="cs-app"><AppHeader title={title}/>
     <section className="cs-app-body">{children}</section>
+    <footer className="mf-footer-legal" aria-label="Informações legais e contato">
+      <Link href="/privacidade">Privacidade</Link>
+      <Link href="/termos">Termos de Uso</Link>
+      <Link href="/suporte">Suporte</Link>
+    </footer>
     <BottomNav active={active}/>
   </main>;
 }
