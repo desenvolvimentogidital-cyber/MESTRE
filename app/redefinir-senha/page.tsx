@@ -34,9 +34,15 @@ export default function ResetPasswordPage() {
     e.preventDefault(); setBusy(true); setMessage("");
     try {
       if(password.length<10 || !/[a-zA-ZÀ-ÿ]/.test(password) || !/[0-9]/.test(password))throw new Error("A nova senha precisa de ao menos 10 caracteres, incluindo letras e números.");
-      const db = createClient();
-      const { error } = await db.auth.updateUser({ password });
-      if (error) throw error;
+      const response=await fetch("/api/conta/redefinir-senha",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        credentials:"same-origin",
+        cache:"no-store",
+        body:JSON.stringify({password}),
+      });
+      const result=await response.json() as {ok?:boolean;error?:string};
+      if(!response.ok||!result.ok)throw new Error(result.error||"Não foi possível trocar a senha.");
       setDone(true); setMessage("Senha alterada com sucesso. Você já pode entrar.");
     } catch (e) {
       setMessage(e instanceof Error ? e.message : "Não foi possível alterar sua senha.");
@@ -47,9 +53,9 @@ export default function ResetPasswordPage() {
     <div className="cs-auth-top-actions"><ThemeSwitch/></div>
     <section className="cs-auth-card"><Brand centered/>
       <h1>Redefinir minha senha</h1>
-      <p className="cs-auth-sub">Crie uma nova senha segura para sua conta.</p>
+      <p className="cs-auth-sub">Crie uma senha única. O sistema verifica se ela já foi encontrada em vazamentos conhecidos antes de salvá-la.</p>
       {ready && !done && <form className="cs-auth-form" onSubmit={submit}>
-        <label>Nova senha<input required minLength={10} type="password" autoComplete="new-password" value={password} onChange={e => setPassword(e.target.value)} placeholder="10 caracteres, com letras e números"/></label>
+        <label>Nova senha<input required minLength={10} maxLength={128} type="password" autoComplete="new-password" value={password} onChange={e => setPassword(e.target.value)} placeholder="10 caracteres, com letras e números"/></label>
         <button type="submit" disabled={busy} className="cs-button cs-button-primary">{busy ? "Atualizando..." : "Atualizar senha"}</button>
       </form>}
       {message && <p role="status" className={done ? "cs-success" : "cs-hint"}>{message}</p>}
