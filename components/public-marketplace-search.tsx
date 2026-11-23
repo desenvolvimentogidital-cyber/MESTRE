@@ -46,7 +46,8 @@ export function PublicMarketplaceSearch({mode,initialQuery="",initialCategory=""
       if(page===0){if(proMode)setPros([]);else setJobs([]);}
       try{
         const db=createClient();
-        const params={p_query:filter.query,p_category_id:filter.category||null,p_city:filter.city,p_limit:20,p_offset:page*20};
+        // Category browsing must show ALL providers in that category, not match name or previous city.
+        const params={p_query:categoryView?"":filter.query,p_category_id:filter.category||null,p_city:categoryView?"":filter.city,p_limit:20,p_offset:page*20};
         if(proMode){
           const {data,error:searchError}=await db.rpc("search_professional_profiles",params);
           if(searchError)throw searchError;
@@ -68,18 +69,18 @@ export function PublicMarketplaceSearch({mode,initialQuery="",initialCategory=""
     }
     void load();
     return()=>{active=false;};
-  },[proMode,filter,page]);
+  },[proMode,categoryView,filter,page]);
   function submit(e:React.FormEvent<HTMLFormElement>){
     e.preventDefault();setPage(0);
     setFilter({query:draft.query.trim().slice(0,80),category:draft.category,city:draft.city.trim().slice(0,80)});
   }
   function chooseCategory(id:string){
-    const next={query:"",category:id,city:filter.city};
+    const next={query:"",category:id,city:""};
     setDraft(next);setFilter(next);setPage(0);setShowFilters(false);
   }
   function clear(){const empty={query:"",category:"",city:""};setDraft(empty);setPage(0);setFilter(empty);setShowFilters(false);}
   function changeCategory(id:string){
-    const next={...draft,category:id,query:""};
+    const next={...draft,category:id,query:"",city:id?"":draft.city};
     setDraft(next);setFilter(next);setPage(0);
     if(proMode&&id)setShowFilters(false);
   }
@@ -94,8 +95,8 @@ export function PublicMarketplaceSearch({mode,initialQuery="",initialCategory=""
       {categoryView?<div className="mf-service-selected">
         <Link href="/profissionais" className="cs-small-link">← Escolher outra categoria</Link>
         <span className="cs-eyebrow">Categoria selecionada</span>
-        <h1>{category?category.name:"Serviços da categoria"}</h1>
-        <p>Veja abaixo os profissionais cadastrados nesta área. Você não precisa pesquisar nomes nem escolher um serviço específico.</p>
+        <h1>{category?category.name:"Profissionais da categoria"}</h1>
+        <p>Profissionais que trabalham com {category?category.name.toLocaleLowerCase("pt-BR"):"esta especialidade"}. Confira os perfis e converse diretamente com quem você escolher.</p>
       </div>:<>
         <h2>Qual profissional você procura?</h2>
         <p>Toque em uma área para ver diretamente todos os profissionais cadastrados nela, sem digitar nomes.</p>
