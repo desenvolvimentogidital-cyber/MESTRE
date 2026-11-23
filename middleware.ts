@@ -65,7 +65,7 @@ export async function middleware(request: NextRequest) {
 
   if (protectedPath && !user) {
     const destination = new URL("/acesso", request.url);
-    destination.searchParams.set("redirectTo", request.nextUrl.pathname);
+    destination.searchParams.set("redirectTo", request.nextUrl.pathname + request.nextUrl.search);
     return NextResponse.redirect(destination);
   }
   return response;
