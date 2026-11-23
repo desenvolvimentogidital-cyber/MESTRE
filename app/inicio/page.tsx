@@ -165,13 +165,13 @@ export default function ExplorePage(){
           <h2 id="mf-v1-categories">Categorias de Serviços</h2>
           <Link href="/profissionais" className="mf-v1-view-all">Ver todas <Icon name="arrow" size={18}/></Link>
         </div>
-        <p className="mf-service-home-hint">Toque na área desejada para ver os serviços relacionados e os profissionais, sem precisar digitar um nome.</p>
+        <p className="mf-service-home-hint">Toque em uma categoria para ver diretamente os profissionais daquela área, sem precisar pesquisar nomes.</p>
         {loading&&<p role="status" className="cs-hint">Carregando categorias...</p>}
         {error&&<p className="cs-error" role="alert">{error}</p>}
         <div className="mf-v1-category-scroll">
           {topCategories.map((cat,index)=><Link
             key={cat.id} className={"mf-v1-category"+(index===0?" is-featured":"")}
-            href={"/profissionais?categoria="+encodeURIComponent(cat.id)+(chosenCity?"&cidade="+encodeURIComponent(chosenCity):"")}>
+            href={"/profissionais?categoria="+encodeURIComponent(cat.id)}>
             <Icon name={categoryIcon(cat)} size={30}/>
             <span>{cat.name}</span>
           </Link>)}
