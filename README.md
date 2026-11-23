@@ -68,7 +68,10 @@ O código tem lint/build e verificações automatizadas de rotas. **Os testes co
 - Ativar o **administrador real** pelo convite único recebido pelo proprietário; a demonstração não pode moderar dados reais.
 - Preencher a identificação legal do responsável e o contato público pela aba Configurações do painel.
 - Fazer os profissionais selecionarem suas categorias de atuação; não atribuir categorias fictícias a contas existentes.
-- Conferir no Supabase Auth os ajustes de e-mail e a proteção contra senhas comprometidas. A configuração **Confirm email** não é controlada por migrations do GitHub.
+- O projeto Supabase está no plano **Free**. A proteção *nativa* de senhas vazadas é exclusiva do Supabase **Pro ou superior** e não pode ser ativada por código no plano atual.
+- Como alternativa sem custo, o MandaFazer consulta o serviço público **Pwned Passwords (Have I Been Pwned)** para verificar o hash das senhas durante o cadastro e a redefinição pelo aplicativo. A API recebe apenas os 5 primeiros caracteres hexadecimais do SHA-1 (k-anonimato). Senhas comprometidas são recusadas; se o serviço estiver indisponível, o fluxo de cadastro/redefinição retorna erro temporário em vez de aprovar sem verificação.
+- **Limite:** essa verificação é implementada nos endpoints do MandaFazer e **não substitui** a proteção no Supabase Auth. Requisições feitas diretamente à API de Auth do Supabase não passam necessariamente por esse filtro; para proteção global, migrar para Supabase Pro e habilitar a função nativa.
+- Conferir no Supabase Auth os ajustes de e-mail. A configuração **Confirm email** não é controlada por migrations do GitHub.
 - O suporte pode ser registrado e atendido no painel, mas o retorno por e-mail ainda é manual.
 - O código e a interface passam por CI, mas isso não substitui a verificação operacional de acesso administrativo e configurações de Auth.
 
