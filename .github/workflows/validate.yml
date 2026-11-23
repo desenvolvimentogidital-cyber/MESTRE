@@ -198,98 +198,53 @@ jobs:
           guest_contact=$(curl --max-redirs 0 -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000/profissional/00000000-0000-0000-0000-000000000001?iniciar=1")
           echo "Contact without login: $guest_contact"
           test "$guest_contact" = "307"
-          # The admin login is a separate, unlisted entry point. Guest sees
-          # only the login gate; no administrative workspace or app navigation.
-          admin_code=$(curl --max-redirs 0 -s -o /tmp/mf-admin-public.html -w "%{http_code}" http://127.0.0.1:3000/admin)
-          echo "/admin (guest) status: $admin_code"
-          test "$admin_code" = "200"
-          grep -q 'mf-admin-login-card' /tmp/mf-admin-public.html
-          if grep -q 'mf-admin-intro' /tmp/mf-admin-public.html; then
-            echo "ERROR: admin workspace was rendered to a guest"
-            exit 1
-          fi
+          # Admin interface is invisible: guests, customers, and professionals
+          # must not receive the administration or the former demo/activation.
+          for hidden_route in /admin /admin/teste /admin/ativar; do
+            hidden_code=$(curl --max-redirs 0 -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000$hidden_route")
+            echo "$hidden_route (guest): $hidden_code"
+            test "$hidden_code" = "404"
+          done
+          # The ordinary login remains available so the sole authorized owner
+          # can authenticate and then open the protected /admin URL.
+          login_code=$(curl --max-redirs 0 -s -o /dev/null -w "%{http_code}" http://127.0.0.1:3000/acesso)
+          test "$login_code" = "200"
           python3 - <<'PY'
           from pathlib import Path
-          profile=Path("app/perfil/page.tsx").read_text()
           portal=Path("app/admin/page.tsx").read_text()
           layout=Path("app/admin/layout.tsx").read_text()
-          signin=Path("app/admin/admin-access.tsx").read_text()
+          header=Path("components/conectaserv-ui.tsx").read_text()
+          profile=Path("app/perfil/page.tsx").read_text()
+          panel=Path("app/painel/page.tsx").read_text()
           middleware=Path("middleware.ts").read_text()
-          assert 'href="/admin"' not in profile
-          assert "admin_members" not in profile
-          assert "admin_members" in portal
-          assert "if(!member||membershipError)" in portal
+          registration=Path("app/api/auth/registrar/route.ts").read_text()
+          migration=Path("supabase/migrations/20261123124451_close_owner_admin_registration_after_activation.sql").read_text()
+          assert "notFound()" in portal
+          assert 'db.from("admin_members")' in portal
+          assert 'profile?.account_type!=="admin"' in portal
+          assert 'getUser()' in portal
+          assert "AdminWorkspace" in portal
+          assert "AdminAccess" not in portal
           assert "<AppFrame" not in portal and "<AppFrame" not in layout
           assert "robots:" in layout and "index:false" in layout
+          assert 'href="/admin"' not in header and 'href="/admin"' not in profile
           assert 'request.nextUrl.pathname==="/admin"' in middleware
           assert "Cache-Control" in middleware and "X-Robots-Tag" in middleware
-          assert "signInWithPassword" in signin and "signUp" not in signin
-          # Account boundaries must enforce role checks on the server, not only
-          # hide links or client-side panels.
+          assert not Path("app/admin/teste/page.tsx").exists()
+          assert not Path("app/admin/ativar/page.tsx").exists()
+          assert not Path("app/admin/admin-access.tsx").exists()
+          assert "revoke execute" in migration and "activate_admin_with_invite" in migration
+          assert 'profile?.account_type === "admin"' in panel
+          assert 'new Set(["client","provider"])' in registration
           client_layout=Path("app/cliente/layout.tsx").read_text()
           provider_layout=Path("app/prestador/layout.tsx").read_text()
-          panel=Path("app/painel/page.tsx").read_text()
           assert 'getUser()' in client_layout and 'getUser()' in provider_layout
           assert 'select("account_type")' in client_layout
           assert 'select("account_type")' in provider_layout
           assert 'profile?.account_type!=="client"' in client_layout
           assert 'profile?.account_type!=="provider"' in provider_layout
-          assert 'redirect(profile?.account_type==="provider"?"/prestador":"/inicio")' in client_layout
-          assert 'redirect(profile?.account_type==="client"?"/cliente":"/inicio")' in provider_layout
-          assert 'profile?.account_type === "provider"' in panel
-          assert 'profile?.account_type === "client"' in panel
-          assert 'if(!user||authError)' in portal
-          assert 'db.from("admin_members")' in portal
-          assert 'if(!member||membershipError)' in portal
-          print("Server-side client, provider and admin access boundaries OK")
-          print("Admin portal isolation, owner gate and noindex checks OK")
+          print("Admin: hidden to visitors, demo retired, single owner membership required")
           PY
-          # A public demo cannot contain live administrative data or RPCs.
-          demo_status=$(curl --max-redirs 0 -s -o /tmp/mf-admin-demo.html -w "%{http_code}" http://127.0.0.1:3000/admin/teste)
-          echo "/admin/teste demo status: $demo_status"
-          test "$demo_status" = "200"
-          grep -q 'Verificando acesso de demonstração' /tmp/mf-admin-demo.html
-          python3 - <<'PY'
-          from pathlib import Path
-          demo=Path("app/admin/teste/page.tsx").read_text()
-          signin=Path("app/admin/admin-access.tsx").read_text()
-          middleware=Path("middleware.ts").read_text()
-          portal=Path("app/admin/page.tsx").read_text()
-          assert 'mf-admin-demo' in demo and 'AMBIENTE DE TESTE' in demo
-          assert 'sessionStorage' in demo and 'sessionStorage' in signin
-          assert 'admin@gmail.com' in signin
-          assert 'window.location.assign("/admin/teste")' in signin
-          assert 'admin_members' not in demo and 'createClient' not in demo
-          assert 'AdminWorkspace' not in demo and '.rpc(' not in demo
-          assert 'admin_members' in portal and 'if(!member||membershipError)' in portal
-          assert 'pathname==="/admin/teste"' in middleware
-          print("Mock admin access works without live data or permissions")
-          PY
-          activation_code=$(curl --max-redirs 0 -s -o /tmp/mf-owner-activation.html -w "%{http_code}" http://127.0.0.1:3000/admin/ativar)
-          echo "/admin/ativar (guest) status: $activation_code"
-          test "$activation_code" = "200"
-          grep -q 'Ativar o administrador real' /tmp/mf-owner-activation.html
-          python3 - <<'PY'
-          from pathlib import Path
-          entry=Path("app/admin/ativar/page.tsx").read_text()
-          landing=Path("app/admin/admin-access.tsx").read_text()
-          middleware=Path("middleware.ts").read_text()
-          dashboard=Path("app/painel/page.tsx").read_text()
-          registration=Path("app/api/auth/registrar/route.ts").read_text()
-          migration=Path("supabase/migrations/20261122221557_owner_admin_invitation_activation.sql").read_text()
-          assert "activate_admin_with_invite" in entry and "db.rpc(" in entry
-          assert "admin_members" not in entry and "service_role" not in entry
-          assert "sessionStorage" in entry and 'window.location.hash' in entry
-          assert 'href="/admin/ativar"' in landing
-          assert 'pathname==="/admin/ativar"' in middleware
-          assert 'profile?.account_type === "admin"' in dashboard
-          assert 'new Set(["client","provider"])' in registration
-          assert "account_type in ('client','provider','admin')" in migration
-          assert "from private.admin_activation_codes" in migration
-          assert "v_actor is null" in migration and "exists(select 1 from public.admin_members)" in migration
-          assert "revoke execute" in migration and "grant execute" in migration
-          assert "pg_advisory_xact_lock" in migration
-          print("Owner-only admin activation, invite gate, and account isolation OK")
           cancel_ui=Path("components/cancel-request-button.tsx").read_text()
           client_home=Path("app/cliente/page.tsx").read_text()
           cancel_migration=Path("supabase/migrations/20261122222015_cancel_uncontracted_service_request.sql").read_text()
