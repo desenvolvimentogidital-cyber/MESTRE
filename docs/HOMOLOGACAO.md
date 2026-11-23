@@ -31,12 +31,12 @@
 - Um profissional não pode avaliar seu próprio serviço.
 
 ## Teste 4 — moderação e verificação
-- Gere convite exclusivo e ative a conta do proprietário em `/admin/ativar` (usuário **novo**, sem histórico de cliente ou prestador). Em seguida, o profissional solicita conferência de perfil.
+- A conta exclusiva do proprietário já foi ativada. Entre em `/acesso` e depois abra `/admin` para conferir sua autorização. O profissional solicita a conferência de perfil.
 - Administrador entra em `/admin` e aprova/recusa, com justificativa.
 - Profissional recebe um aviso sobre a decisão e apenas o perfil aprovado exibe o selo.
 - Usuário denuncia um pedido, perfil, conversa ou avaliação.
 - Administrador visualiza o relato e arquiva, suspende ou toma a ação apropriada.
-- Confirme que um usuário comum não pode abrir o painel ou executar decisões administrativas.
+- Confira que visitante, cliente ou profissional recebem **404** em `/admin`, `/admin/teste` e `/admin/ativar`, inclusive com links diretos; os botões administrativos e as ações de banco devem continuar exclusivos do proprietário.
 
 ## Liberação operacional
 - Conferir a aba **Suporte** do painel administrativo real e o formulário público `/suporte`; guardar o protocolo.
@@ -44,7 +44,7 @@
 - Testar cadastro novo com Termos aceitos e senha forte. O servidor deve rejeitar aceite ausente e senha fraca.
 - Confirmar configurações de autenticação e proteção de senhas vazadas no Supabase Dashboard.
 - Pelo perfil profissional, selecionar especialidades reais. Perfis sem categoria não devem aparecer como fornecedores associados à categoria.
-- Não anunciar lançamento público geral antes de completar identificação do responsável e administração real.
+- Não anunciar lançamento público geral antes de completar a identificação do responsável e os ajustes de autenticação.
 
 ## Teste 5 — experiência no celular
 - Navegação por ícones, upload de foto, rolagem e formulários.
@@ -56,6 +56,6 @@
 ## Limites explícitos
 - Avisos são gerados pelo banco e consultados periodicamente no aplicativo. **Push no Android com o site fechado não está habilitado.**
 - A conferência profissional é administrativa; não há integração oficial de KYC/documentos.
-- O código público `admin@gmail.com` / `123456789` abre apenas a **demonstração**, sem banco real. O administrador de verdade usa ativação exclusiva e credenciais privadas.
-- Os testes de banco de dados de pedidos, contratação, chat, avaliação, denúncia, moderação e verificação passaram em transações revertidas. O teste com contas reais em navegador ainda depende da ativação segura do administrador e da configuração de e-mails do Supabase.
+- O antigo painel demonstrativo e o convite público de ativação estão **desativados**; a conta administrativa real é única e não aparece nos menus públicos.
+- Os testes de banco de dados de pedidos, contratação, chat, avaliação, denúncia, moderação e verificação passaram em transações revertidas. A autorização administrativa única está ativa; acompanhe as configurações de e-mail e o acesso real do proprietário.
 - Pagamentos/comissões ficam para uma etapa futura.
