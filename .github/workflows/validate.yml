@@ -39,7 +39,7 @@ jobs:
             fi
             sleep 1
           done
-          for route in / /acesso /inicio /instalar /profissionais /oportunidades /oportunidades/00000000-0000-0000-0000-000000000000; do
+          for route in / /acesso /inicio /instalar /profissionais /oportunidades /privacidade /termos /suporte /oportunidades/00000000-0000-0000-0000-000000000000; do
             status=$(curl --max-redirs 0 -s -o /dev/null -w "%{http_code}" "http://127.0.0.1:3000$route")
             echo "$route status: $status"
             test "$status" = "200"
@@ -124,6 +124,38 @@ jobs:
             --data '{"name":"X","email":"not-an-email","password":"x","type":"client"}')
           echo "Invalid registration status: $signup_status"
           test "$signup_status" = "400"
+          # Terms acceptance is required before Auth is called.
+          missing_terms=$(curl --max-time 8 -s -o /tmp/missing-terms.json -w "%{http_code}" \
+            -X POST "http://127.0.0.1:3000/api/auth/registrar" \
+            -H "Content-Type: application/json" \
+            --data '{"name":"Pessoa Teste","email":"alguem@example.invalid","password":"SenhaForte1234","type":"client"}')
+          test "$missing_terms" = "400"
+          grep -q 'Termos de Uso' /tmp/missing-terms.json
+          python3 - <<'PY'
+          from pathlib import Path
+          signup=Path("app/api/auth/registrar/route.ts").read_text()
+          access=Path("app/acesso/page.tsx").read_text()
+          privacy=Path("app/privacidade/page.tsx").read_text()
+          terms=Path("app/termos/page.tsx").read_text()
+          support=Path("components/support-form.tsx").read_text()
+          inbox=Path("components/admin-workspace.tsx").read_text()
+          migration=Path("supabase/migrations/20261123102900_public_support_private_admin_inbox.sql").read_text()
+          ui=Path("components/conectaserv-ui.tsx").read_text()
+          assert "body.acceptedTerms!==true" in signup
+          assert "password.length<10" in signup
+          assert "acceptedTerms:termsAccepted" in access
+          assert 'href="/privacidade"' in access and 'href="/termos"' in access
+          assert "Política de Privacidade" in privacy and "direitos" in privacy
+          assert "Termos de Uso" in terms
+          assert 'submit_support_ticket' in support and "MF-" in support
+          assert "support_tickets" in inbox and "admin_handle_support_ticket" in inbox
+          assert "private.is_moderator()" in migration
+          assert "support_tickets_admin_read" in migration
+          assert "24 hours" in migration and "count(*)" in migration
+          assert 'href="/suporte"' in ui
+          print("Legal pages, signup acceptance, password strength, support inbox protection OK")
+          PY
+
           # Ensure PWA icon comes from the user-supplied Mestre logo, not CS text.
           grep -q 'mestreIconJpeg' 'app/icons/[size]/route.ts'
           test -s 'lib/assets/mestre-original-icon.ts'
