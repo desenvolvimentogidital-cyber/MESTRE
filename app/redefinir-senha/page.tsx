@@ -33,6 +33,7 @@ export default function ResetPasswordPage() {
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault(); setBusy(true); setMessage("");
     try {
+      if(password.length<10 || !/[a-zA-ZÀ-ÿ]/.test(password) || !/[0-9]/.test(password))throw new Error("A nova senha precisa de ao menos 10 caracteres, incluindo letras e números.");
       const db = createClient();
       const { error } = await db.auth.updateUser({ password });
       if (error) throw error;
@@ -48,7 +49,7 @@ export default function ResetPasswordPage() {
       <h1>Redefinir minha senha</h1>
       <p className="cs-auth-sub">Crie uma nova senha segura para sua conta.</p>
       {ready && !done && <form className="cs-auth-form" onSubmit={submit}>
-        <label>Nova senha<input required minLength={8} type="password" autoComplete="new-password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Mínimo de 8 caracteres"/></label>
+        <label>Nova senha<input required minLength={10} type="password" autoComplete="new-password" value={password} onChange={e => setPassword(e.target.value)} placeholder="10 caracteres, com letras e números"/></label>
         <button type="submit" disabled={busy} className="cs-button cs-button-primary">{busy ? "Atualizando..." : "Atualizar senha"}</button>
       </form>}
       {message && <p role="status" className={done ? "cs-success" : "cs-hint"}>{message}</p>}
