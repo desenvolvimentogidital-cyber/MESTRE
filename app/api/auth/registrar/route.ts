@@ -36,14 +36,15 @@ export async function POST(request:NextRequest){
   const role=typeof body.type==="string"?body.type:"";
   if(name.length<2||name.length>100)return NextResponse.json({error:"Informe seu nome completo (2 a 100 caracteres)."},{status:400});
   if(email.length>254||!emailPattern.test(email))return NextResponse.json({error:"Confira o e-mail informado."},{status:400});
-  if(password.length<6||password.length>128)return NextResponse.json({error:"A senha precisa ter entre 6 e 128 caracteres."},{status:400});
+  if(password.length<10||password.length>128||!/[a-zA-ZÀ-ÿ]/.test(password)||!/[0-9]/.test(password))return NextResponse.json({error:"A senha precisa ter 10 a 128 caracteres, incluindo letras e números."},{status:400});
+  if(body.acceptedTerms!==true)return NextResponse.json({error:"Leia e aceite os Termos de Uso antes de criar sua conta."},{status:400});
   if(!allowedRoles.has(role))return NextResponse.json({error:"Escolha cliente ou profissional."},{status:400});
 
   try{
     const db=await createClient();
     const {data,error}=await db.auth.signUp({
       email,password,options:{
-        data:{full_name:name,account_type:role},
+        data:{full_name:name,account_type:role,terms_version:"2026-11-23",terms_acknowledged_at:new Date().toISOString()},
       },
     });
     if(error){
