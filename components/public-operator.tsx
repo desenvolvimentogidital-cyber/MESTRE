@@ -9,12 +9,15 @@ export function PublicOperator(){
  const [loaded,setLoaded]=useState(false);
  useEffect(()=>{
   let active=true;
-  try{
-   const db=createClient();
-   void db.from("site_legal_settings").select("operator_name,contact_email,cnpj").eq("id",1).maybeSingle()
-    .then(({data})=>{if(active){setInfo((data||null) as Operator|null);setLoaded(true);}})
-    .catch(()=>{if(active)setLoaded(true);});
-  }catch{setLoaded(true);}
+  async function load(){
+   try{
+    const db=createClient();
+    const {data,error}=await db.from("site_legal_settings").select("operator_name,contact_email,cnpj").eq("id",1).maybeSingle();
+    if(active&& !error)setInfo((data||null) as Operator|null);
+   }catch{/* Remain transparent when settings are unavailable. */}
+   finally{if(active)setLoaded(true);}
+  }
+  void load();
   return()=>{active=false;};
  },[]);
  if(!loaded)return <p className="cs-hint">Consultando dados do operador...</p>;
