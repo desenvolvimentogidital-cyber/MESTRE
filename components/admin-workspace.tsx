@@ -54,6 +54,7 @@ export function AdminWorkspace(){
     setError("");setLoading(false);
   },[]);
   useEffect(()=>{void load();},[load]);
+  useEffect(()=>{if(window.location.hash==="#configuracoes")setView("settings");},[]);
   async function moderate(report:Report){
     const action=actions[report.id]||"resolve";
     if(!window.confirm("Confirmar a ação de moderação: "+moderationActions.find(a=>a.value===action)?.label+"?"))return;
@@ -109,7 +110,7 @@ export function AdminWorkspace(){
       <button type="button" className={view==="reports"?"active":""} onClick={()=>setView("reports")}>Denúncias ({reports.length})</button>
       <button type="button" className={view==="verifications"?"active":""} onClick={()=>setView("verifications")}>Verificações ({verifications.length})</button>
       <button type="button" className={view==="support"?"active":""} onClick={()=>setView("support")}>Suporte ({supportTickets.length})</button>
-      <button type="button" className={view==="settings"?"active":""} onClick={()=>setView("settings")}>Configurações</button>
+      <button type="button" className={view==="settings"?"active":""} onClick={()=>{setView("settings");window.history.replaceState(null,"","#configuracoes");}}>Configurações</button>
       <button type="button" onClick={()=>{setLoading(true);void load();}}>Atualizar</button>
     </div>
     {loading&&<p className="cs-hint">Carregando fila...</p>}
