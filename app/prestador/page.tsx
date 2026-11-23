@@ -55,6 +55,11 @@ export default async function ProviderPage(){
       <div className="mf-stat"><small>Oportunidades disponíveis</small><strong>{requests.length}</strong><i/></div>
       <div className="mf-stat"><small>Propostas enviadas</small><strong>{offers.length}</strong><i/></div>
     </div>
+    {selectedAreas.size===0&&<div className="cs-card" style={{padding:17,marginBottom:17,border:"1px solid var(--orange)"}}>
+      <strong>Escolha suas áreas de atuação para aparecer nas buscas</strong>
+      <p className="cs-hint" style={{margin:"8px 0 12px"}}>Seu perfil ainda não está associado a nenhuma categoria. Clientes que tocam em Eletricista, Encanador ou Ar-condicionado só encontram profissionais que selecionaram essas áreas.</p>
+      <Link className="cs-button cs-button-orange" href="/prestador/perfil">Selecionar minhas especialidades <Icon name="arrow" size={16}/></Link>
+    </div>}
     <div className="cs-card" style={{padding:16,marginBottom:17}}>
       <div className="cs-proposal-top">
         <div>
