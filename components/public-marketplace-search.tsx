@@ -3,9 +3,8 @@ import {useEffect,useState} from "react";
 import Link from "next/link";
 import {AppFrame,Icon} from "@/components/conectaserv-ui";
 import {createClient} from "@/lib/supabase/client";
-import {serviceSuggestions} from "@/lib/service-catalog";
 
-type Category={id:string;name:string;slug:string};
+type Category={id:string;name:string};
 type Filter={query:string;category:string;city:string};
 type Pro={user_id:string;display_name:string;bio:string|null;city:string|null;state:string|null;years_experience:number|null;is_verified:boolean;average_rating:number;review_count:number;specialties:string[]};
 type Job={id:string;category_id:string;category_name:string;title:string;summary:string;city:string;state:string;budget_max:number|null;created_at:string};
@@ -16,7 +15,6 @@ export function PublicMarketplaceSearch({mode,initialQuery="",initialCategory=""
   const [draft,setDraft]=useState<Filter>(initial);
   const [filter,setFilter]=useState<Filter>(initial);
   const [showFilters,setShowFilters]=useState(Boolean(initialQuery)&&!initialCategory);
-  const [selectedService,setSelectedService]=useState("");
   const [categories,setCategories]=useState<Category[]>([]);
   const [pros,setPros]=useState<Pro[]>([]);
   const [jobs,setJobs]=useState<Job[]>([]);
@@ -26,19 +24,18 @@ export function PublicMarketplaceSearch({mode,initialQuery="",initialCategory=""
   const [error,setError]=useState("");
   const proMode=mode==="professionals";
   const category=categories.find(item=>item.id===filter.category);
-  const types=category?serviceSuggestions(category.slug):[];
   const categoryView=proMode&&Boolean(filter.category);
 
   useEffect(()=>{
     // Next can keep this component mounted when only URL filters change.
     const next={query:initialQuery.slice(0,80),category:initialCategory,city:initialCity.slice(0,80)};
-    setDraft(next);setFilter(next);setPage(0);setSelectedService("");
+    setDraft(next);setFilter(next);setPage(0);
     setShowFilters(Boolean(initialQuery)&&!initialCategory);
   },[initialQuery,initialCategory,initialCity]);
   useEffect(()=>{
     let active=true;
     const db=createClient();
-    void db.from("service_categories").select("id,name,slug").eq("is_active",true).order("name")
+    void db.from("service_categories").select("id,name").eq("is_active",true).order("name")
       .then(({data})=>{if(active)setCategories((data||[]) as Category[]);});
     return()=>{active=false;};
   },[]);
@@ -78,12 +75,12 @@ export function PublicMarketplaceSearch({mode,initialQuery="",initialCategory=""
   }
   function chooseCategory(id:string){
     const next={query:"",category:id,city:filter.city};
-    setDraft(next);setFilter(next);setPage(0);setSelectedService("");setShowFilters(false);
+    setDraft(next);setFilter(next);setPage(0);setShowFilters(false);
   }
-  function clear(){const empty={query:"",category:"",city:""};setDraft(empty);setPage(0);setFilter(empty);setSelectedService("");setShowFilters(false);}
+  function clear(){const empty={query:"",category:"",city:""};setDraft(empty);setPage(0);setFilter(empty);setShowFilters(false);}
   function changeCategory(id:string){
     const next={...draft,category:id,query:""};
-    setDraft(next);setFilter(next);setPage(0);setSelectedService("");
+    setDraft(next);setFilter(next);setPage(0);
     if(proMode&&id)setShowFilters(false);
   }
   const count=proMode?pros.length:jobs.length;
@@ -92,48 +89,29 @@ export function PublicMarketplaceSearch({mode,initialQuery="",initialCategory=""
   if(filter.city)crossParams.set("cidade",filter.city);
   if(filter.query)crossParams.set("q",filter.query);
   const other=(proMode?"/oportunidades":"/profissionais")+(crossParams.size?"?"+crossParams.toString():"");
-  const requestHref="/cliente/novo?categoria="+encodeURIComponent(filter.category)+(selectedService?"&servico="+encodeURIComponent(selectedService):"");
   return <AppFrame active="inicio" title={proMode?"Buscar profissionais":"Pedidos de serviço"}>
-    {proMode&&<section className="mf-service-discovery" aria-label="Escolha de serviços por categoria">
+    {proMode&&<section className="mf-service-discovery" aria-label="Buscar profissionais por categoria">
       {categoryView?<div className="mf-service-selected">
-        <Link href="/inicio" className="cs-small-link">← Categorias</Link>
+        <Link href="/profissionais" className="cs-small-link">← Escolher outra categoria</Link>
         <span className="cs-eyebrow">Categoria selecionada</span>
         <h1>{category?category.name:"Serviços da categoria"}</h1>
-        <p>Escolha o serviço que precisa. Você não precisa saber o nome de nenhum profissional para começar.</p>
-        {types.length>0&&<>
-          <h2>Serviços relacionados</h2>
-          <div className="mf-service-types">
-            {types.map(service=><button key={service} type="button"
-              className={"mf-service-type"+(selectedService===service?" active":"")}
-              aria-pressed={selectedService===service}
-              onClick={()=>setSelectedService(service)}>
-              <Icon name="wrench" size={17}/><span>{service}</span><Icon name="chevron" size={16}/>
-            </button>)}
-          </div>
-        </>}
-        <div className="mf-service-next">
-          <p>{selectedService?"Serviço escolhido: "+selectedService:"Abaixo você encontra os profissionais cadastrados nesta categoria."}</p>
-          <div className="mf-service-next-actions">
-            <Link href={requestHref} className="cs-button cs-button-orange"><Icon name="briefcase" size={16}/> {selectedService?"Solicitar este serviço":"Publicar pedido nesta categoria"}</Link>
-            <a href="#mf-service-results" className="cs-button cs-button-outline">Ver profissionais <Icon name="arrow" size={16}/></a>
-          </div>
-        </div>
+        <p>Veja abaixo os profissionais cadastrados nesta área. Você não precisa pesquisar nomes nem escolher um serviço específico.</p>
       </div>:<>
-        <h2>Qual tipo de serviço você precisa?</h2>
-        <p>Toque em uma categoria para ver os serviços relacionados e os profissionais cadastrados, sem digitar nomes.</p>
+        <h2>Qual profissional você procura?</h2>
+        <p>Toque em uma área para ver diretamente todos os profissionais cadastrados nela, sem digitar nomes.</p>
         <div className="mf-service-category-grid">
           {categories.map(cat=><button type="button" key={cat.id} onClick={()=>chooseCategory(cat.id)}>
             <Icon name="layers" size={18}/><span>{cat.name}</span><Icon name="chevron" size={16}/>
           </button>)}
         </div>
       </>}
-      <button type="button" className="mf-service-filter-toggle"
+      {!categoryView&&<button type="button" className="mf-service-filter-toggle"
         aria-expanded={showFilters} aria-controls="mf-service-advanced-filters"
         onClick={()=>setShowFilters(open=>!open)}>
-        <Icon name="search" size={16}/> {showFilters?"Ocultar filtros":"Refinar por nome ou cidade (opcional)"}
-      </button>
+        <Icon name="search" size={16}/> {showFilters?"Ocultar pesquisa":"Pesquisar por nome ou cidade (opcional)"}
+      </button>}
     </section>}
-    {(!proMode||showFilters)&&<div id="mf-service-advanced-filters">
+    {(!proMode||(!categoryView&&showFilters))&&<div id="mf-service-advanced-filters">
     {!proMode&&<><span className="cs-eyebrow">Pesquisa aberta, sem cadastro</span>
     <h1 className="cs-top-title" style={{marginTop:9}}>Veja quem precisa de um serviço</h1>
     <p className="cs-hint">Explore pedidos de clientes sem login. Para enviar um orçamento, entre ou crie sua conta.</p></>}
@@ -164,12 +142,10 @@ export function PublicMarketplaceSearch({mode,initialQuery="",initialCategory=""
       <h2 className="cs-section-title">{proMode?(category?"Profissionais de "+category.name:"Profissionais disponíveis"):"Pedidos publicados"}</h2>
       <span className="cs-hint">{count} exibido(s)</span>
     </div>
-    {categoryView&&selectedService&&<p className="cs-hint">Você selecionou <strong>{selectedService}</strong>. Confira com cada profissional se ele realiza esse atendimento.</p>}
     {error&&<p role="alert" className="cs-error">{error}</p>}
     {!loading&&!error&&count===0&&<div className="cs-empty"><Icon name={proMode?"user":"briefcase"} size={29}/>
       <h2>{categoryView?("Ainda não há profissionais cadastrados em "+(category?.name||"esta categoria")):"Nenhum resultado encontrado"}</h2>
-      <p>{categoryView?"Os serviços acima já podem ser escolhidos para publicar um pedido. Os perfis só aparecerão aqui quando profissionais cadastrarem essa área de atuação.":filter.query||filter.city?"Tente outra especialidade ou cidade.":"Os novos cadastros e pedidos aparecerão aqui."}</p>
-      {categoryView&&<Link href={requestHref} className="cs-button cs-button-orange">Publicar um pedido de {category?.name||"serviço"}</Link>}
+      <p>{categoryView?"Nenhum profissional informou esta especialidade no perfil ainda. Assim que profissionais dessa área se cadastrarem, aparecerão aqui automaticamente.":filter.query||filter.city?"Tente outra categoria ou cidade.":"Os novos cadastros e pedidos aparecerão aqui."}</p>
     </div>}
     <div className="cs-info-list">
       {proMode&&pros.map(p=><article className="cs-card cs-public-card" key={p.user_id}>
