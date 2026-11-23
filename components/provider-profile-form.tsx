@@ -19,6 +19,7 @@ export function ProviderProfileForm({userId,initial,categories,selectedCategoryI
     e.preventDefault();setMessage("");setError("");
     if(name.trim().length<3){setError("Informe um nome profissional com pelo menos 3 caracteres.");return;}
     if(years.trim()&&(!Number.isInteger(Number(years))||Number(years)<0||Number(years)>80)){setError("Informe um tempo de experiência válido.");return;}
+    if(selected.length===0){setError("Selecione pelo menos uma categoria de atuação para que os clientes encontrem seu perfil.");return;}
     if(!active&&selected.some(id=>!savedCategories.includes(id))){setError("Ative seu perfil antes de adicionar novas categorias.");return;}
     setBusy(true);
     try{
@@ -66,7 +67,7 @@ export function ProviderProfileForm({userId,initial,categories,selectedCategoryI
       <input type="number" min="0" max="80" step="1" inputMode="numeric" value={years} onChange={e=>setYears(e.target.value)}/>
     </label>
     <div className="cs-form-label">Categorias de serviço
-      <p className="cs-hint" style={{margin:0}}>Marque as áreas em que você trabalha. Sem seleção, você verá pedidos de todas as categorias.</p>
+      <p className="cs-hint" style={{margin:0}}>Selecione as áreas em que você realmente atua. Os clientes que tocarem nessas categorias verão seu perfil diretamente, sem pesquisar nomes.</p>
       <div className="cs-category-checks">{categories.map(category=><label key={category.id} className="cs-category-check"><input type="checkbox" checked={selected.includes(category.id)} onChange={e=>setSelected(current=>e.target.checked?[...current,category.id]:current.filter(id=>id!==category.id))}/>{category.name}</label>)}</div>
     </div>
     <label className="cs-provider-toggle"><input type="checkbox" checked={active} disabled={initial.is_suspended} onChange={e=>setActive(e.target.checked)}/>
