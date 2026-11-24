@@ -155,7 +155,7 @@ export function PublicMarketplaceSearch({mode,initialQuery="",initialCategory=""
             {p.is_verified&&<span className="cs-chip"><Icon name="shield" size={13}/> Perfil conferido</span>}
           </div>
         </div>
-        {p.specialties.length>0&&<div className="cs-public-tags">{p.specialties.map(s=><span className="cs-chip" key={s}>{s}</span>)}</div>}
+        {p.specialties.length>0&&<div className="cs-public-tags">{p.specialties.slice(0,8).map((s,i)=><span className="cs-chip" key={s+"-"+i}>{s}</span>)}{p.specialties.length>8&&<span className="cs-chip">+{p.specialties.length-8} atividades</span>}</div>}
         {p.bio&&<p className="cs-proposal-body">{p.bio}</p>}
         <p className="cs-hint">{p.review_count>0?"⭐ "+Number(p.average_rating).toFixed(1)+" · "+p.review_count+" avaliações":"Ainda sem avaliações"}{p.years_experience!==null?" · "+p.years_experience+" anos de experiência":""}</p>
         <div className="cs-public-actions">
