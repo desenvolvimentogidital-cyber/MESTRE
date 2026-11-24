@@ -45,7 +45,7 @@ export default async function ProfessionalProfilePage({params,searchParams}:{par
     {(pro.services||[]).length>0&&<section aria-label="Atividades realizadas pelo profissional">
       <h3 className="cs-section-title" style={{margin:"16px 0 9px"}}>Serviços que realiza</h3>
       <div className="cs-info-list" style={{display:"flex",flexWrap:"wrap",gap:7}}>
-        {pro.services.map(service=><span className="cs-chip" key={service}>{service}</span>)}
+        {(pro.services as string[]).map((service:string)=><span className="cs-chip" key={service}>{service}</span>)}
       </div>
     </section>}
     {(names||[]).length>0&&<div className="cs-info-list" style={{display:"flex",flexWrap:"wrap"}}>{(names||[]).map(c=><span className="cs-chip" key={c.name}>{c.name}</span>)}</div>}
