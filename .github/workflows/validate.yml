@@ -293,6 +293,21 @@ jobs:
           assert 'if(selected.length===0)' in provider_form
           assert not Path("lib/service-catalog.ts").exists()
           print("Category clicks show only associated professional profiles, no service list")
+          profile_page=Path("app/prestador/perfil/page.tsx").read_text()
+          profile_public=Path("app/profissional/[id]/page.tsx").read_text()
+          service_form=Path("components/provider-profile-form.tsx").read_text()
+          service_choices=Path("lib/provider-service-options.ts").read_text()
+          service_migration=Path("supabase/migrations/20261124172205_provider_multi_service_activities.sql").read_text()
+          assert 'services' in profile_page and 'services' in profile_public
+          assert 'providerServiceGroups' in service_form
+          assert 'Assentamento de azulejos' in service_choices
+          assert 'Alvenaria' in service_choices and 'Encanamento' in service_choices
+          assert 'services,' in service_form
+          assert 'provider_categories' in service_form and 'selected.length===0' in service_form
+          assert 'grant update (services)' in service_migration
+          assert 'p_category_id is null' in service_migration and 'pp.services' in service_migration
+          print("A single professional can list many specific trades and appear in several chosen categories")
+
 
 
           PY
