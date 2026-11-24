@@ -12,7 +12,7 @@ export default async function ProviderProfilePage(){
   const {data:profile}=await db.from("profiles").select("account_type").eq("id",user.id).maybeSingle();
   if(!profile||!["provider","both"].includes(profile.account_type))redirect("/inicio");
   const {data,error}=await db.from("provider_profiles")
-    .select("display_name,bio,city,state,years_experience,is_active,is_verified,is_suspended").eq("user_id",user.id).maybeSingle();
+    .select("display_name,bio,city,state,years_experience,is_active,is_verified,is_suspended,services").eq("user_id",user.id).maybeSingle();
   if(error||!data){
     return <AppFrame active="perfil" title="Meu perfil profissional"><div className="cs-error">Seu perfil profissional ainda não está disponível. Entre em contato com o suporte.</div></AppFrame>;
   }
