@@ -14,7 +14,7 @@ export default async function ProfessionalProfilePage({params,searchParams}:{par
     if(!user)redirect("/acesso?redirectTo="+encodeURIComponent("/profissional/"+encodeURIComponent(id)+"?iniciar=1"));
   }
   const {data:pro}=await db.from("provider_profiles")
-    .select("user_id,display_name,bio,city,state,years_experience,is_verified,average_rating,review_count")
+    .select("user_id,display_name,bio,city,state,years_experience,is_verified,average_rating,review_count,services")
     .eq("user_id",id).eq("is_active",true).eq("is_suspended",false).maybeSingle();
   if(!pro)return <AppFrame active="inicio" title="Profissional">
     <div className="cs-empty"><Icon name="user" size={28}/><h2>Perfil indisponível</h2><p>Não foi possível encontrar este profissional ativo.</p>
@@ -42,6 +42,12 @@ export default async function ProfessionalProfilePage({params,searchParams}:{par
     </div>
     <div className="cs-section-head"><h2 className="cs-section-title">Sobre o profissional</h2></div>
     <p className="cs-hint">{pro.bio||"O profissional ainda não adicionou uma descrição dos seus serviços."}</p>
+    {(pro.services||[]).length>0&&<section aria-label="Atividades realizadas pelo profissional">
+      <h3 className="cs-section-title" style={{margin:"16px 0 9px"}}>Serviços que realiza</h3>
+      <div className="cs-info-list" style={{display:"flex",flexWrap:"wrap",gap:7}}>
+        {pro.services.map(service=><span className="cs-chip" key={service}>{service}</span>)}
+      </div>
+    </section>}
     {(names||[]).length>0&&<div className="cs-info-list" style={{display:"flex",flexWrap:"wrap"}}>{(names||[]).map(c=><span className="cs-chip" key={c.name}>{c.name}</span>)}</div>}
     <div className="cs-section-head"><h2 className="cs-section-title">Avaliações de clientes</h2></div>
     {(reviews||[]).length===0&&<p className="cs-hint">Ainda não há avaliações de serviços concluídos.</p>}
