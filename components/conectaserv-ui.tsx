@@ -47,12 +47,9 @@ export function Icon({ name, size = 21 }: { name: IconName; size?: number }) {
 }
 
 export function Brand({ compact = false, centered = false }: { compact?: boolean; centered?: boolean }) {
-  const [useOldLogo,setUseOldLogo]=useState(false);
   return <Link href="/" className={"cs-brand cs-brand-mandafazer"+(compact?" compact":"")+(centered?" centered":"")}
     aria-label="MandaFazer, página inicial">
-    <img src={useOldLogo?"/mandafazer-logo.avif?v=20261122":"/mandafazer-logo-nova.png?v=20261126"}
-      width={useOldLogo?780:2172} height={useOldLogo?204:724}
-      onError={()=>setUseOldLogo(true)}
+    <img src="/mandafazer-logo-nova.png?v=20261126-2" width={2172} height={724}
       className="cs-brand-banner" alt="MandaFazer — Encontre profissionais e contrate serviços"
       decoding="async" />
   </Link>;
