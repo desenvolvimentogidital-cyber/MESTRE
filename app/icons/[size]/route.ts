@@ -1,3 +1,5 @@
+import {readFile} from "node:fs/promises";
+import {join} from "node:path";
 import {ImageResponse} from "next/og";
 import {createElement} from "react";
 import {mestreIconJpeg} from "@/lib/assets/mestre-original-icon";
@@ -18,6 +20,13 @@ export async function GET(
   if (!supportedSizes.has(size)) {
     return new Response("Ícone não encontrado", {status: 404});
   }
+  try {
+    const bytes = await readFile(join(process.cwd(),"public",size===192?"mandafazer-icon-192.png":"mandafazer-icon-512.png"));
+    return new Response(new Uint8Array(bytes), {headers:{"Content-Type":"image/png","Cache-Control":"public, max-age=3600, stale-while-revalidate=86400"}});
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    // Keep the existing icon until the replacement assets are uploaded.
+  }
   const root = createElement("div",{
     style:{
       width:"100%",height:"100%",display:"flex",
@@ -37,6 +46,6 @@ export async function GET(
   }));
   return new ImageResponse(root,{
     width:size,height:size,
-    headers:{"Cache-Control":"public, max-age=3600, stale-while-revalidate=86400"},
+    headers:{"Cache-Control":"no-store"},
   });
 }

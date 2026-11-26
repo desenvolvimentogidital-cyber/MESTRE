@@ -12,10 +12,10 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
-      {url: "/icons/192?v=3", sizes: "192x192", type: "image/png"},
-      {url: "/icons/512?v=3", sizes: "512x512", type: "image/png"},
+      {url: "/icons/192?v=20261126", sizes: "192x192", type: "image/png"},
+      {url: "/icons/512?v=20261126", sizes: "512x512", type: "image/png"},
     ],
-    apple: [{url: "/icons/192?v=3", sizes: "192x192", type: "image/png"}],
+    apple: [{url: "/icons/192?v=20261126", sizes: "192x192", type: "image/png"}],
   },
   appleWebApp: {capable: true, title: "MandaFazer", statusBarStyle: "default"},
 };
