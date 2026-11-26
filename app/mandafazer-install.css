@@ -1,0 +1,13 @@
+.mf-install-popup{position:fixed;z-index:100;left:50%;transform:translateX(-50%);bottom:calc(82px + env(safe-area-inset-bottom,0px));width:min(420px,calc(100% - 28px));max-height:calc(100dvh - 110px);overflow:auto;padding:19px 18px 12px;border-radius:21px;background:#071c38;color:#fff;border:1px solid #294561;box-shadow:0 12px 42px #0007;display:grid;gap:12px;box-sizing:border-box;}
+.mf-install-popup-title{display:flex;align-items:center;gap:12px;padding-right:18px;}
+.mf-install-popup-title img{display:block;width:58px;height:58px;flex-shrink:0;object-fit:contain;border-radius:12px;background:#04132d;}
+.mf-install-popup strong{font-weight:800;font-size:17px;color:#fff;}
+.mf-install-popup p{font-size:13px;line-height:1.5;color:#e3edfa;margin:4px 0 0;}
+.mf-install-now{width:100%;min-height:47px;border:0;border-radius:12px;background:#ff8b16;color:#10203a;font-size:15px;font-weight:800;cursor:pointer;}
+.mf-install-now:disabled{opacity:.7;}
+.mf-install-close{position:absolute;right:8px;top:6px;width:34px;height:34px;border:0;background:transparent;color:#fff;font-size:27px;cursor:pointer;}
+.mf-install-later{border:0;background:transparent;color:#e3edfa;font-size:13px;min-height:30px;cursor:pointer;}
+.mf-install-instructions{padding:12px;border:1px solid var(--line,#ddd);border-radius:12px;text-align:left;}
+.mf-install-instructions p{font-size:14px;line-height:1.6;margin:0 0 6px;}
+.mf-install-popup .mf-install-instructions{border-color:#486078;}
+.mf-install-popup .mf-install-instructions strong{font-size:inherit;}

@@ -4,6 +4,9 @@ import {ImageResponse} from "next/og";
 import {createElement} from "react";
 
 export const runtime = "nodejs";
+export const dynamic = "force-static";
+export const dynamicParams = false;
+export function generateStaticParams(){return [{size:"192"},{size:"512"}];}
 const supportedSizes = new Set([192, 512]);
 
 /** Render the approved MandaFazer emblem in launcher-compatible PNG sizes. */

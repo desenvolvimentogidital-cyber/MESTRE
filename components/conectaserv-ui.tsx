@@ -86,6 +86,7 @@ function HeaderMenu(){
       <Link href="/propostas"><Icon name="layers" size={17}/> Propostas</Link>
       <Link href="/conversas"><Icon name="mail" size={17}/> Minhas conversas</Link>
       <Link href="/perfil"><Icon name="user" size={17}/> Minha conta</Link>
+      <Link href="/instalar"><Icon name="download" size={17}/> Instalar aplicativo</Link>
       <Link href="/suporte"><Icon name="mail" size={17}/> Ajuda e suporte</Link>
       <Link href="/privacidade"><Icon name="shield" size={17}/> Privacidade</Link>
     </nav>
