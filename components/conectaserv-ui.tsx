@@ -4,7 +4,7 @@ import Link from "next/link";
 import {usePathname} from "next/navigation";
 import {MessageUnreadBadge} from "@/components/message-unread-badge";
 import {createClient} from "@/lib/supabase/client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type IconName = "home" | "briefcase" | "bell" | "user" | "search" | "bolt" | "drop" | "sparkle" | "hammer" | "arrow" | "chevron" | "moon" | "sun" | "heart" | "shield" | "menu" | "camera" | "star" | "check" | "location" | "clock" | "logout" | "mail" | "lock" | "download" | "wind" | "scissors" | "truck" | "leaf" | "wrench" | "layers";
 
@@ -76,9 +76,12 @@ export function ThemeSwitch() {
 }
 
 function HeaderMenu(){
-  return <details className="mf-v1-header-menu">
+  const menu=useRef<HTMLDetailsElement>(null);
+  const pathname=usePathname();
+  useEffect(()=>{if(menu.current)menu.current.open=false;},[pathname]);
+  return <details ref={menu} className="mf-v1-header-menu" onKeyDown={e=>{if(e.key==="Escape"&&menu.current){menu.current.open=false;menu.current.querySelector("summary")?.focus();}}}>
     <summary aria-label="Abrir menu do aplicativo" title="Menu"><Icon name="menu" size={23}/></summary>
-    <nav aria-label="Menu do aplicativo" className="mf-v1-header-popover">
+    <nav aria-label="Menu do aplicativo" className="mf-v1-header-popover" onClick={e=>{if(e.target instanceof Element&&e.target.closest("a")&&menu.current)menu.current.open=false;}}>
       <Link href="/inicio"><Icon name="home" size={17}/> Início</Link>
       <Link href="/profissionais"><Icon name="search" size={17}/> Encontrar profissionais</Link>
       <Link href="/oportunidades"><Icon name="briefcase" size={17}/> Pedidos publicados</Link>

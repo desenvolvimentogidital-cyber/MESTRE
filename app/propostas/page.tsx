@@ -126,7 +126,7 @@ export default function ProposalsPage(){
         <span className="cs-hint">{proposal.estimated_days!==null?"Prazo: "+proposal.estimated_days+" dia(s)":"Prazo a combinar"}</span>
         <Link href={proposal.status==="accepted"
           ? (chats[proposal.request_id+":"+proposal.provider_id]?"/conversas/"+encodeURIComponent(chats[proposal.request_id+":"+proposal.provider_id]):"/conversas")
-          : isSent?"/prestador/pedido/"+encodeURIComponent(proposal.request_id):"/cliente"} className="cs-small-link">
+          : isSent?(proposal.status==="sent"?"/prestador/pedido/"+encodeURIComponent(proposal.request_id):"/oportunidades/"+encodeURIComponent(proposal.request_id)):"/cliente#pedido-"+encodeURIComponent(proposal.request_id)} className="cs-small-link">
           {proposal.status==="accepted"?"Abrir conversa":"Ver pedido"} <Icon name="chevron" size={15}/>
         </Link>
       </div>

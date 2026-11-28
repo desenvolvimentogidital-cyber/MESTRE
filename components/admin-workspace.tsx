@@ -33,6 +33,8 @@ export function AdminWorkspace(){
   const [error,setError]=useState("");
   const [success,setSuccess]=useState("");
   const load=useCallback(async()=>{
+    setLoading(true);setError("");
+    try{
     const db=createClient();
     const [{data:r,error:re},{data:v,error:ve},{data:t,error:te}]=await Promise.all([
       db.from("reports").select("id,reason,details,status,created_at,reported_user_id,request_id,review_id")
@@ -42,7 +44,7 @@ export function AdminWorkspace(){
       db.from("support_tickets").select("id,full_name,email,topic,message,status,created_at")
         .in("status",["open","reviewing"]).order("created_at",{ascending:true}).limit(100),
     ]);
-    if(re||ve||te){setError("Não foi possível atualizar a fila administrativa.");setLoading(false);return;}
+    if(re||ve||te)throw new Error("Não foi possível atualizar a fila administrativa.");
     setReports((r||[]) as Report[]);
     setVerifications((v||[]) as Verification[]);
     setSupportTickets((t||[]) as SupportTicket[]);
@@ -51,7 +53,9 @@ export function AdminWorkspace(){
       const {data:p}=await db.from("provider_profiles").select("user_id,display_name").in("user_id",ids);
       setNames(Object.fromEntries((p||[]).map(item=>[item.user_id,item.display_name])));
     }
-    setError("");setLoading(false);
+    setError("");
+    }catch(e){setError(e instanceof Error?e.message:"Não foi possível atualizar a fila administrativa.");}
+    finally{setLoading(false);}
   },[]);
   useEffect(()=>{void load();},[load]);
   useEffect(()=>{if(window.location.hash==="#configuracoes")setView("settings");},[]);
@@ -107,11 +111,11 @@ export function AdminWorkspace(){
       <div><span className="cs-hint">Suporte e privacidade</span><strong>{supportTickets.length}</strong></div>
     </div>
     <div className="cs-filter-tabs" role="group" aria-label="Área de administração" style={{marginTop:20}}>
-      <button type="button" className={view==="reports"?"active":""} onClick={()=>setView("reports")}>Denúncias ({reports.length})</button>
-      <button type="button" className={view==="verifications"?"active":""} onClick={()=>setView("verifications")}>Verificações ({verifications.length})</button>
-      <button type="button" className={view==="support"?"active":""} onClick={()=>setView("support")}>Suporte ({supportTickets.length})</button>
+      <button type="button" className={view==="reports"?"active":""} onClick={()=>{setView("reports");window.history.replaceState(null,"",window.location.pathname+window.location.search);}}>Denúncias ({reports.length})</button>
+      <button type="button" className={view==="verifications"?"active":""} onClick={()=>{setView("verifications");window.history.replaceState(null,"",window.location.pathname+window.location.search);}}>Verificações ({verifications.length})</button>
+      <button type="button" className={view==="support"?"active":""} onClick={()=>{setView("support");window.history.replaceState(null,"",window.location.pathname+window.location.search);}}>Suporte ({supportTickets.length})</button>
       <button type="button" className={view==="settings"?"active":""} onClick={()=>{setView("settings");window.history.replaceState(null,"","#configuracoes");}}>Configurações</button>
-      <button type="button" onClick={()=>{setLoading(true);void load();}}>Atualizar</button>
+      <button type="button" disabled={loading||!!busy} onClick={()=>void load()}>{loading?"Atualizando...":"Atualizar"}</button>
     </div>
     {loading&&<p className="cs-hint">Carregando fila...</p>}
     {error&&<p className="cs-error" role="alert">{error}</p>}

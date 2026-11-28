@@ -40,7 +40,7 @@ export function ProviderProfileForm({userId,initial,categories,selectedCategoryI
     setServices(current=>[...current,name]);setCustomService("");setServicesError("");
   }
   async function submit(e:React.FormEvent<HTMLFormElement>){
-    e.preventDefault();setMessage("");setError("");
+    e.preventDefault();if(busy)return;setMessage("");setError("");
     if(name.trim().length<3){setError("Informe um nome profissional com pelo menos 3 caracteres.");return;}
     if(years.trim()&&(!Number.isInteger(Number(years))||Number(years)<0||Number(years)>80)){setError("Informe um tempo de experiência válido.");return;}
     if(selected.length===0){setError("Selecione pelo menos uma categoria de atuação para que os clientes encontrem seu perfil.");return;}
@@ -64,10 +64,12 @@ export function ProviderProfileForm({userId,initial,categories,selectedCategoryI
       if(added.length){
         const {error:addError}=await db.from("provider_categories").insert(added.map(category_id=>({provider_id:userId,category_id})));
         if(addError)throw addError;
+        setSavedCategories(current=>[...new Set([...current,...added])]);
       }
       if(removed.length){
         const {error:deleteError}=await db.from("provider_categories").delete().eq("provider_id",userId).in("category_id",removed);
         if(deleteError)throw deleteError;
+        setSavedCategories(current=>current.filter(id=>!removed.includes(id)));
       }
       setSavedCategories([...selected]);
       setMessage("Perfil, categorias e atividades atualizados. Você pode aparecer em todas as categorias selecionadas.");
@@ -117,6 +119,7 @@ export function ProviderProfileForm({userId,initial,categories,selectedCategoryI
         <div className="mf-provider-service-custom-row">
           <input id="mf-custom-provider-service" type="text" maxLength={60} value={customService}
             onChange={e=>setCustomService(e.target.value)}
+            onKeyDown={e=>{if(e.key==="Enter"){e.preventDefault();addCustomService();}}}
             placeholder="Ex.: aplicação de rejunte"/>
           <button type="button" className="cs-button cs-button-outline" onClick={addCustomService}>Adicionar</button>
         </div>

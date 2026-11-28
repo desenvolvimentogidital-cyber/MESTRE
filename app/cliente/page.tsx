@@ -70,7 +70,7 @@ export default async function ClientHomePage() {
       <p>Publique o que precisa, informe sua localização e receba propostas dos profissionais.</p>
       <Link href="/cliente/novo" className="cs-button cs-button-primary">Criar pedido</Link>
     </div>}
-    {!requestResult.error && <div className="cs-info-list">{requests.map(request => <article className="cs-card cs-proposal-card" key={request.id}>
+    {!requestResult.error && <div className="cs-info-list">{requests.map(request => <article id={"pedido-"+request.id} className="cs-card cs-proposal-card" key={request.id} style={{scrollMarginTop:100}}>
       <div className="cs-proposal-top">
         <span className="cs-chip">{names[request.category_id] || "Serviço"}</span>
         <span className={"cs-status " + request.status}>{statusLabels[request.status] || request.status}</span>

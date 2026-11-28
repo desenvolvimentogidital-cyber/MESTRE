@@ -44,10 +44,10 @@ export default async function PublicJobPage({params}:{params:Promise<{id:string}
       <p className="cs-proposal-body" style={{whiteSpace:"pre-wrap",lineHeight:1.75}}>{job.summary}</p>
       <strong className="cs-price">{job.budget_max===null?"Valor a combinar":"Até "+money(job.budget_max)}</strong>
       <p className="cs-hint">Por segurança, dados pessoais de contato não ficam disponíveis nesta página pública.</p>
-      <Link className="cs-button cs-button-orange" style={{width:"100%"}}
-        href={canOffer?responsePath:!user?loginPath:"/prestador"}>
-        <Icon name="mail" size={17}/> {canOffer?"Ver detalhes e enviar orçamento":user?"Acessar área profissional":"Entrar para enviar proposta"}
-      </Link>
+      {(canOffer||!user)&&<Link className="cs-button cs-button-orange" style={{width:"100%"}}
+        href={canOffer?responsePath:loginPath}>
+        <Icon name="mail" size={17}/> {canOffer?"Ver detalhes e enviar orçamento":"Entrar para enviar proposta"}
+      </Link>}
       {!user&&<p className="cs-hint">Não tem cadastro? Na tela de acesso, toque em <strong>Cadastre-se</strong> e escolha profissional.</p>}
       {user&&!canOffer&&<p className="cs-hint">Para responder pedidos é necessário ter uma conta profissional.</p>}
     </article>

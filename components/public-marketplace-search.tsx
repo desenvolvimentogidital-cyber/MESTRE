@@ -6,7 +6,7 @@ import {createClient} from "@/lib/supabase/client";
 
 type Category={id:string;name:string};
 type Filter={query:string;category:string;city:string};
-type Pro={user_id:string;display_name:string;bio:string|null;city:string|null;state:string|null;years_experience:number|null;is_verified:boolean;average_rating:number;review_count:number;specialties:string[]};
+type Pro={user_id:string;display_name:string;bio:string|null;city:string|null;state:string|null;years_experience:number|null;is_verified:boolean;average_rating:number;review_count:number;specialties:string[]|null};
 type Job={id:string;category_id:string;category_name:string;title:string;summary:string;city:string;state:string;budget_max:number|null;created_at:string};
 const price=(n:number)=>new Intl.NumberFormat("pt-BR",{style:"currency",currency:"BRL",maximumFractionDigits:0}).format(n);
 
@@ -14,7 +14,7 @@ export function PublicMarketplaceSearch({mode,initialQuery="",initialCategory=""
   const initial={query:initialQuery.slice(0,80),category:initialCategory,city:initialCity.slice(0,80)};
   const [draft,setDraft]=useState<Filter>(initial);
   const [filter,setFilter]=useState<Filter>(initial);
-  const [showFilters,setShowFilters]=useState(Boolean(initialQuery)&&!initialCategory);
+  const [showFilters,setShowFilters]=useState(Boolean(initialQuery||initialCity)&&!initialCategory);
   const [categories,setCategories]=useState<Category[]>([]);
   const [pros,setPros]=useState<Pro[]>([]);
   const [jobs,setJobs]=useState<Job[]>([]);
@@ -30,7 +30,7 @@ export function PublicMarketplaceSearch({mode,initialQuery="",initialCategory=""
     // Next can keep this component mounted when only URL filters change.
     const next={query:initialQuery.slice(0,80),category:initialCategory,city:initialCity.slice(0,80)};
     setDraft(next);setFilter(next);setPage(0);
-    setShowFilters(Boolean(initialQuery)&&!initialCategory);
+    setShowFilters(Boolean(initialQuery||initialCity)&&!initialCategory);
   },[initialQuery,initialCategory,initialCity]);
   useEffect(()=>{
     let active=true;
@@ -93,7 +93,7 @@ export function PublicMarketplaceSearch({mode,initialQuery="",initialCategory=""
   return <AppFrame active="inicio" title={proMode?"Buscar profissionais":"Pedidos de serviço"}>
     {proMode&&<section className="mf-service-discovery" aria-label="Buscar profissionais por categoria">
       {categoryView?<div className="mf-service-selected">
-        <Link href="/profissionais" className="cs-small-link">← Escolher outra categoria</Link>
+        <button type="button" className="cs-small-link cs-text-button" onClick={clear}>← Escolher outra categoria</button>
         <span className="cs-eyebrow">Categoria selecionada</span>
         <h1>{category?category.name:"Profissionais da categoria"}</h1>
         <p>Profissionais que trabalham com {category?category.name.toLocaleLowerCase("pt-BR"):"esta especialidade"}. Confira os perfis e converse diretamente com quem você escolher.</p>
@@ -143,7 +143,7 @@ export function PublicMarketplaceSearch({mode,initialQuery="",initialCategory=""
       <h2 className="cs-section-title">{proMode?(category?"Profissionais de "+category.name:"Profissionais disponíveis"):"Pedidos publicados"}</h2>
       <span className="cs-hint">{count} exibido(s)</span>
     </div>
-    {error&&<p role="alert" className="cs-error">{error}</p>}
+    {error&&<div role="alert" className="cs-error">{error}<button type="button" className="cs-button cs-button-outline" onClick={()=>{setPage(0);setFilter(current=>({...current}));}}>Tentar novamente</button></div>}
     {!loading&&!error&&count===0&&<div className="cs-empty"><Icon name={proMode?"user":"briefcase"} size={29}/>
       <h2>{categoryView?("Ainda não há profissionais cadastrados em "+(category?.name||"esta categoria")):"Nenhum resultado encontrado"}</h2>
       <p>{categoryView?"Nenhum profissional informou esta especialidade no perfil ainda. Assim que profissionais dessa área se cadastrarem, aparecerão aqui automaticamente.":filter.query||filter.city?"Tente outra categoria ou cidade.":"Os novos cadastros e pedidos aparecerão aqui."}</p>
@@ -155,7 +155,7 @@ export function PublicMarketplaceSearch({mode,initialQuery="",initialCategory=""
             {p.is_verified&&<span className="cs-chip"><Icon name="shield" size={13}/> Perfil conferido</span>}
           </div>
         </div>
-        {p.specialties.length>0&&<div className="cs-public-tags">{p.specialties.slice(0,8).map((s,i)=><span className="cs-chip" key={s+"-"+i}>{s}</span>)}{p.specialties.length>8&&<span className="cs-chip">+{p.specialties.length-8} atividades</span>}</div>}
+        {(p.specialties||[]).length>0&&<div className="cs-public-tags">{(p.specialties||[]).slice(0,8).map((s,i)=><span className="cs-chip" key={s+"-"+i}>{s}</span>)}{(p.specialties||[]).length>8&&<span className="cs-chip">+{(p.specialties||[]).length-8} atividades</span>}</div>}
         {p.bio&&<p className="cs-proposal-body">{p.bio}</p>}
         <p className="cs-hint">{p.review_count>0?"⭐ "+Number(p.average_rating).toFixed(1)+" · "+p.review_count+" avaliações":"Ainda sem avaliações"}{p.years_experience!==null?" · "+p.years_experience+" anos de experiência":""}</p>
         <div className="cs-public-actions">

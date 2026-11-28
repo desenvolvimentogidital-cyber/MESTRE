@@ -39,7 +39,7 @@ export function ContactProfessional({providerId,autoStart=false}:{providerId:str
      <Icon name="mail" size={17}/> {busy?"Abrindo conversa...":"Conversar com este profissional"}
    </button>
    {error&&<p role="alert" className="cs-error">{error}</p>}
-   <p className="cs-hint">Para enviar mensagens é necessário entrar ou criar uma conta de cliente. O contato acontece dentro do ConectaServ.</p>
+   <p className="cs-hint">Para enviar mensagens é necessário entrar ou criar uma conta de cliente. O contato acontece dentro do MandaFazer.</p>
    <Link className="cs-small-link" href="/cliente/novo">Prefere publicar um pedido e receber orçamentos?</Link>
  </div>;
 }

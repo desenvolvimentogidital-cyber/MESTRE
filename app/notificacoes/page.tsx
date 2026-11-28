@@ -61,7 +61,7 @@ export default function NotificationsPage(){
     if(!actor)return;
     const db=createClient();
     const {error:editError}=await db.from("notifications")
-      .update({read_at:new Date().toISOString()}).eq("recipient_id",actor).is("read_at",null);
+      .update({read_at:new Date().toISOString()}).eq("recipient_id",actor).neq("kind","new_message").is("read_at",null);
     if(editError){setError("Não foi possível marcar todos os avisos como lidos.");return;}
     setItems(current=>current.map(item=>({...item,read_at:item.read_at||new Date().toISOString()})));
   }
@@ -92,7 +92,7 @@ export default function NotificationsPage(){
         <time className="cs-hint" dateTime={item.created_at}>{new Intl.DateTimeFormat("pt-BR",{dateStyle:"short",timeStyle:"short"}).format(new Date(item.created_at))}</time>
         <div style={{display:"flex",gap:10,alignItems:"center"}}>
           {!item.read_at&&<button type="button" className="cs-small-link cs-text-button" onClick={()=>void markRead(item.id)}>Marcar lida</button>}
-          <Link className="cs-small-link" href={notificationLink(item)} onClick={()=>{void markRead(item.id);}}>Abrir <Icon name="chevron" size={15}/></Link>
+          <Link className="cs-small-link" href={notificationLink(item)} onClick={e=>{if(!item.read_at&&!e.metaKey&&!e.ctrlKey&&!e.shiftKey&&!e.altKey){e.preventDefault();void markRead(item.id).finally(()=>router.push(notificationLink(item)));}}}>Abrir <Icon name="chevron" size={15}/></Link>
         </div>
       </div>
     </article>)}</div>

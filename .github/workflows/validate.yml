@@ -26,6 +26,8 @@ jobs:
         run: npm run lint
       - name: Testar senhas vazadas sem conexão externa
         run: node --no-warnings --experimental-strip-types scripts/test-password-breach.mjs
+      - name: Auditar acoes e destinos dos controles
+        run: node scripts/audit-ui-actions.mjs
       - name: Compilar aplicacao
         run: npm run build
       - name: Testar paginas publicas e protecao sem variaveis externas
@@ -88,14 +90,14 @@ jobs:
           PY
           # The uploaded MandaFazer logo must be served as a real image and
           # replace the former inline brand mark, in both account interfaces.
-          curl -fsS --max-time 10 "http://127.0.0.1:3000/mandafazer-logo.avif?v=20261122" -o /tmp/mandafazer-logo.avif
+          curl -fsS --max-time 10 "http://127.0.0.1:3000/mandafazer-logo-nova.png?v=20261126-2" -o /tmp/mandafazer-logo-nova.png
           python3 - <<'PY'
           from pathlib import Path
-          icon=Path("/tmp/mandafazer-logo.avif").read_bytes()
-          assert len(icon)>4000 and b"ftypavif" in icon[:32], "MandaFazer AVIF missing"
+          icon=Path("/tmp/mandafazer-logo-nova.png").read_bytes()
+          assert len(icon)>4000 and icon[:8]==b"\x89PNG\r\n\x1a\n", "MandaFazer PNG missing"
           ui=Path("components/conectaserv-ui.tsx").read_text()
           css=Path("app/conectaserv.css").read_text()
-          assert "mandafazer-logo.avif?v=20261122" in ui
+          assert "mandafazer-logo-nova.png?v=20261126-2" in ui
           assert "cs-brand-banner" in ui
           assert "cs-brand" in ui and "<svg className=\"cs-mark\"" not in ui
           assert 'html[data-theme="dark"] .cs-app-head' in css
@@ -104,7 +106,7 @@ jobs:
           print("MandaFazer header image and stable theme passed")
           PY
           curl -fsS --max-time 10 http://127.0.0.1:3000/ > /tmp/mandafazer-home.html
-          grep -q 'mandafazer-logo.avif' /tmp/mandafazer-home.html
+          grep -q 'mandafazer-logo-nova.png' /tmp/mandafazer-home.html
           # Message notifications are now restricted to each service conversation.
           # The top header bell should no longer be present in public HTML.
           python3 - <<'PY'
@@ -187,8 +189,8 @@ jobs:
           PY
 
           # Ensure PWA icon comes from the user-supplied Mestre logo, not CS text.
-          grep -q 'mestreIconJpeg' 'app/icons/[size]/route.ts'
-          test -s 'lib/assets/mestre-original-icon.ts'
+          grep -q 'mandafazer-emblema.png' 'app/icons/[size]/route.ts'
+          test -s 'public/mandafazer-emblema.png'
           # Chrome Android needs a valid install manifest and PNG icons at both sizes.
           curl -fsS http://127.0.0.1:3000/manifest.webmanifest -o /tmp/conectaserv-manifest.json
           python3 - <<'PY'
